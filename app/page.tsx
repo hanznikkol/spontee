@@ -3,6 +3,24 @@ import { Card, CardContent } from "@/components/ui/card"
 import Link from "next/link"
 
 export default function HomePage() {
+
+  const features = [
+    {
+      title: "Fast Decisions",
+      desc: "Swipe or vote on options in seconds.",
+      emoji: "⚡",
+    },
+    {
+      title: "Food, Places, Activities",
+      desc: "From kainan to gala—decide instantly.",
+      emoji: "🎯",
+    },
+    {
+      title: "Built for Groups",
+      desc: "Couples, families, and barkada-friendly decisions.",
+      emoji: "👯",
+    },
+  ]
   return (
     <main className="min-h-screen relative overflow-hidden bg-background">
 
@@ -30,18 +48,18 @@ export default function HomePage() {
         <div className="text-center max-w-2xl space-y-6">
           
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted text-sm">
-            🧠 Stop overthinking decisions
+            🧠 Group decisions made easy
           </div>
 
           <h2 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight">
-            Decide together,
+            No more “where should we go?”
             <span className="bg-linear-to-r from-pink-500 to-blue-500 bg-clip-text text-transparent">
-              {" "}not forever.
+              {" "}Just Spontee it.
             </span>
           </h2>
 
           <p className="text-muted-foreground text-base md:text-lg">
-            A fun way for couples & friends to make quick decisions without the mental exhaustion.
+            For couples, families, and friends who can’t decide where to go, what to eat, or what to do next.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
@@ -57,23 +75,7 @@ export default function HomePage() {
       {/* FEATURES */}
       <section className="relative z-10 container mx-auto px-4 pb-24">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {[
-            {
-              title: "Fast Decisions",
-              desc: "Swipe, vote, done. No endless arguments.",
-              emoji: "⚡",
-            },
-            {
-              title: "Group Chaos? Controlled.",
-              desc: "Turn messy opinions into clear results.",
-              emoji: "🎯",
-            },
-            {
-              title: "Actually Fun",
-              desc: "Feels like a game, not a meeting.",
-              emoji: "🎮",
-            },
-          ].map((f, i) => (
+          {features.map((f, i) => (
             <Card
               key={i}
               className="rounded-2xl border bg-background/60 backdrop-blur hover:scale-[1.02] transition"
@@ -92,7 +94,7 @@ export default function HomePage() {
       {/* CTA */}
       <section className="relative z-10 px-4 pb-24">
         <div className="container mx-auto">
-          <div className="rounded-3xl p-10 text-center bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-blue-500/10 border">
+          <div className="rounded-3xl p-10 text-center bg-linear-to-r from-pink-500/10 via-purple-500/10 to-blue-500/10 border">
             <h3 className="text-2xl md:text-3xl font-bold">
               Ready to stop deciding forever?
             </h3>

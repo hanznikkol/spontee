@@ -6,19 +6,23 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import { Spinner } from "@/components/ui/spinner"
 
 function CreateRoom() {
   const router = useRouter()
 
   const [roomName, setRoomName] = useState("")
-  const [maxVotes, setMaxVotes] = useState(5)
+  const [loading, setLoading] = useState(false)
 
   const handleCreate = () => {
-    // TEMP: simulate room creation
-    const fakeId = Math.random().toString(36).substring(2, 8)
+    if (!roomName) return
+
+    setLoading(true)
+    // simulate room creation
+    const roomID = crypto.randomUUID()
 
     // redirect to room
-    router.push(`/room/${fakeId}`)
+    router.push(`/room/${roomID}`)
   }
 
   return (
@@ -33,9 +37,9 @@ function CreateRoom() {
 
           {/* HEADER */}
           <div className="text-center space-y-2">
-            <h1 className="text-2xl font-bold">Create Room</h1>
+            <h1 className="text-2xl font-bold">Create a Room</h1>
             <p className="text-sm text-muted-foreground">
-              Start a decision session with your friends
+              Start deciding with your group
             </p>
           </div>
 
@@ -51,32 +55,29 @@ function CreateRoom() {
                 onChange={(e) => setRoomName(e.target.value)}
               />
             </div>
-
-            {/* MAX VOTES */}
-            <div className="space-y-2">
-              <Label>Max Choices</Label>
-              <Input
-                type="number"
-                value={maxVotes}
-                onChange={(e) => setMaxVotes(Number(e.target.value))}
-              />
-            </div>
-
           </div>
 
           {/* ACTION */}
-          <Button
-            className="w-full rounded-2xl"
-            size="lg"
-            onClick={handleCreate}
-            disabled={!roomName}
-          >
+          {loading ?(
+            <Button className="w-full rounded-2xl" size="lg" disabled>
+              <Spinner className="mr-2" />
+              Creating...
+            </Button>
+            ):(
+            <Button
+              className="w-full rounded-2xl"
+              size="lg"
+              onClick={handleCreate}
+              disabled={!roomName}
+            >
             🚀 Create Room
-          </Button>
-
+            </Button>
+            )
+          }
+          
           {/* FOOTER */}
           <p className="text-xs text-center text-muted-foreground">
-            You$’ll get a shareable link after creating
+            You’ll get a shareable link after creating
           </p>
 
         </CardContent>
