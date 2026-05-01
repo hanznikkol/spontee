@@ -73,7 +73,7 @@ export default function HomePage() {
       </section>
 
       {/* FEATURES */}
-      <section className="relative z-10 container mx-auto px-4 pb-24">
+      <section id="features" className="relative z-10 container mx-auto px-4 pb-24">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {features.map((f, i) => (
             <Card
@@ -102,11 +102,11 @@ export default function HomePage() {
               Try your first session in under 10 seconds.
             </p>
 
-            <div className="mt-6">
-              <Button size="lg" className="rounded-2xl">
+            <Link href="/create">
+              <Button size="lg" className="rounded-2xl mt-6">
                 ✨ Start Now
               </Button>
-            </div>
+            </Link>
           </div>
         </div>
       </section>
