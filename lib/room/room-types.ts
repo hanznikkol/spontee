@@ -1,0 +1,1 @@
+type RoomMode = 'couple' | 'group'
