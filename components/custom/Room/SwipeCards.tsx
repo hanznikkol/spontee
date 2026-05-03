@@ -51,7 +51,7 @@ export default function SwipeCard({ text, direction, onSwipe }: SwipeCardProps) 
   }
 
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-4">
+    <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-4 touch-none">
 
       {/* Card — fills available space above buttons */}
       <div className="relative w-full flex-1">

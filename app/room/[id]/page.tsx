@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { useParams, useSearchParams } from 'next/navigation'
 import { Option } from '@/lib/options/option-types'
@@ -8,6 +8,7 @@ import { Check, Copy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import SwipeCard from '@/components/custom/Room/SwipeCards'
 import ResultScreen from '@/components/custom/Room/Phase/ResultScreen'
+import { Phase } from '@/lib/room/room-types'
 
 // Change real data soon
 const HARDCODED_OPTIONS: Option[] = [
@@ -16,8 +17,6 @@ const HARDCODED_OPTIONS: Option[] = [
   { id: '3', text: 'Beach', votes: 0 },
   { id: '4', text: 'Coffee', votes: 0 },
 ]
-
-type Phase = 'swiping' | 'result'
 
 export default function RoomPage() {
   const params = useParams()
@@ -30,12 +29,20 @@ export default function RoomPage() {
     : ''
 
   // Swap useState with useRoom(roomId) when Supabase is ready
-  const [options, setOptions] = useState<Option[]>(HARDCODED_OPTIONS)
-
-  const [phase, setPhase] = useState<Phase>('swiping')
+  const [options, setOptions] = useState<Option[]>([])
+  const [roomName, setRoomName] = useState<string>('')
+  const [phase, setPhase] = useState<Phase>('lobby')
   const [exitDirection, setExitDirection] = useState(0)
   const [copied, setCopied] = useState(false)
 
+  useEffect(() => {
+    const savedOptions = localStorage.getItem(`room:${roomId}:options`)
+    const savedName = localStorage.getItem(`room:${roomId}:name`)
+ 
+    setOptions(savedOptions ? JSON.parse(savedOptions) : HARDCODED_OPTIONS)
+    setRoomName(savedName ?? 'Spontee Room')
+  }, [roomId])
+ 
   const current = options[0]
 
   // Swap with a Supabase vote write when ready
@@ -90,6 +97,65 @@ export default function RoomPage() {
         shareUrl={shareUrl}
         onRestart={handleRestart}
       />
+    )
+  }
+
+  if (phase === 'lobby') {
+    return (
+      <main className="min-h-dvh w-full flex flex-col items-center justify-center px-4 gap-6 bg-background">
+        <div className="w-full max-w-sm flex flex-col items-center gap-6 text-center">
+ 
+          {/* Room info */}
+          <div className="space-y-1">
+            <p className="text-sm text-muted-foreground">You&apos;re in</p>
+            <h1 className="text-2xl font-bold">{roomName}</h1>
+            <p className="text-sm text-muted-foreground">
+              {options.length} option{options.length !== 1 ? 's' : ''} to decide from
+            </p>
+          </div>
+ 
+          {/* Options preview */}
+          {options.length > 0 && (
+            <ul className="w-full space-y-2">
+              {options.map((opt) => (
+                <li
+                  key={opt.id}
+                  className="px-4 py-2.5 rounded-2xl bg-muted/50 text-sm font-medium text-left"
+                >
+                  {opt.text}
+                </li>
+              ))}
+            </ul>
+          )}
+ 
+          {/* Share */}
+          <div className="w-full space-y-3">
+            <p className="text-xs text-muted-foreground">
+              Invite others to swipe with you
+            </p>
+            <Button
+              variant="outline"
+              className="w-full rounded-2xl gap-2"
+              onClick={handleCopy}
+            >
+              {copied
+                ? <><Check className="w-4 h-4" /> Copied!</>
+                : <><Copy className="w-4 h-4" /> Copy Invite Link</>
+              }
+            </Button>
+          </div>
+ 
+          {/* Start */}
+          <Button
+            className="w-full rounded-2xl"
+            size="lg"
+            onClick={() => setPhase('swiping')}
+          >
+            🚀 Start Swiping
+          </Button>
+ 
+        </div>
+      </main>
     )
   }
 
