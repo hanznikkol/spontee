@@ -4,6 +4,7 @@ import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useCallback, useEffect, useRef } from 'react'
+import { SwipeDirection } from '@/lib/swipecards/swipe-types'
 
 const MotionCard = motion.create(Card)
 
@@ -13,7 +14,7 @@ const SWIPE_OFFSET = 120
 type SwipeCardProps = {
   text: string
   direction: number
-  onSwipe: (dir: 'left' | 'right') => void
+  onSwipe: (dir: SwipeDirection) => void
 }
 
 export default function SwipeCard({ text, direction, onSwipe }: SwipeCardProps) {
@@ -27,7 +28,7 @@ export default function SwipeCard({ text, direction, onSwipe }: SwipeCardProps) 
     hasSwiped.current = false
   }, [text])
 
-  const triggerSwipe = useCallback((dir: 'left' | 'right') => {
+  const triggerSwipe = useCallback((dir: SwipeDirection) => {
     if (hasSwiped.current) return
     hasSwiped.current = true
     onSwipe(dir)

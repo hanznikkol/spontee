@@ -9,10 +9,12 @@ import { useState } from "react"
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
 import { X, Plus } from "lucide-react"
-import { RoomMode } from "@/lib/room/room-types"
+import { ROOM_STATUS, RoomMode } from "@/lib/room/room-types"
 import { Option } from "@/lib/options/option-types"
+import { PRESET_TIME, TimePreset } from "@/lib/room/time-limits"
+import { saveRoom } from "@/lib/room/actions"
+import { RoomDurationSelector } from "@/components/custom/Room/RoomDurationSelector"
 
-// Constant Values
 const MODES: { id: RoomMode; emoji: string; label: string; desc: string }[] = [
   {
     id: 'couple',
@@ -27,6 +29,7 @@ const MODES: { id: RoomMode; emoji: string; label: string; desc: string }[] = [
     desc: 'Barkada, family & friends',
   },
 ]
+
 const MIN_OPTIONS = 2
 const MAX_OPTIONS = 10
 
@@ -35,19 +38,20 @@ function CreateRoom() {
 
   const [roomName, setRoomName] = useState("")
   const [mode, setMode] = useState<RoomMode | null>(null)
+  const [timePreset, setTimePreset] = useState<TimePreset | null>(null)
   const [options, setOptions] = useState<Option[]>([])
   const [inputValue, setInputValue] = useState("")
   const [loading, setLoading] = useState(false)
 
   const canAddMore = options.length < MAX_OPTIONS
   const hasEnoughOptions = options.length >= MIN_OPTIONS
-  const canCreate = !!roomName.trim() && !!mode && hasEnoughOptions
+  
+  const canCreate = !!roomName.trim() && !!mode && !!timePreset && hasEnoughOptions
 
   const handleAddOption = () => {
     const trimmed = inputValue.trim()
     if (!trimmed || !canAddMore) return
 
-    // Prevent duplicates (case-insensitive)
     const isDuplicate = options.some(
       (o) => o.text.toLowerCase() === trimmed.toLowerCase()
     )
@@ -55,13 +59,18 @@ function CreateRoom() {
 
     setOptions((prev) => [
       ...prev,
-      { id: crypto.randomUUID(), text: trimmed, votes: 0 },
+      {
+        options_id: crypto.randomUUID(),
+        room_id: "",
+        text: trimmed,
+        votes: 0,
+      },
     ])
     setInputValue("")
   }
 
   const handleRemoveOption = (id: string) => {
-    setOptions((prev) => prev.filter((o) => o.id !== id))
+    setOptions((prev) => prev.filter((o) => o.options_id !== id))
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -69,32 +78,40 @@ function CreateRoom() {
   }
 
   const handleCreate = () => {
-    if (!canCreate) return
+    if (!canCreate || !mode || !timePreset) return
 
     setLoading(true)
     const roomId = crypto.randomUUID()
 
-    // Save options to localStorage — swap with Supabase insert later
-    localStorage.setItem(`room:${roomId}:options`, JSON.stringify(options))
-    localStorage.setItem(`room:${roomId}:name`, roomName.trim())
-    localStorage.setItem(`room:${roomId}:mode`, mode!)
+    const duration = PRESET_TIME[mode][timePreset]
 
-    router.push(`/room/${roomId}?mode=${mode}`)
+    const room = {
+      room_id: roomId,
+      name: roomName.trim(),
+      mode,
+      status: ROOM_STATUS.LOBBY,
+      time_preset: timePreset,
+      duration_seconds: duration,
+      ends_at: null,
+      created_at: new Date().toISOString(),
+      options,
+    }
+
+    saveRoom(room)
+
+    // Route to lobby first, not directly to swipe
+    router.push(`/room/${roomId}/lobby`)
   }
-
-  // ─── Render ──────────────────────────────────────────────────────────────
 
   return (
     <main className="min-h-screen flex items-center justify-center px-4 py-10 relative overflow-hidden">
 
-      {/* BLOB BACKGROUND */}
       <div className="absolute -top-40 -left-40 w-96 h-96 bg-pink-400/30 rounded-full blur-3xl" />
       <div className="absolute top-20 -right-40 w-md h-112 bg-blue-400/30 rounded-full blur-3xl" />
 
       <Card className="w-full max-w-md rounded-3xl backdrop-blur bg-background/70 border">
         <CardContent className="p-8 space-y-6">
 
-          {/* HEADER */}
           <div className="text-center space-y-2">
             <h1 className="text-2xl font-bold">Create a Room</h1>
             <p className="text-sm text-muted-foreground">
@@ -117,6 +134,7 @@ function CreateRoom() {
                 }
                 value={roomName}
                 onChange={(e) => setRoomName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
                 className="rounded-xl"
               />
             </div>
@@ -144,6 +162,16 @@ function CreateRoom() {
               </div>
             </div>
 
+            {/* ROOM DURATION SELECTOR */}
+
+            {mode && (
+               <RoomDurationSelector
+                mode={mode}
+                value={timePreset}
+                onChange={setTimePreset}
+              />
+            )}
+           
             {/* OPTIONS */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -158,7 +186,6 @@ function CreateRoom() {
                 </span>
               </div>
 
-              {/* Input row */}
               <div className="flex gap-2">
                 <Input
                   placeholder="e.g. Jollibee, Beach, Netflix..."
@@ -180,17 +207,16 @@ function CreateRoom() {
                 </Button>
               </div>
 
-              {/* Options list */}
               {options.length > 0 && (
                 <ul className="space-y-2 mt-1">
                   {options.map((opt) => (
                     <li
-                      key={opt.id}
+                      key={opt.options_id}
                       className="flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-muted/50 text-sm"
                     >
                       <span className="truncate">{opt.text}</span>
                       <button
-                        onClick={() => handleRemoveOption(opt.id)}
+                        onClick={() => handleRemoveOption(opt.options_id)}
                         className="text-muted-foreground hover:text-destructive transition-colors shrink-0"
                       >
                         <X className="w-3.5 h-3.5" />
@@ -200,17 +226,16 @@ function CreateRoom() {
                 </ul>
               )}
 
-              {/* Helper text */}
               {!hasEnoughOptions && (
                 <p className="text-xs text-muted-foreground">
-                  Add at least {MIN_OPTIONS - options.length} more option{MIN_OPTIONS - options.length !== 1 ? 's' : ''} to continue
+                  Add at least {MIN_OPTIONS - options.length} more option
+                  {MIN_OPTIONS - options.length !== 1 ? 's' : ''} to continue
                 </p>
               )}
             </div>
 
           </div>
 
-          {/* ACTION */}
           <Button
             className="w-full rounded-2xl"
             size="lg"
@@ -227,7 +252,6 @@ function CreateRoom() {
             )}
           </Button>
 
-          {/* FOOTER */}
           <p className="text-xs text-center text-muted-foreground">
             You&apos;ll get a shareable link after creating
           </p>

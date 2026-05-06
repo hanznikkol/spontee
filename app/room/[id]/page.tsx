@@ -4,59 +4,71 @@ import { useState, useMemo, useCallback, useEffect } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { useParams, useSearchParams } from 'next/navigation'
 import { Option } from '@/lib/options/option-types'
+import { RoomMode } from '@/lib/room/room-types'
 import { Check, Copy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import SwipeCard from '@/components/custom/Room/SwipeCards'
 import ResultScreen from '@/components/custom/Room/Phase/ResultScreen'
-import { Phase } from '@/lib/room/room-types'
 
-// Change real data soon
-const HARDCODED_OPTIONS: Option[] = [
-  { id: '1', text: 'Jollibee', votes: 0 },
-  { id: '2', text: 'Samgyup', votes: 0 },
-  { id: '3', text: 'Beach', votes: 0 },
-  { id: '4', text: 'Coffee', votes: 0 },
+// Fallback if no options are stored (dev/demo)
+const FALLBACK_OPTIONS: Option[] = [
+  { options_id: '1', text: 'Jollibee', votes: 0 },
+  { options_id: '2', text: 'Samgyup', votes: 0 },
+  { options_id: '3', text: 'Beach', votes: 0 },
+  { options_id: '4', text: 'Coffee', votes: 0 },
 ]
+
+type Phase = 'swiping' | 'result'
 
 export default function RoomPage() {
   const params = useParams()
   const searchParams = useSearchParams()
   const roomId = params.id as string
-  const mode = searchParams.get('mode') as 'couple' | 'group' | null
+  const mode = searchParams.get('mode') as RoomMode | null
 
   const shareUrl = typeof window !== 'undefined'
     ? `${window.location.origin}/room/${roomId}`
     : ''
 
-  // Swap useState with useRoom(roomId) when Supabase is ready
   const [options, setOptions] = useState<Option[]>([])
-  const [roomName, setRoomName] = useState<string>('')
-  const [phase, setPhase] = useState<Phase>('lobby')
+  const [initialOptions, setInitialOptions] = useState<Option[]>([])
+  const [phase, setPhase] = useState<Phase>('swiping')
   const [exitDirection, setExitDirection] = useState(0)
   const [copied, setCopied] = useState(false)
 
+  // Load options from localStorage (swap with Supabase query later)
   useEffect(() => {
-    const savedOptions = localStorage.getItem(`room:${roomId}:options`)
-    const savedName = localStorage.getItem(`room:${roomId}:name`)
- 
-    setOptions(savedOptions ? JSON.parse(savedOptions) : HARDCODED_OPTIONS)
-    setRoomName(savedName ?? 'Spontee Room')
+    const saved = localStorage.getItem(`room:${roomId}:options`)
+    if (saved) {
+      try {
+        const parsed: Option[] = JSON.parse(saved)
+        // Reset votes for a fresh swipe session
+        const fresh = parsed.map(o => ({ ...o, votes: 0 }))
+        setOptions(fresh)
+        setInitialOptions(fresh)
+      } catch {
+        setOptions(FALLBACK_OPTIONS)
+        setInitialOptions(FALLBACK_OPTIONS)
+      }
+    } else {
+      setOptions(FALLBACK_OPTIONS)
+      setInitialOptions(FALLBACK_OPTIONS)
+    }
   }, [roomId])
- 
+
   const current = options[0]
 
-  // Swap with a Supabase vote write when ready
   const handleSwipe = useCallback((dir: 'left' | 'right') => {
     if (!current) return
 
     const isRight = dir === 'right'
     setExitDirection(isRight ? 1 : -1)
-    
-    const swipedId = current.id
+
+    const swipedId = current.options_id
 
     setOptions(prev =>
       prev.map(opt =>
-        opt.id === current.id
+        opt.options_id === swipedId
           ? { ...opt, votes: isRight ? opt.votes + 1 : opt.votes }
           : opt
       )
@@ -64,7 +76,7 @@ export default function RoomPage() {
 
     setTimeout(() => {
       setOptions(prev => {
-        if (prev[0]?.id !== swipedId) return prev
+        if (prev[0]?.options_id !== swipedId) return prev
         const next = prev.slice(1)
         if (next.length === 0) setPhase('result')
         return next
@@ -72,11 +84,15 @@ export default function RoomPage() {
     }, 150)
   }, [current])
 
-  //Supabase will be added here soon
+  // Winner = highest votes; tie-break by original order
   const winner = useMemo(() => {
     if (phase !== 'result') return null
-    return [...options].sort((a, b) => b.votes - a.votes)[0] ?? null
-  }, [phase, options])
+    const all = [...initialOptions].map(orig => {
+      const voted = options.find(o => o.options_id === orig.options_id)
+      return voted ?? orig
+    })
+    return all.sort((a, b) => b.votes - a.votes)[0] ?? null
+  }, [phase, options, initialOptions])
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(shareUrl)
@@ -85,7 +101,8 @@ export default function RoomPage() {
   }
 
   const handleRestart = () => {
-    setOptions(HARDCODED_OPTIONS)
+    const fresh = initialOptions.map(o => ({ ...o, votes: 0 }))
+    setOptions(fresh)
     setPhase('swiping')
   }
 
@@ -97,65 +114,6 @@ export default function RoomPage() {
         shareUrl={shareUrl}
         onRestart={handleRestart}
       />
-    )
-  }
-
-  if (phase === 'lobby') {
-    return (
-      <main className="min-h-dvh w-full flex flex-col items-center justify-center px-4 gap-6 bg-background">
-        <div className="w-full max-w-sm flex flex-col items-center gap-6 text-center">
- 
-          {/* Room info */}
-          <div className="space-y-1">
-            <p className="text-sm text-muted-foreground">You&apos;re in</p>
-            <h1 className="text-2xl font-bold">{roomName}</h1>
-            <p className="text-sm text-muted-foreground">
-              {options.length} option{options.length !== 1 ? 's' : ''} to decide from
-            </p>
-          </div>
- 
-          {/* Options preview */}
-          {options.length > 0 && (
-            <ul className="w-full space-y-2">
-              {options.map((opt) => (
-                <li
-                  key={opt.id}
-                  className="px-4 py-2.5 rounded-2xl bg-muted/50 text-sm font-medium text-left"
-                >
-                  {opt.text}
-                </li>
-              ))}
-            </ul>
-          )}
- 
-          {/* Share */}
-          <div className="w-full space-y-3">
-            <p className="text-xs text-muted-foreground">
-              Invite others to swipe with you
-            </p>
-            <Button
-              variant="outline"
-              className="w-full rounded-2xl gap-2"
-              onClick={handleCopy}
-            >
-              {copied
-                ? <><Check className="w-4 h-4" /> Copied!</>
-                : <><Copy className="w-4 h-4" /> Copy Invite Link</>
-              }
-            </Button>
-          </div>
- 
-          {/* Start */}
-          <Button
-            className="w-full rounded-2xl"
-            size="lg"
-            onClick={() => setPhase('swiping')}
-          >
-            🚀 Start Swiping
-          </Button>
- 
-        </div>
-      </main>
     )
   }
 
@@ -180,7 +138,7 @@ export default function RoomPage() {
         <AnimatePresence initial={false}>
           {current && (
             <SwipeCard
-              key={current.id}
+              key={current.options_id}
               text={current.text}
               direction={exitDirection}
               onSwipe={handleSwipe}
