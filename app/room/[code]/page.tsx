@@ -9,6 +9,7 @@ import { Check, Copy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import SwipeCard from '@/components/custom/Room/SwipeCards'
 import ResultScreen from '@/components/custom/Room/Phase/ResultScreen'
+import { supabase } from '@/lib/supabase/client'
 
 // Fallback if no options are stored (dev/demo)
 const FALLBACK_OPTIONS: Option[] = [
@@ -27,7 +28,7 @@ export default function RoomPage() {
   const mode = searchParams.get('mode') as RoomMode | null
 
   const shareUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/room/${roomId}`
+    ? `${window.location.origin}/join?room=${roomId}`
     : ''
 
   const [options, setOptions] = useState<Option[]>([])
@@ -38,22 +39,29 @@ export default function RoomPage() {
 
   // Load options from localStorage (swap with Supabase query later)
   useEffect(() => {
-    const saved = localStorage.getItem(`room:${roomId}:options`)
-    if (saved) {
-      try {
-        const parsed: Option[] = JSON.parse(saved)
-        // Reset votes for a fresh swipe session
-        const fresh = parsed.map(o => ({ ...o, votes: 0 }))
-        setOptions(fresh)
-        setInitialOptions(fresh)
-      } catch {
+    const loadOptions = async () => {
+      const { data, error } = await supabase
+        .from('options')
+        .select('*')
+        .eq('room_id', roomId)
+
+      if (error || !data) {
         setOptions(FALLBACK_OPTIONS)
         setInitialOptions(FALLBACK_OPTIONS)
+        return
       }
-    } else {
-      setOptions(FALLBACK_OPTIONS)
-      setInitialOptions(FALLBACK_OPTIONS)
+
+      const formatted = data.map(o => ({
+        options_id: o.options_id,
+        text: o.text,
+        votes: 0
+      }))
+
+      setOptions(formatted)
+      setInitialOptions(formatted)
     }
+
+    loadOptions()
   }, [roomId])
 
   const current = options[0]

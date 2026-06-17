@@ -1,0 +1,18 @@
+import { supabase } from "@/lib/supabase/client"
+
+export async function ensureUser() {
+  const { data: { user } } = await supabase.auth.getUser()
+
+  // EXISTING SESSION
+  if (user) return user
+
+  // CREATE ANONYMOUS USER
+  const { data, error } =
+    await supabase.auth.signInAnonymously()
+
+  if (error || !data.user) {
+    throw new Error("Failed to create anonymous user")
+  }
+
+  return data.user
+}

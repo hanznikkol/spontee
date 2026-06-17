@@ -8,12 +8,16 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
-import { X, Plus } from "lucide-react"
-import { ROOM_STATUS, RoomMode } from "@/lib/room/room-types"
+import { X, Plus, ArrowRight, Users } from "lucide-react"
+import { RoomMode } from "@/lib/room/room-types"
 import { Option } from "@/lib/options/option-types"
 import { PRESET_TIME, TimePreset } from "@/lib/room/time-limits"
-import { saveRoom } from "@/lib/room/actions"
 import { RoomDurationSelector } from "@/components/custom/Room/RoomDurationSelector"
+import { supabase } from "@/lib/supabase/client"
+import { RoomVisibility } from "@/components/custom/Room/RoomVisibility"
+import { RoomModeSelector } from "@/components/custom/Room/RoomModeSelector"
+import { ensureUser } from "@/lib/user/ensure-user"
+import { generateRoomCode } from "@/lib/room/room-code"
 
 const MODES: { id: RoomMode; emoji: string; label: string; desc: string }[] = [
   {
@@ -37,6 +41,8 @@ function CreateRoom() {
   const router = useRouter()
 
   const [roomName, setRoomName] = useState("")
+  const [roomVisibility, setRoomVisibility] = useState<"public" | "private">("public")
+  const [roomPassword, setRoomPassword] = useState('')
   const [mode, setMode] = useState<RoomMode | null>(null)
   const [timePreset, setTimePreset] = useState<TimePreset | null>(null)
   const [options, setOptions] = useState<Option[]>([])
@@ -45,7 +51,7 @@ function CreateRoom() {
 
   const canAddMore = options.length < MAX_OPTIONS
   const hasEnoughOptions = options.length >= MIN_OPTIONS
-  
+
   const canCreate = !!roomName.trim() && !!mode && !!timePreset && hasEnoughOptions
 
   const handleAddOption = () => {
@@ -69,6 +75,7 @@ function CreateRoom() {
     setInputValue("")
   }
 
+
   const handleRemoveOption = (id: string) => {
     setOptions((prev) => prev.filter((o) => o.options_id !== id))
   }
@@ -77,47 +84,92 @@ function CreateRoom() {
     if (e.key === 'Enter') handleAddOption()
   }
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (!canCreate || !mode || !timePreset) return
 
     setLoading(true)
-    const roomId = crypto.randomUUID()
 
-    const duration = PRESET_TIME[mode][timePreset]
+    try {
+      // AUTH USER
+      const user = await ensureUser()
+      const roomCode = generateRoomCode()
 
-    const room = {
-      room_id: roomId,
-      name: roomName.trim(),
-      mode,
-      status: ROOM_STATUS.LOBBY,
-      time_preset: timePreset,
-      duration_seconds: duration,
-      ends_at: null,
-      created_at: new Date().toISOString(),
-      options,
+      // CREATE ROOM
+      const { data: roomData, error: roomError } = await supabase
+        .from("rooms")
+        .insert({
+          room_name: roomName.trim(),
+          room_code: roomCode,
+          mode,
+          status: "lobby",
+          duration_seconds: PRESET_TIME[mode][timePreset],
+          ends_at: null,
+          room_visibility: roomVisibility,
+          room_password: roomVisibility === "private" ? roomPassword: null,
+        })
+        .select()
+        .single()
+
+      if (roomError || !roomData) {
+        console.log(roomError)
+        return
+      }
+
+      // INSERT CREATOR AS PARTICIPANT
+      await supabase.from("participants").insert({
+        room_id: roomData.room_id,
+        display_name: "Creator",
+        is_host: true,
+        session_id: user.id,
+      })
+
+      // ADD OPTIONS
+      const { error: optionsError } = await supabase
+        .from("options")
+        .insert(
+          options.map((o) => ({
+            room_id: roomData.room_id,
+            text: o.text,
+          }))
+        )
+
+      if (optionsError) {
+        console.log(optionsError)
+        return
+      }
+
+      router.push(`/room/${roomData.room_code}/lobby`)
+    } catch (err) {
+      console.log(err)
+    } finally {
+      setLoading(false)
     }
-
-    saveRoom(room)
-
-    // Route to lobby first, not directly to swipe
-    router.push(`/room/${roomId}/lobby`)
   }
 
   return (
     <main className="min-h-screen flex items-center justify-center px-4 py-10 relative overflow-hidden">
 
+      {/* Background Blob */}
       <div className="absolute -top-40 -left-40 w-96 h-96 bg-pink-400/30 rounded-full blur-3xl" />
       <div className="absolute top-20 -right-40 w-md h-112 bg-blue-400/30 rounded-full blur-3xl" />
 
       <Card className="w-full max-w-md rounded-3xl backdrop-blur bg-background/70 border">
         <CardContent className="p-8 space-y-6">
 
-          <div className="text-center space-y-2">
-            <h1 className="text-2xl font-bold">Create a Room</h1>
+        <div className="text-center space-y-3">
+          <p className="inline-flex items-center gap-2 rounded-full bg-muted px-4 py-2 text-sm text-muted-foreground mx-auto">
+            <Users className="h-4 w-4" />
+            Host Setup
+          </p>
+
+          <div className="space-y-2">
+            <h1 className="text-2xl font-bold">Create room for others</h1>
             <p className="text-sm text-muted-foreground">
-              Start deciding with your group
+              Start deciding with your group 
             </p>
           </div>
+
+        </div>
 
           <div className="space-y-5">
 
@@ -126,11 +178,7 @@ function CreateRoom() {
               <Label>Room Name</Label>
               <Input
                 placeholder={
-                  mode === 'couple'
-                    ? 'e.g. Date night ideas, Netflix & Chill'
-                    : mode === 'group'
-                    ? 'e.g. Barkada outing, Family Reunion'
-                    : 'e.g. Saan tayo?'
+                  mode === 'couple' ? 'e.g. Date night ideas, Netflix & Chill' : mode === 'group' ? 'e.g. Barkada outing, Family Reunion' : 'e.g. Date night ideas, Barkada outing...'
                 }
                 value={roomName}
                 onChange={(e) => setRoomName(e.target.value)}
@@ -139,31 +187,29 @@ function CreateRoom() {
               />
             </div>
 
-            {/* MODE SELECTOR */}
-            <div className="space-y-2">
-              <Label>Who&apos;s deciding</Label>
-              <div className="grid grid-cols-2 gap-3">
-                {MODES.map((m) => (
-                  <button
-                    key={m.id}
-                    onClick={() => setMode(m.id)}
-                    className={cn(
-                      "flex flex-col items-center justify-center gap-1 p-4 rounded-2xl border-2 transition-all text-center",
-                      mode === m.id
-                        ? "border-primary bg-primary/5"
-                        : "border-border hover:border-muted-foreground/40 hover:bg-muted/30"
-                    )}
-                  >
-                    <span className="text-3xl">{m.emoji}</span>
-                    <span className="font-semibold text-sm">{m.label}</span>
-                    <span className="text-xs text-muted-foreground leading-tight">{m.desc}</span>
-                  </button>
-                ))}
+            {/* VISIBILITY */}
+            <RoomVisibility value={roomVisibility} onChange={setRoomVisibility}/> 
+            {roomVisibility === "private" && (
+              <div className="space-y-2">
+                <Label>Password</Label>
+                <Input
+                  type="password"
+                  placeholder="Set room password"
+                  value={roomPassword}
+                  onChange={(e) => setRoomPassword(e.target.value)}
+                  className="rounded-xl"
+                />
               </div>
-            </div>
+            )}
 
+            {/* MODE SELECTOR */}
+            <RoomModeSelector
+              value={mode}
+              onChange={setMode}
+              options={MODES}
+            />
+           
             {/* ROOM DURATION SELECTOR */}
-
             {mode && (
                <RoomDurationSelector
                 mode={mode}
@@ -237,7 +283,7 @@ function CreateRoom() {
           </div>
 
           <Button
-            className="w-full rounded-2xl"
+            className="w-full rounded-2xl cursor-pointer"
             size="lg"
             onClick={handleCreate}
             disabled={!canCreate || loading}
@@ -248,7 +294,10 @@ function CreateRoom() {
                 Creating...
               </>
             ) : (
-              '🚀 Create Room'
+              <>
+                Create Room
+                <ArrowRight className="w-4 h-4"/>
+              </>
             )}
           </Button>
 

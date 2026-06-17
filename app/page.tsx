@@ -6,49 +6,68 @@ export default function HomePage() {
 
   const features = [
     {
-      title: "Fast Decisions",
+      title: "Decide Faster",
       desc: "Swipe or vote on options in seconds.",
       emoji: "⚡",
     },
     {
-      title: "Food, Places, Activities",
+      title: "Choose Anything",
       desc: "From kainan to gala—decide instantly.",
       emoji: "🎯",
     },
     {
-      title: "Built for Groups",
+      title: "Perfect for Groups",
       desc: "Couples, families, and barkada-friendly decisions.",
-      emoji: "👯",
+      emoji: "👥",
     },
   ]
   return (
     <main className="min-h-screen relative overflow-hidden bg-background">
 
+      <div className=""></div>
       {/* FUN BACKGROUND BLOBS */}
       <div className="absolute -top-40 -left-40 w-96 h-96 bg-pink-400/30 rounded-full blur-3xl" />
       <div className="absolute top-20 -right-40 w-md h-112 bg-blue-400/30 rounded-full blur-3xl" />
       <div className="absolute -bottom-40 left-1/2 w-120 h-120 bg-purple-400/20 rounded-full blur-3xl" />
 
       {/* NAV */}
-      <header className="relative z-10 border-b bg-background/60 backdrop-blur">
-        <div className="container mx-auto flex items-center justify-between px-4 py-4">
-          <h1 className="text-lg font-bold tracking-tight">
-            ⚡ Spontee
+      <header className="relative z-10 border-b bg-background/40 backdrop-blur-xl">
+        <div className="container mx-auto flex items-center justify-between px-4 py-3">
+          {/* BRAND */}
+          <h1 className="text-lg font-bold tracking-tight flex items-center gap-2">
+            <span>
+              Spont<span className="text-transparent bg-clip-text bg-linear-to-r from-pink-500 via-purple-500 to-blue-500">ee
+              </span>
+            </span>
           </h1>
+          {/* ACTIONS */}
+          <div className="flex items-center gap-2">
 
-          <div className="flex gap-2">
-            <Button variant="ghost">Features</Button>
-            <Button variant="outline">Login</Button>
+            <Button 
+              variant="ghost" 
+              asChild 
+              className="rounded-xl hover:bg-muted/60 transition"
+            >
+              <Link href="/join">Join Room</Link>
+            </Button>
+
+            <Button 
+              asChild 
+              className="rounded-xl bg-linear-to-r from-pink-500 to-blue-500 text-white shadow-md shadow-pink-500/20 hover:scale-[1.03] transition"
+            >
+              <Link href="/create">Create Room</Link>
+            </Button>
+
           </div>
         </div>
       </header>
-
+      
       {/* HERO */}
       <section className="relative z-10 flex items-center justify-center px-4 pt-24 pb-16">
         <div className="text-center max-w-2xl space-y-6">
           
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted text-sm">
-            🧠 Group decisions made easy
+            ⚡ Swipe. Vote. Decide.
           </div>
 
           <h2 className="text-4xl md:text-6xl font-bold tracking-tight leading-tight">
@@ -62,12 +81,14 @@ export default function HomePage() {
             For couples, families, and friends who can’t decide where to go, what to eat, or what to do next.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-            <Link href={"/create"}>
-              <Button size="lg" className="rounded-2xl">
-              🚀 Create Session
-              </Button>
-            </Link>
+          <div className="grid gap-3 pt-2 sm:grid-cols-2">
+            <Button asChild size="lg" className="w-full rounded-2xl">
+              <Link href="/create">🛠️ I’m the host</Link>
+            </Button>
+
+            <Button asChild size="lg" variant="outline" className="w-full rounded-2xl">
+              <Link href="/join">🔗 I’m a guest</Link>
+            </Button>
           </div>
         </div>
       </section>
@@ -91,31 +112,20 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="relative z-10 px-4 pb-24">
-        <div className="container mx-auto">
-          <div className="rounded-3xl p-10 text-center bg-linear-to-r from-pink-500/10 via-purple-500/10 to-blue-500/10 border">
-            <h3 className="text-2xl md:text-3xl font-bold">
-              Ready to stop deciding forever?
-            </h3>
-            <p className="text-muted-foreground mt-2">
-              Try your first session in under 10 seconds.
-            </p>
-
-            <Link href="/create">
-              <Button size="lg" className="rounded-2xl mt-6">
-                ✨ Start Now
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
       {/* FOOTER */}
-      <footer className="relative z-10 border-t py-6 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} Spontee.
+      <footer className="relative z-10 border-t py-6 text-center">
+        <p className="mt-2 text-sm text-muted-foreground">
+          © {new Date().getFullYear()} Spontee · Developed by{" "}
+          <a
+            href="https://hanznikkolmaas.vercel.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:underline"
+          >
+            Hanz Nikkol Maas
+          </a>
+        </p>
       </footer>
-
     </main>
   )
 }

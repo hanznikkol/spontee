@@ -3,15 +3,15 @@ import { PRESET_TIME, TimePreset } from "./time-limits"
 
 export const ROOM_STATUS = {
   LOBBY: "lobby",
-  ACTIVE: "active",
-  FINISHED: "finished",
+  SWIPING: "swiping",
+  RESULT: "result",
 } as const
-
-export type RoomStatus = typeof ROOM_STATUS[keyof typeof ROOM_STATUS]
+export type RoomStatus =typeof ROOM_STATUS[keyof typeof ROOM_STATUS]
 
 export interface Room {
   room_id: string
-  name: string
+  room_code: string
+  room_name: string
   mode: RoomMode
   status: RoomStatus
 
@@ -19,6 +19,7 @@ export interface Room {
   duration_seconds: number
   ends_at: string | null
 
+  visibility: string
   created_at: string
   options: Option[]
 }

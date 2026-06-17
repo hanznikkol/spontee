@@ -13,16 +13,12 @@ type Props = {
   onChange: (value: TimePreset) => void
 }
 
-export function RoomDurationSelector({
-  mode,
-  value,
-  onChange,
-}: Props) {
+export function RoomDurationSelector({ mode, value,onChange,}: Props) {
   const options = PRESET_UI[mode]
 
   return (
     <div className="space-y-2">
-      <div className="space-y-1">
+      <div>
         <Label className="text-sm font-medium">Room Duration</Label>
         <p className="text-xs text-muted-foreground">
           Choose how long the room will stay active

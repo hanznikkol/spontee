@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { useCallback, useEffect, useRef } from 'react'
 import { SwipeDirection } from '@/lib/swipecards/swipe-types'
+import Image from 'next/image'
 
 const MotionCard = motion.create(Card)
 
@@ -13,11 +14,13 @@ const SWIPE_OFFSET = 120
 
 type SwipeCardProps = {
   text: string
+  image?: string,
+  subtitle?: string
   direction: number
   onSwipe: (dir: SwipeDirection) => void
 }
 
-export default function SwipeCard({ text, direction, onSwipe }: SwipeCardProps) {
+export default function SwipeCard({ text, image, subtitle, direction, onSwipe }: SwipeCardProps) {
   const x = useMotionValue(0)
   const rotate = useTransform(x, [-200, 200], [-15, 15])
   const rejectOpacity = useTransform(x, [-150, -60, 0], [1, 0, 0])
@@ -54,7 +57,7 @@ export default function SwipeCard({ text, direction, onSwipe }: SwipeCardProps) 
   return (
     <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-4 touch-none">
 
-      {/* Card — fills available space above buttons */}
+      {/* Card*/}
       <div className="relative w-full flex-1">
         <MotionCard
           drag="x"
@@ -64,29 +67,46 @@ export default function SwipeCard({ text, direction, onSwipe }: SwipeCardProps) 
           onDragEnd={handleDragEnd}
           whileDrag={{ scale: 1.05 }}
           exit={{ opacity: 0, x: direction > 0 ? 300 : -300, transition: { duration: 0.3 } }}
-          className="absolute inset-0 rounded-3xl shadow-xl cursor-grab active:cursor-grabbing z-10 flex items-center justify-center"
+          className="absolute inset-0 rounded-3xl shadow-xl cursor-grab active:cursor-grabbing z-10 overflow-hidden"
         >
+          {/* Background image */}
+          <Image
+            src={image || '/images/placeholder.png'}
+            alt={text}
+            fill
+            onError={(e) => { (e.target as HTMLImageElement).src = 'https://placehold.co/600x900/1a1a1a/444444?text=No+Photo' }}
+            className="absolute inset-0 w-full h-full object-cover"
+            draggable={false}
+          />
+
+          {/* Dark gradient overlay — fades bottom */}
+          <div className="absolute inset-0 bg-linear-to-b from-black/5 via-transparent to-black/80 pointer-events-none rounded-3xl" />
+
+          {/* NOPE stamp */}
           <motion.div
             style={{ opacity: rejectOpacity }}
-            className="absolute inset-0 rounded-3xl bg-red-500/20 flex items-start justify-end p-6 pointer-events-none"
+            className="absolute top-6 right-6 pointer-events-none"
           >
-            <span className="text-red-500 font-bold text-xl border-2 border-red-500 px-3 py-1 rounded-xl rotate-12">
+            <span className="text-red-500 font-black text-2xl tracking-widest border-[3px] border-red-500 px-3 py-1 rounded-xl rotate-12 inline-block uppercase">
               Nah!
             </span>
           </motion.div>
 
+          {/* LIKE stamp */}
           <motion.div
             style={{ opacity: acceptOpacity }}
-            className="absolute inset-0 rounded-3xl bg-green-500/20 flex items-start justify-start p-6 pointer-events-none"
+            className="absolute top-6 left-6 pointer-events-none"
           >
-            <span className="text-green-500 font-bold text-xl border-2 border-green-500 px-3 py-1 rounded-xl -rotate-12">
+            <span className="text-green-400 font-black text-2xl tracking-widest border-[3px] border-green-400 px-3 py-1 rounded-xl -rotate-12 inline-block uppercase">
               G!
             </span>
           </motion.div>
 
-          <div className="flex flex-col items-center justify-center text-center space-y-3 p-8">
-            <h2 className="text-3xl font-bold">{text}</h2>
-            <p className="text-sm text-muted-foreground">Swipe or choose below</p>
+          {/* Text info — bottom left, over the dark overlay */}
+          <div className="absolute bottom-0 left-0 right-0 p-6 pointer-events-none">
+            <h2 className="text-3xl font-bold text-white leading-tight drop-shadow-lg">{text}</h2>
+            {subtitle && ( <p className="text-sm text-white/70 mt-1"> {subtitle} </p> )}
+            <p className="text-sm text-white/60 mt-1">Swipe or choose below</p>
           </div>
         </MotionCard>
       </div>
