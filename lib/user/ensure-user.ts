@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase/client"
 
-export async function ensureUser() {
+export async function ensureAnonUser() {
   const { data: { user } } = await supabase.auth.getUser()
 
   // EXISTING SESSION

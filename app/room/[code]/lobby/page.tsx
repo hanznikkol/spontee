@@ -1,6 +1,5 @@
 'use client'
-
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Card, CardContent } from '@/components/ui/card'
@@ -11,12 +10,14 @@ import { RoomMode } from '@/lib/room/room-types'
 import { supabase } from '@/lib/supabase/client'
 import { QRCodeSVG } from 'qrcode.react'
 import { Participants } from '@/lib/user/participants'
+import { RealtimeChannel } from '@supabase/supabase-js'
 
 export default function LobbyPage() {
   const params = useParams()
   const code = typeof params.code === "string" ? params.code : ""
   const searchParams = useSearchParams()
   const router = useRouter()
+  const channelRef = useRef<RealtimeChannel | null>(null)
   const mode = searchParams.get('mode') as RoomMode | null
 
   const [copiedKey, setCopiedKey] = useState<string | null>(null)
@@ -28,8 +29,11 @@ export default function LobbyPage() {
   const shareCode = code
 
   useEffect(() => {
+    if (!code) return
+
+    let cancelled = false
+
     const loadRoom = async () => {
-      if (!code) return
       const normalizedCode = code.toString().trim().toUpperCase()
 
       const { data: room } = await supabase
@@ -38,27 +42,77 @@ export default function LobbyPage() {
         .eq('room_code', normalizedCode)
         .single()
 
-      if (!room) return
+      if (!room || cancelled) return
 
       setRoomName(room.room_name)
 
-      const { data: participants } = await supabase
+      const { data: initialParticipants } = await supabase
         .from('participants')
         .select('*')
         .eq('room_id', room.room_id)
 
-      if (participants) {
-        setParticipants(
-          participants.map(p => ({
-            id: p.participant_id,
-            name: p.display_name,
-            isYou: p.session_id === sessionStorage.getItem('session_id'),
-          }))
-        )
+      if (initialParticipants) {
+        setParticipants(initialParticipants)
       }
+
+      // CLEAN OLD CHANNEL FIRST
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current)
+        channelRef.current = null
+      }
+
+      const channel = supabase
+        .channel(`participants-${room.room_id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'participants',
+            filter: `room_id=eq.${room.room_id}`,
+          },
+          (payload) => {
+            const newRow = payload.new as Participants
+            const oldRow = payload.old as Participants
+
+            setParticipants((prev) => {
+              if (payload.eventType === 'INSERT') {
+                if (prev.some(p => p.participant_id === newRow.participant_id)) {
+                  return prev
+                }
+                return [...prev, newRow]
+              }
+
+              if (payload.eventType === 'DELETE') {
+                return prev.filter(p => p.participant_id !== oldRow.participant_id)
+              }
+
+              if (payload.eventType === 'UPDATE') {
+                return prev.map(p =>
+                  p.participant_id === newRow.participant_id ? newRow : p
+                )
+              }
+
+              return prev
+            })
+          }
+        )
+
+      channel.subscribe()
+
+      channelRef.current = channel
     }
 
     loadRoom()
+
+    return () => {
+      cancelled = true
+
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current)
+        channelRef.current = null
+      }
+    }
   }, [code])
 
   const handleCopy = async (text: string, key: string) => {
@@ -122,19 +176,13 @@ export default function LobbyPage() {
               <ul className="space-y-2">
                 {participants.map(m => (
                   <li
-                    key={m.id}
+                    key={m.participant_id}
                     className="flex items-center gap-3 px-3 py-2 rounded-xl bg-muted/50"
                   >
                     <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">
-                      {m.name[0]}
+                      {m.display_name[0]}
                     </div>
-                    <span className="text-sm font-medium">{m.name}</span>
-
-                    {m.isYou && (
-                      <span className="ml-auto text-xs text-muted-foreground">
-                        You
-                      </span>
-                    )}
+                    <span className="text-sm font-medium">{m.display_name}</span>
                   </li>
                 ))}
               </ul>
@@ -188,7 +236,7 @@ export default function LobbyPage() {
                   <div className="relative group inline-flex items-center justify-center">
                     
                     {/* glow background */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-pink-400/20 via-fuchsia-400/20 to-blue-400/20 blur-xl rounded-2xl opacity-0 group-hover:opacity-100 transition" />
+                    <div className="absolute inset-0 bg-linear-to-r from-pink-400/20 via-fuchsia-400/20 to-blue-400/20 blur-xl rounded-2xl opacity-0 group-hover:opacity-100 transition" />
 
                     {/* main box */}
                     <div className="relative flex items-center gap-3 px-5 py-3 rounded-2xl border bg-background/70 backdrop-blur-md shadow-sm">

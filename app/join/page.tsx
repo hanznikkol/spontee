@@ -7,28 +7,9 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { supabase } from "@/lib/supabase/client"
-import { ensureUser } from "@/lib/user/ensure-user"
+import { ensureAnonUser } from "@/lib/user/ensure-user"
 import { ArrowRight, Loader2, Upload, Users } from "lucide-react"
-
-function extractRoomId(value: string, baseUrl: string) {
-  const trimmed = value.trim()
-  if (!trimmed) return ""
-
-  try {
-    const parsedUrl = new URL(trimmed, baseUrl)
-    const queryRoom = parsedUrl.searchParams.get("room")
-    if (queryRoom) return queryRoom
-
-    const segments = parsedUrl.pathname.split("/").filter(Boolean)
-    const roomIndex = segments.indexOf("room")
-    if (roomIndex !== -1 && segments[roomIndex + 1]) {
-      return segments[roomIndex + 1]
-    }
-  } catch {
-  }
-
-  return trimmed.replace(/^\/+/, "")
-}
+import { extractRoomCode } from "@/lib/room/join/join"
 
 type BarcodeDetectorResult = { rawValue: string }
 
@@ -101,14 +82,14 @@ export default function JoinPage() {
 
   const handleJoin = async () => {
     const name = displayName.trim()
-    const roomId = extractRoomId(roomValue, window.location.origin)
+    const roomCode = extractRoomCode(roomValue, window.location.origin)
 
     if (!name) {
       setFeedback("Please enter your name first.")
       return
     }
 
-    if (!roomId) {
+    if (!roomCode) {
       setFeedback("Paste a room link or room code from the host.")
       return
     }
@@ -117,33 +98,32 @@ export default function JoinPage() {
     setFeedback("")
 
     try {
-      const user = await ensureUser()
-      sessionStorage.setItem("session_id", user.id)
-      sessionStorage.setItem("display_name", name)
+      const user = await ensureAnonUser()
 
       const { data: room, error: roomError } = await supabase
         .from("rooms")
-        .select("room_id, room_name")
-        .eq("room_id", roomId)
+        .select("room_id, room_code")
+        .eq("room_code", roomCode)
         .single()
 
       if (roomError || !room) {
         throw new Error("We couldn’t find that room. Check the link or QR code.")
       }
 
-      const { error: participantError } = await supabase.from("participants").insert({
-        room_id: room.room_id,
-        user_id: user.id,
-        display_name: name,
-        is_host: false,
-        session_id: user.id,
-      })
+      const { error: participantError } = await supabase
+        .from("participants")
+        .upsert({
+          room_id: room.room_id,
+          user_id: user.id,
+          display_name: name,
+          is_host: false,
+      })  
 
       if (participantError) {
         throw participantError
       }
 
-      router.push(`/room/${room.room_id}/lobby`)
+      router.push(`/room/${room.room_code}/lobby`)
     } catch (error) {
       setFeedback(error instanceof Error ? error.message : "Unable to join the room right now.")
     } finally {

@@ -16,7 +16,7 @@ import { RoomDurationSelector } from "@/components/custom/Room/RoomDurationSelec
 import { supabase } from "@/lib/supabase/client"
 import { RoomVisibility } from "@/components/custom/Room/RoomVisibility"
 import { RoomModeSelector } from "@/components/custom/Room/RoomModeSelector"
-import { ensureUser } from "@/lib/user/ensure-user"
+import { ensureAnonUser } from "@/lib/user/ensure-user"
 import { generateRoomCode } from "@/lib/room/room-code"
 
 const MODES: { id: RoomMode; emoji: string; label: string; desc: string }[] = [
@@ -75,7 +75,6 @@ function CreateRoom() {
     setInputValue("")
   }
 
-
   const handleRemoveOption = (id: string) => {
     setOptions((prev) => prev.filter((o) => o.options_id !== id))
   }
@@ -91,13 +90,13 @@ function CreateRoom() {
 
     try {
       // AUTH USER
-      const user = await ensureUser()
+      const user = await ensureAnonUser()
       const roomCode = generateRoomCode()
 
       // CREATE ROOM
       const { data: roomData, error: roomError } = await supabase
         .from("rooms")
-        .insert({
+        .upsert({
           room_name: roomName.trim(),
           room_code: roomCode,
           mode,
@@ -118,9 +117,9 @@ function CreateRoom() {
       // INSERT CREATOR AS PARTICIPANT
       await supabase.from("participants").insert({
         room_id: roomData.room_id,
-        display_name: "Creator",
+        user_id: user.id,
+        display_name: "Host",
         is_host: true,
-        session_id: user.id,
       })
 
       // ADD OPTIONS
