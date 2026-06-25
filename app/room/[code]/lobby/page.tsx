@@ -22,7 +22,7 @@ export default function LobbyPage() {
 
   const [copiedKey, setCopiedKey] = useState<string | null>(null)
   const [participants, setParticipants] = useState<Participants[]>([])
-  const [me, setMe] = useState<Participants | null>(null)
+  const [currentParticipant, setCurrentParticipant] = useState<Participants | null>(null)
 
   const [editingName, setEditingName] = useState<string | null>(null)
   const [tempValue, setTempValue] = useState("")
@@ -50,6 +50,8 @@ export default function LobbyPage() {
 
       setRoomName(room.room_name)
 
+      const {data: { user }, } = await supabase.auth.getUser()
+
       const { data: initialParticipants } = await supabase
         .from('participants')
         .select('*')
@@ -57,6 +59,14 @@ export default function LobbyPage() {
 
       if (initialParticipants) {
         setParticipants(initialParticipants)
+
+        // 4. Find myself
+        const currentParticipant =
+          initialParticipants.find(
+            p => p.user_id === user?.id
+          ) ?? null
+
+        setCurrentParticipant(currentParticipant)
       }
 
       // CLEAN OLD CHANNEL FIRST
@@ -92,6 +102,10 @@ export default function LobbyPage() {
               }
 
               if (payload.eventType === 'UPDATE') {
+                if (currentParticipant?.participant_id === newRow.participant_id) {
+                  setCurrentParticipant(newRow)
+                }
+
                 return prev.map(p =>
                   p.participant_id === newRow.participant_id ? newRow : p
                 )
@@ -101,14 +115,12 @@ export default function LobbyPage() {
             })
           }
         )
-
       channel.subscribe()
 
       channelRef.current = channel
     }
 
     loadRoom()
-
     return () => {
       cancelled = true
 
@@ -179,7 +191,7 @@ export default function LobbyPage() {
 
               <ul className="space-y-2">
                 {participants.map(m => {
-                  const isMe = me?.participant_id === m.participant_id
+                  const isMe = currentParticipant?.participant_id === m.participant_id
 
                   return (
                     <li
