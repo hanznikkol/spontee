@@ -14,8 +14,8 @@ export default function HostPage() {
   const handleContinue = () => {
     if (!hostName.trim()) return
 
-    // pass host name via query
-    router.push(`/create?host=${encodeURIComponent(hostName.trim())}`)
+    sessionStorage.setItem("hostName", hostName.trim())
+    router.push(`/create`)
   }
 
   return (
