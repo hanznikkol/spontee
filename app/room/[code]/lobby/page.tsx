@@ -24,8 +24,6 @@ export default function LobbyPage() {
   const [participants, setParticipants] = useState<Participants[]>([])
   const [currentParticipant, setCurrentParticipant] = useState<Participants | null>(null)
 
-  const [editingName, setEditingName] = useState<string | null>(null)
-  const [tempValue, setTempValue] = useState("")
   const [roomName, setRoomName] = useState('')
 
   const shareUrl = typeof window !== 'undefined' ? `${window.location.origin}/join?room=${code}` : ''
@@ -160,7 +158,6 @@ export default function LobbyPage() {
       <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-blue-400/20 rounded-full blur-3xl" />
 
       <div className="w-full max-w-6xl flex flex-col md:flex-row gap-6">
-
         {/* LEFT SIDE */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -197,7 +194,7 @@ export default function LobbyPage() {
                     <li
                       key={m.participant_id}
                       className={`flex items-center gap-3 px-3 py-2 rounded-xl bg-muted/50 border
-                        ${isMe ? 'border-primary' : 'border-transparent'}`}
+                        ${isMe ? 'border-primary bg-primary/5' : 'border-transparent bg-muted/50'}`}
                     >
                       {/* avatar */}
                       <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">
@@ -205,26 +202,9 @@ export default function LobbyPage() {
                       </div>
 
                       {/* name */}
-                      {editingName === m.participant_id && isMe ? (
-                        <input
-                          autoFocus
-                          value={tempValue}
-                          onChange={(e) => setTempValue(e.target.value)}
-                          onBlur={() => updateDisplayName(m.participant_id, tempValue)}
-                          className="text-sm font-medium bg-transparent border-b outline-none"
-                        />
-                      ) : (
-                        <span
-                          className={`text-sm font-medium ${isMe ? 'cursor-pointer' : ''}`}
-                          onClick={() => {
-                            if (!isMe) return
-                            setEditingName(m.participant_id)
-                            setTempValue(m.display_name)
-                          }}
-                        >
-                          {m.display_name}
-                        </span>
-                      )}
+                      <span className="text-sm font-medium">
+                        {m.display_name}
+                      </span>
 
                       {/* HOST TAG */}
                       {m.is_host && (
