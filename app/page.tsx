@@ -55,7 +55,7 @@ export default function HomePage() {
               asChild 
               className="rounded-xl bg-linear-to-r from-pink-500 to-blue-500 text-white shadow-md shadow-pink-500/20 hover:scale-[1.03] transition"
             >
-              <Link href="/create">Create Room</Link>
+              <Link href="/host">Create Room</Link>
             </Button>
 
           </div>
@@ -83,7 +83,7 @@ export default function HomePage() {
 
           <div className="grid gap-3 pt-2 sm:grid-cols-2">
             <Button asChild size="lg" className="w-full rounded-2xl">
-              <Link href="/create">🛠️ I’m the host</Link>
+              <Link href="/host">🛠️ I’m the host</Link>
             </Button>
 
             <Button asChild size="lg" variant="outline" className="w-full rounded-2xl">

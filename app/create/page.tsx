@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
@@ -38,7 +38,10 @@ const MIN_OPTIONS = 2
 const MAX_OPTIONS = 10
 
 function CreateRoom() {
+  //Host Name
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const hostName = searchParams.get("host") ?? "Host"
 
   const [roomName, setRoomName] = useState("")
   const [roomVisibility, setRoomVisibility] = useState<"public" | "private">("public")
@@ -118,7 +121,7 @@ function CreateRoom() {
       await supabase.from("participants").insert({
         room_id: roomData.room_id,
         user_id: user.id,
-        display_name: "Host",
+        display_name: hostName,
         is_host: true,
       })
 

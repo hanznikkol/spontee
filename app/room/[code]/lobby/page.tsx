@@ -22,6 +22,10 @@ export default function LobbyPage() {
 
   const [copiedKey, setCopiedKey] = useState<string | null>(null)
   const [participants, setParticipants] = useState<Participants[]>([])
+  const [me, setMe] = useState<Participants | null>(null)
+
+  const [editingName, setEditingName] = useState<string | null>(null)
+  const [tempValue, setTempValue] = useState("")
   const [roomName, setRoomName] = useState('')
 
   const shareUrl = typeof window !== 'undefined' ? `${window.location.origin}/join?room=${code}` : ''
@@ -174,17 +178,51 @@ export default function LobbyPage() {
               </div>
 
               <ul className="space-y-2">
-                {participants.map(m => (
-                  <li
-                    key={m.participant_id}
-                    className="flex items-center gap-3 px-3 py-2 rounded-xl bg-muted/50"
-                  >
-                    <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">
-                      {m.display_name[0]}
-                    </div>
-                    <span className="text-sm font-medium">{m.display_name}</span>
-                  </li>
-                ))}
+                {participants.map(m => {
+                  const isMe = me?.participant_id === m.participant_id
+
+                  return (
+                    <li
+                      key={m.participant_id}
+                      className={`flex items-center gap-3 px-3 py-2 rounded-xl bg-muted/50 border
+                        ${isMe ? 'border-primary' : 'border-transparent'}`}
+                    >
+                      {/* avatar */}
+                      <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary">
+                        {m.display_name?.[0]}
+                      </div>
+
+                      {/* name */}
+                      {editingName === m.participant_id && isMe ? (
+                        <input
+                          autoFocus
+                          value={tempValue}
+                          onChange={(e) => setTempValue(e.target.value)}
+                          onBlur={() => updateDisplayName(m.participant_id, tempValue)}
+                          className="text-sm font-medium bg-transparent border-b outline-none"
+                        />
+                      ) : (
+                        <span
+                          className={`text-sm font-medium ${isMe ? 'cursor-pointer' : ''}`}
+                          onClick={() => {
+                            if (!isMe) return
+                            setEditingName(m.participant_id)
+                            setTempValue(m.display_name)
+                          }}
+                        >
+                          {m.display_name}
+                        </span>
+                      )}
+
+                      {/* HOST TAG */}
+                      {m.is_host && (
+                        <span className="text-xs text-muted-foreground ml-auto">
+                          Host
+                        </span>
+                      )}
+                    </li>
+                  )
+                })}
               </ul>
             </CardContent>
           </Card>
