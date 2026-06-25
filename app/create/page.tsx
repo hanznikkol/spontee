@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
 import { X, Plus, ArrowRight, Users } from "lucide-react"
@@ -40,7 +40,7 @@ const MAX_OPTIONS = 10
 function CreateRoom() {
   const router = useRouter()
   const hostName = typeof window !== "undefined" ? sessionStorage.getItem("hostName") ?? "" : ""
-  
+
   const [roomName, setRoomName] = useState("")
   const [roomVisibility, setRoomVisibility] = useState<"public" | "private">("public")
   const [roomPassword, setRoomPassword] = useState('')
