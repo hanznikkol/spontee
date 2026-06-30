@@ -2,10 +2,10 @@
 
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { TimePreset } from "@/lib/room/time-limits"
+import { TimePreset } from "@/lib/room/create/time-limits"
 import { cn } from "@/lib/utils"
-import { PRESET_UI } from "@/lib/room/time-limits"
-import { RoomMode } from "@/lib/room/room-types"
+import { PRESET_UI } from "@/lib/room/create/time-limits"
+import { RoomMode } from "@/lib/room/create/room-types"
 
 type Props = {
   mode: RoomMode

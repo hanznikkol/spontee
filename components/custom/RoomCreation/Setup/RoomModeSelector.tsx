@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
-import { RoomMode } from "@/lib/room/room-types"
+import { RoomMode } from "@/lib/room/create/room-types"
 
 type ModeOption = {
   id: RoomMode
@@ -58,7 +58,7 @@ export function RoomModeSelector({
               </div>
 
               {/* description */}
-              <div className="text-xs text-muted-foreground">
+              <div className="text-xs text-muted-foreground text-wrap md:text-nowrap">
                 {m.desc}
               </div>
             </Button>

@@ -1,4 +1,4 @@
-import { Option } from "../options/option-types"
+import { RoomOption } from "../options/types"
 import { PRESET_TIME, TimePreset } from "./time-limits"
 
 export const ROOM_STATUS = {
@@ -6,6 +6,9 @@ export const ROOM_STATUS = {
   SWIPING: "swiping",
   RESULT: "result",
 } as const
+
+export type RoomVisibilityTypes = "public" | "private"
+
 export type RoomStatus =typeof ROOM_STATUS[keyof typeof ROOM_STATUS]
 
 export interface Room {
@@ -19,9 +22,9 @@ export interface Room {
   duration_seconds: number
   ends_at: string | null
 
-  visibility: string
+  visibility: RoomVisibilityTypes
   created_at: string
-  options: Option[]
+  options: RoomOption[]
 }
 
 export type RoomMode = keyof typeof PRESET_TIME
