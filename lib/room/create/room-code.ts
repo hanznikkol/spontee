@@ -8,3 +8,7 @@ export function generateRoomCode(): string {
 
   return `${part()}-${part()}`
 }
+
+export function createOptionId(title: string) {
+  return `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now()}`
+}

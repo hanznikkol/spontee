@@ -5,51 +5,34 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
-import { ArrowLeft, ArrowRight, Lock, Users } from "lucide-react"
-import { RoomMode, RoomVisibilityTypes } from "@/lib/room/create/room-types"
-import { TimePreset } from "@/lib/room/create/time-limits"
-import { RoomDurationSelector } from "@/components/custom/RoomCreation/Setup/RoomDurationSelector"
-import { RoomModeSelector } from "@/components/custom/RoomCreation/Setup/RoomModeSelector"
+import { ArrowLeft, ArrowRight, Lock } from "lucide-react"
 import { SetupProgress } from "@/components/custom/RoomCreation/RoomSetupProgress"
-import { MODES } from "@/lib/room/create/room-modes"
 import { RoomVisibility } from "@/components/custom/RoomCreation/Setup/RoomVisibility"
-import { saveRoomSetup } from "@/lib/room/create/room-save"
 import RoomSetupHeader from "@/components/custom/RoomCreation/Setup/RoomSetupHeader"
+import { useCreateRoomStore } from "@/lib/room/create/stores/create-room-store"
+import RoomMaxParticipants from "@/components/custom/RoomCreation/Setup/RoomMaxParticipants"
 
 function RoomSetup() {
   const router = useRouter()
-  const roomSetup = typeof window !== "undefined" ? JSON.parse(sessionStorage.getItem("roomSetup") ?? "{}") : {}
-  const [roomName, setRoomName] = useState(roomSetup.roomName ?? "")
-  const [roomVisibility, setRoomVisibility] = useState<RoomVisibilityTypes>(roomSetup.roomVisibility ?? "public")
-  const [roomPassword, setRoomPassword] = useState(roomSetup.roomPassword ?? "")
-  const [mode, setMode] = useState<RoomMode | null>(roomSetup.mode ?? null)
-  const [timePreset, setTimePreset] = useState<TimePreset | null>(roomSetup.timePreset ?? null)
+  // Zustand Store
+  const setRoomName = useCreateRoomStore((state) => state.setRoomName)
+  const setRoomVisibility = useCreateRoomStore((state) => state.setRoomVisibility)
+  const setRoomPassword = useCreateRoomStore((state) => state.setRoomPassword)
+  const setMaxParticipants = useCreateRoomStore((state) => state.setMaxParticipants)
 
-  const canContinue = !!roomName.trim() && !!mode && !!timePreset && ( roomVisibility === "public" || roomPassword.length >= 4 )
+  const maxParticipants = useCreateRoomStore((state) => state.maxParticipants)
+  const roomName = useCreateRoomStore((state) => state.roomName)
+  const roomVisibility = useCreateRoomStore((state) => state.roomVisibility)
+  const roomPassword = useCreateRoomStore((state) => state.roomPassword)
+
+  const canContinue = !!roomName.trim() && ( roomVisibility === "public" || roomPassword.length >= 4 )
 
   const handleNext = async () => {
     if (!canContinue) return
-    saveRoomSetup({
-      roomName,
-      roomVisibility,
-      roomPassword,
-      mode,
-      timePreset,
-    })
-
-    router.push("/create/options")
+    router.push("/create/preference")
   }
 
   const handleBack = () => {
-    saveRoomSetup({
-      roomName,
-      roomVisibility,
-      roomPassword,
-      mode,
-      timePreset,
-    })
-
     router.push("/create/host")
   }
   
@@ -81,7 +64,7 @@ function RoomSetup() {
                 <Label>Room Name</Label>
                 <Input
                   placeholder={
-                    mode === 'couple' ? 'e.g. Date night ideas, Netflix & Chill' : mode === 'group' ? 'e.g. Barkada outing, Family Reunion' : 'e.g. Date night ideas, Barkada outing...'
+                    'e.g. Date Night, Barkada Outing, Family Gatherings'
                   }
                   value={roomName}
                   maxLength={40}
@@ -110,21 +93,12 @@ function RoomSetup() {
                 </div>
               )}
 
-              {/* MODE SELECTOR */}
-              <RoomModeSelector
-                value={mode}
-                onChange={setMode}
-                options={MODES}
+              <RoomMaxParticipants
+                value={maxParticipants}
+                onChange={setMaxParticipants}
+                min={2}
+                max={25}
               />
-            
-              {/* ROOM DURATION SELECTOR */}
-              {mode && (
-                <RoomDurationSelector
-                  mode={mode}
-                  value={timePreset}
-                  onChange={setTimePreset}
-                />
-              )}
 
             </div>
 

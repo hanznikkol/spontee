@@ -1,6 +1,6 @@
 import { Sparkles } from "lucide-react"
 
-export function OptionHeader() {
+export function RoomPreferenceHeader() {
   return (
     <div className="text-center space-y-3">
       <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -8,7 +8,7 @@ export function OptionHeader() {
       </div>
 
       <div className="space-y-2">
-        <h1 className="text-2xl font-bold">Add Your Options</h1>
+        <h1 className="text-2xl font-bold">Add Your Preference</h1>
         <p className="text-sm text-muted-foreground">
           Create the choices everyone will vote on.
         </p>

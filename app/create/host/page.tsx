@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -8,18 +7,19 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { ArrowRight } from "lucide-react"
 import { SetupProgress } from "@/components/custom/RoomCreation/RoomSetupProgress"
-import { saveHostName } from "@/lib/room/create/room-save"
 import HostHeader from "@/components/custom/RoomCreation/Host/HostHeader"
+import { useCreateRoomStore } from "@/lib/room/create/stores/create-room-store"
 
 export default function HostPage() {
   const router = useRouter()
-  const [hostName, setHostName] = useState("")
+  // Zustand Store
+  const hostName = useCreateRoomStore((state) => state.hostName)
+  const setHostName = useCreateRoomStore((state) => state.setHostName)
+  
   const isValidName = hostName.trim().length >= 2
 
   const handleContinue = () => {
     if (!hostName.trim()) return
-
-    saveHostName(hostName.trim())
     router.push(`/create/room`)
   }
 
