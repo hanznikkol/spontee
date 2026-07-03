@@ -34,7 +34,7 @@ function RoomPreferencePage() {
   }
 
   return (
-    <main className="relative overflow-hidden px-4 py-6 md:py-10">
+    <main className="relative overflow-hidden px-4 py-6 md:py-10 min-h-dvh">
       <div className="mx-auto w-full max-w-md space-y-2">
         <Button
           variant="ghost"
