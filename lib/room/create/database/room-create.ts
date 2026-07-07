@@ -2,7 +2,7 @@ import { ensureAnonUser } from "@/lib/user/ensure-user"
 import { RoomVisibilityTypes } from "../room-types"
 import { supabase } from "@/lib/supabase/client"
 import { generateRoomCode } from "../room-code"
-import { DefaultCategory } from "../preference/option-types"
+import { PreferenceCategory } from "../preference/categories"
 
 interface CreateRoomParams {
   roomName: string
@@ -10,7 +10,7 @@ interface CreateRoomParams {
   roomPassword?: string
   hostName: string
 
-  selectedCategories: DefaultCategory[]
+  selectedCategories: PreferenceCategory[]
 
   options: {
     title: string

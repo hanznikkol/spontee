@@ -1,6 +1,4 @@
 "use client"
-
-import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, ArrowRight } from "lucide-react"
 
@@ -11,22 +9,29 @@ import { SetupProgress } from "@/components/custom/RoomCreation/RoomSetupProgres
 import { PreferenceCategorySelector } from "@/components/custom/RoomCreation/Preference/PreferenceCategorySelector"
 import { PreferenceBudgetSelector } from "@/components/custom/RoomCreation/Preference/PreferenceBudgetSelector"
 import { PreferenceLocationCard } from "@/components/custom/RoomCreation/Preference/PreferenceLocationCard"
-import { PreferenceBudget } from "@/lib/room/create/preference/budget"
+import { useCreateRoomStore } from "@/lib/room/create/stores/create-room-store"
 
 function RoomPreferencePage() {
   const router = useRouter()
-  const [selectedCategory, setSelectedCategory] = useState<string>()
-  const [selectedBudget, setSelectedBudget] = useState<PreferenceBudget>()
-  const [locationEnabled, setLocationEnabled] = useState(false)
-  const [latitude, setLatitude] = useState<number>()
-  const [longitude, setLongitude] = useState<number>()
+  const selectedBudget = useCreateRoomStore((state) => state.budget)
+  const setSelectedBudget = useCreateRoomStore((state) => state.setBudget)
 
-  const canCreate = Boolean(selectedCategory)
+  const selectedCategories = useCreateRoomStore((state) => state.selectedCategoriesIds)
+  const toggleCategory = useCreateRoomStore((state) => state.toggleCategory)
+
+  const locationEnabled = useCreateRoomStore((state) => state.useLocation)
+  const latitude = useCreateRoomStore((state) => state.latitude)
+  const longitude = useCreateRoomStore((state) => state.longitude)
+  const setLocation = useCreateRoomStore((state) => state.setLocation)
+
+  const canCreate = selectedCategories.length > 0
 
   const handleEnableLocation = () => {
-    setLocationEnabled(true)
-    setLatitude(14.5995)
-    setLongitude(120.9842)
+      setLocation(
+        true,
+        14.5995,
+        120.9842
+      )
   }
 
   const handleCreateRoom = () => {
@@ -56,8 +61,8 @@ function RoomPreferencePage() {
 
             <div className="space-y-6">
               <PreferenceCategorySelector
-                value={selectedCategory}
-                onChange={setSelectedCategory}
+                value={selectedCategories}
+                onChange={toggleCategory}
               />
               <PreferenceBudgetSelector
                 value={selectedBudget}

@@ -1,24 +1,18 @@
 "use client"
-
 import { Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { categories } from "@/lib/room/create/preference/categories"
 
-export type PreferenceCategory = {
-  id: string
-  label: string
-  emoji: string
-}
-
 interface PreferenceCategorySelectorProps {
-  value?: string
-  onChange: (categoryId: string) => void
+  value: string[]
+  onChange: (categories: string) => void
 }
 
 export function PreferenceCategorySelector({
   value,
   onChange,
 }: PreferenceCategorySelectorProps) {
+
   return (
     <section className="space-y-3" aria-labelledby="preference-category-title">
       <div className="space-y-1">
@@ -26,21 +20,21 @@ export function PreferenceCategorySelector({
           What are you deciding today?
         </h2>
         <p className="text-sm leading-relaxed text-muted-foreground">
-          Choose one category. We&apos;ll find nearby places for your group.
+          Choose at least 3 category. We&apos;ll find nearby places for your group.
         </p>
       </div>
 
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3" role="radiogroup">
         {categories.map((category) => {
-          const isSelected = value === category.id
+          const isSelected = value.includes(category.category)
 
           return (
             <button
-              key={category.id}
+              key={category.category}
               type="button"
               role="radio"
               aria-checked={isSelected}
-              onClick={() => onChange(category.id)}
+              onClick={() => onChange(category.category)}
               className={cn(
                 "relative flex min-h-20 flex-col items-start justify-between rounded-2xl border bg-background p-3 text-left transition-all hover:border-primary/40 hover:bg-primary/5 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
                 isSelected &&
