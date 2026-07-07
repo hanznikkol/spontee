@@ -6,6 +6,10 @@ body {
   overflow-x: hidden;
 }
 
+gmp-place-autocomplete {
+  color-scheme: light;
+}
+
 /* Custom Scrollbar */
 .custom-scrollbar {
   scrollbar-width: thin;

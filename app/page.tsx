@@ -1,5 +1,3 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { features } from "@/lib/landing/text-metadata"
 import { HomeNavigation } from '@/components/custom/Landing/HomeNavigation'
 import HeroSection from "@/components/custom/Landing/HeroSection"
 import FeaturesSection from "@/components/custom/Landing/FeaturesSection"

@@ -2,10 +2,27 @@ import { create } from "zustand";
 import { RoomOption } from "../preference/option-types";
 import { RoomVisibilityTypes } from "../room-types";
 import { PreferenceBudget } from "../preference/budget";
+import { LocationStatus } from "../preference/location";
+
+export interface LocationPreferenceData {
+  placeId?: string
+  placeName?: string
+  address: string
+  latitude: number
+  longitude: number
+}
+
+export interface CoordinateLocationData {
+  status?: Exclude<LocationStatus, "required">
+  placeId?: string
+  placeName?: string
+  address?: string
+}
 
 // States
 export interface CreateRoomState {
     hostName: string,
+    // Room Preference
     roomName: string,
     roomVisibility: RoomVisibilityTypes,
     maxParticipants: number,
@@ -13,9 +30,14 @@ export interface CreateRoomState {
     selectedCategoriesIds: string[]
     options: RoomOption[]
     budget?: PreferenceBudget
-    useLocation: boolean
+    // Location
+    locationStatus: LocationStatus
+    placeId?: string
+    placeName?: string
+    address: string
     latitude?: number
     longitude?: number
+    radius: number
 }
 
 // Actions
@@ -37,10 +59,16 @@ interface CreateRoomStore extends CreateRoomState {
     // Preference
     setBudget: (budget?: PreferenceBudget) => void
     setLocation: (
-        enabled: boolean,
-        latitude?: number,
-        longitude?: number
+      status: Exclude<LocationStatus, "required">,
+      data: LocationPreferenceData
     ) => void
+    setCoordinates: (
+      latitude: number,
+      longitude: number,
+      data?: CoordinateLocationData
+    ) => void
+    clearLocation: () => void
+    setRadius: (radius: number) => void
 }
 
 // Initial Data State
@@ -53,16 +81,17 @@ const initialState: CreateRoomState = {
   selectedCategoriesIds: [],
   options: [],
   budget: "any",
-  useLocation: false,
   latitude: undefined,
   longitude: undefined,
+  locationStatus: "required",
+  address: "",
+  radius: 3000,
 }
 
 // Store
 export const useCreateRoomStore = create<CreateRoomStore>((set) => ({
   ...initialState,
   setHostName: (hostName) => set({ hostName }),
-
   setRoomName: (roomName) => set({ roomName }),
   setRoomVisibility: (roomVisibility) => set({ roomVisibility }),
   setRoomPassword: (roomPassword) => set({ roomPassword }),
@@ -104,7 +133,35 @@ export const useCreateRoomStore = create<CreateRoomStore>((set) => ({
   removeOption: (id) => set((state) => ({ options: state.options.filter((o) => o.option_id !== id) })),
   clearOptions: () => set({ options: [] }),
   reset: () => set(initialState),
-
   setBudget: (budget) => {set({budget})},
-  setLocation: (useLocation, latitude, longitude) => {set({useLocation, latitude, longitude})}
+
+  // Location
+  setLocation: (status, data) =>
+    set({
+      locationStatus: status,
+      placeId: data.placeId,
+      placeName: data.placeName,
+      address: data.address,
+      latitude: data.latitude,
+      longitude: data.longitude,
+  }),
+  clearLocation: () =>
+    set({
+      locationStatus: "required",
+      placeId: undefined,
+      placeName: undefined,
+      address: "",
+      latitude: undefined,
+      longitude: undefined,
+    }),
+  setCoordinates: (latitude, longitude, data) =>
+  set({
+    latitude,
+    longitude,
+    ...(data?.status ? { locationStatus: data.status } : {}),
+    ...(data && "placeId" in data ? { placeId: data.placeId } : {}),
+    ...(data && "placeName" in data ? { placeName: data.placeName } : {}),
+    ...(data && "address" in data ? { address: data.address } : {}),
+  }),
+  setRadius: (radius) => set({ radius }),
 }))

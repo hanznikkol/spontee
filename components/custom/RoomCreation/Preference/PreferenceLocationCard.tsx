@@ -1,192 +1,126 @@
 "use client"
 
-import { useState } from "react"
-import { LocateFixed, MapPin, Search, X } from "lucide-react"
+import { useCallback } from "react"
+import { LocateFixed } from "lucide-react"
+import { useMapsLibrary } from "@vis.gl/react-google-maps"
 
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Slider } from "@/components/ui/slider"
+import { RadiusSelector } from "./Location/LocationRadius"
+import { MapSelector } from "./Location/LocationMap"
+import { LocationSearch, SelectedPlace } from "./Location/LocationSearch"
+import { SelectedAddress } from "./Location/LocationAddress"
+import { useCreateRoomStore } from "@/lib/room/create/stores/create-room-store"
 
-interface PreferenceLocationCardProps {
-  enabled: boolean
-  latitude?: number
-  longitude?: number
-  onEnable: () => void
-}
+export function PreferenceLocationCard() {
+  const geocoding = useMapsLibrary("geocoding")
+  const locationStatus = useCreateRoomStore((state) => state.locationStatus )
+  const address = useCreateRoomStore((state) => state.address )
+  const latitude = useCreateRoomStore((state) => state.latitude )
+  const longitude = useCreateRoomStore( (state) => state.longitude)
+  const radius = useCreateRoomStore((state) => state.radius)
+  const setLocation = useCreateRoomStore( (state) => state.setLocation)
+  const setRadius = useCreateRoomStore( (state) => state.setRadius)
+  const setCoordinates = useCreateRoomStore((state) => state.setCoordinates)
 
-type LocationStatus = "required" | "current" | "custom"
+  const reverseGeocode = useCallback(
+    async (latitude: number, longitude: number) => {
+      const fallbackAddress = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`
 
-const radiusValues = [500, 1000, 3000, 5000, 10000]
-
-function formatRadius(radius: number) {
-  if (radius < 1000) return `${radius} m`
-  return `${radius / 1000} km`
-}
-
-function MockMapPreview({ onUseCurrent }: { onUseCurrent: () => void }) {
-  return (
-    <div className="relative h-60 overflow-hidden rounded-2xl bg-muted shadow-sm">
-      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(15,23,42,0.06)_1px,transparent_1px),linear-gradient(rgba(15,23,42,0.06)_1px,transparent_1px)] bg-[size:28px_28px]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.9),transparent_24%),radial-gradient(circle_at_70%_70%,rgba(255,255,255,0.72),transparent_26%)]" />
-      <div className="absolute left-8 right-10 top-16 h-3 -rotate-12 rounded-full bg-background/70" />
-      <div className="absolute bottom-20 left-10 right-6 h-3 rotate-6 rounded-full bg-background/75" />
-      <div className="absolute bottom-8 top-10 left-1/3 w-3 rotate-3 rounded-full bg-background/70" />
-
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-center">
-        <div className="relative flex h-12 w-12 items-center justify-center rounded-full bg-red-500 text-white shadow-lg shadow-red-500/25">
-          <MapPin className="h-6 w-6" aria-hidden="true" />
-          <span className="absolute -bottom-2 h-3 w-3 rounded-full bg-red-500/30 blur-sm" />
-        </div>
-        <p className="rounded-full bg-background/80 px-3 py-1 text-xs font-medium text-muted-foreground shadow-sm backdrop-blur">
-          Map Preview
-        </p>
-      </div>
-
-      <Button
-        type="button"
-        size="sm"
-        className="absolute bottom-3 right-3 rounded-xl shadow-md"
-        onClick={onUseCurrent}
-      >
-        <LocateFixed className="h-4 w-4" aria-hidden="true" />
-        Use Current Location
-      </Button>
-    </div>
-  )
-}
-
-function LocationSearch({
-  value,
-  onChange,
-  onClear,
-}: {
-  value: string
-  onChange: (value: string) => void
-  onClear: () => void
-}) {
-  return (
-    <div className="relative">
-      <Search
-        className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-        aria-hidden="true"
-      />
-      <Input
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        placeholder="Search address or place..."
-        className="h-11 rounded-2xl pl-9 pr-10"
-      />
-      {value && (
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full"
-          aria-label="Clear search"
-          onClick={onClear}
-        >
-          <X className="h-4 w-4" aria-hidden="true" />
-        </Button>
-      )}
-    </div>
-  )
-}
-
-function SelectedAddress({
-  status,
-  address,
-}: {
-  status: LocationStatus
-  address?: string
-}) {
-  return (
-    <div className="flex items-start gap-3 rounded-2xl border bg-background p-3">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-        <MapPin className="h-4 w-4" aria-hidden="true" />
-      </div>
-      <div className="min-w-0 flex-1 space-y-2">
-        <Badge variant={status === "required" ? "outline" : "default"}>
-          {status === "current"
-            ? "Current Location"
-            : status === "custom"
-              ? "Custom Location"
-              : "Location Required"}
-        </Badge>
-        <p className="whitespace-pre-line text-sm leading-relaxed">
-          {address ?? "Location not selected"}
-        </p>
-      </div>
-    </div>
-  )
-}
-
-function RadiusSelector({
-  radius,
-  onChange,
-}: {
-  radius: number
-  onChange: (radius: number) => void
-}) {
-  const selectedIndex = radiusValues.indexOf(radius)
-
-  return (
-    <div className="space-y-3 rounded-2xl border bg-background p-3">
-      <div className="flex items-start justify-between gap-4">
-        <div className="space-y-1">
-          <h3 className="text-sm font-semibold">Search Radius</h3>
-          <p className="text-xs text-muted-foreground">
-            How far should we search?
-          </p>
-        </div>
-        <span className="shrink-0 text-sm font-semibold text-primary">
-          {formatRadius(radius)}
-        </span>
-      </div>
-
-      <Slider
-        value={[selectedIndex]}
-        min={0}
-        max={radiusValues.length - 1}
-        step={1}
-        onValueChange={([nextIndex]) =>
-          onChange(radiusValues[nextIndex] ?? radius)
+      if (!geocoding) {
+        return {
+          address: fallbackAddress,
+          placeId: undefined,
         }
-        aria-label="Search radius"
-      />
+      }
 
-      <div className="flex justify-between text-[0.7rem] text-muted-foreground">
-        {radiusValues.map((value) => (
-          <span key={value}>{formatRadius(value)}</span>
-        ))}
-      </div>
-    </div>
+      const geocoder = new geocoding.Geocoder()
+
+      try {
+        const response = await geocoder.geocode({
+          location: { lat: latitude, lng: longitude },
+        })
+        const result = response.results[0]
+
+        return {
+          address: result?.formatted_address ?? fallbackAddress,
+          placeId: result?.place_id,
+        }
+      } catch (error) {
+        console.error(error)
+        return {
+          address: fallbackAddress,
+          placeId: undefined,
+        }
+      }
+    },
+    [geocoding]
   )
-}
-
-export function PreferenceLocationCard({
-  enabled: _enabled,
-  latitude: _latitude,
-  longitude: _longitude,
-  onEnable,
-}: PreferenceLocationCardProps) {
-  const [searchValue, setSearchValue] = useState("")
-  const [status, setStatus] = useState<LocationStatus>("required")
-  const [selectedAddress, setSelectedAddress] = useState<string>()
-  const [radius, setRadius] = useState(3000)
 
   const handleUseCurrentLocation = () => {
-    setStatus("current")
-    setSelectedAddress("123 Sample Street\nQuezon City")
-    onEnable()
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by this browser.")
+      return
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords
+        const resolvedLocation = await reverseGeocode(latitude, longitude)
+
+        setLocation(
+          "current",
+          {
+            placeId: resolvedLocation.placeId,
+            address: resolvedLocation.address,
+            latitude,
+            longitude,
+          }
+        )
+      },
+      (error) => {
+        console.error(error)
+        alert("Unable to retrieve your location.")
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    )
   }
 
   const handleConfirmLocation = () => {
-    const cleanSearch = searchValue.trim()
+    if (typeof latitude !== "number" || typeof longitude !== "number") {
+      alert("Please select a location first")
+      return
+    }
+  }
 
-    setStatus("custom")
-    setSelectedAddress(
-      cleanSearch ? `${cleanSearch}\nQuezon City` : "123 Sample Street\nQuezon City"
+  const handlePlaceSelect = useCallback((place: SelectedPlace) => {
+    setLocation(
+      "custom",
+      {
+        placeId: place.placeId,
+        placeName: place.placeName,
+        address: place.address,
+        latitude: place.latitude,
+        longitude: place.longitude,
+      }
+    )
+  }, [setLocation])
+
+  const handleMapSelect = async ( latitude:number, longitude:number ) => {
+    const resolvedLocation = await reverseGeocode(latitude, longitude)
+
+    setCoordinates(
+      latitude,
+      longitude,
+      {
+        status: "custom",
+        placeId: resolvedLocation.placeId,
+        placeName: undefined,
+        address: resolvedLocation.address,
+      }
     )
   }
 
@@ -202,33 +136,46 @@ export function PreferenceLocationCard({
       </div>
 
       <div className="space-y-4 rounded-2xl border bg-background/80 p-3">
+        {/* Input Search Location */}
         <LocationSearch
-          value={searchValue}
-          onChange={setSearchValue}
-          onClear={() => setSearchValue("")}
+          onSelect={handlePlaceSelect}
         />
-        <MockMapPreview onUseCurrent={handleUseCurrentLocation} />
-        <SelectedAddress status={status} address={selectedAddress} />
-        <RadiusSelector radius={radius} onChange={setRadius} />
+        {/* Current Location Button */}
+        <Button
+          type="button"
+          variant="ghost"
+          className="w-fit px-0 text-primary"
+          onClick={handleUseCurrentLocation}
+        >
+          <LocateFixed className="mr-2 h-4 w-4" aria-hidden="true" />
+          Use Current Location
+        </Button>
 
-        <div className="grid gap-2 sm:grid-cols-2">
-          <Button
-            type="button"
-            className="rounded-xl"
-            onClick={handleConfirmLocation}
-          >
-            Confirm Location
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            className="rounded-xl"
-            onClick={handleUseCurrentLocation}
-          >
-            <LocateFixed className="h-4 w-4" aria-hidden="true" />
-            Use Current Location
-          </Button>
-        </div>
+        {/* Embedded Map */}
+        <MapSelector
+          latitude={latitude}
+          longitude={longitude}
+          onSelectLocation={handleMapSelect}
+        />
+
+        <SelectedAddress
+          status={locationStatus}
+          address={address}
+        />
+        {/* Radius Selector */}
+        <RadiusSelector
+          radius={radius}
+          onChange={setRadius}
+        />
+
+        {/* Confirm Location */}
+        <Button
+          type="button"
+          className="w-full rounded-xl"
+          onClick={handleConfirmLocation}
+        >
+          Confirm Location
+        </Button>
       </div>
     </section>
   )

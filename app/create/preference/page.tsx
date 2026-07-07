@@ -18,21 +18,8 @@ function RoomPreferencePage() {
 
   const selectedCategories = useCreateRoomStore((state) => state.selectedCategoriesIds)
   const toggleCategory = useCreateRoomStore((state) => state.toggleCategory)
-
-  const locationEnabled = useCreateRoomStore((state) => state.useLocation)
-  const latitude = useCreateRoomStore((state) => state.latitude)
-  const longitude = useCreateRoomStore((state) => state.longitude)
-  const setLocation = useCreateRoomStore((state) => state.setLocation)
-
+  
   const canCreate = selectedCategories.length > 0
-
-  const handleEnableLocation = () => {
-      setLocation(
-        true,
-        14.5995,
-        120.9842
-      )
-  }
 
   const handleCreateRoom = () => {
     if (!canCreate) return
@@ -68,12 +55,7 @@ function RoomPreferencePage() {
                 value={selectedBudget}
                 onChange={setSelectedBudget}
               />
-              <PreferenceLocationCard
-                enabled={locationEnabled}
-                latitude={latitude}
-                longitude={longitude}
-                onEnable={handleEnableLocation}
-              />
+              <PreferenceLocationCard />
             </div>
 
             <Button
