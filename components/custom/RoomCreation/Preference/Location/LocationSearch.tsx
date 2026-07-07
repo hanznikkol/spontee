@@ -18,7 +18,6 @@ interface LocationSearchProps {
   onSelect: (place: SelectedPlace) => void
 }
 
-
 export function LocationSearch({
   onSelect
 }: LocationSearchProps) {
