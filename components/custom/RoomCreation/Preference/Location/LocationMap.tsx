@@ -1,9 +1,6 @@
 "use client"
 
-import {
-  Map,
-  AdvancedMarker,
-} from "@vis.gl/react-google-maps"
+import { Map, AdvancedMarker } from "@vis.gl/react-google-maps"
 
 
 interface MapSelectorProps {
@@ -15,32 +12,17 @@ interface MapSelectorProps {
   ) => void
 }
 
+export function MapSelector({ latitude, longitude, onSelectLocation }: MapSelectorProps) {
 
-export function MapSelector({
-  latitude,
-  longitude,
-  onSelectLocation,
-}: MapSelectorProps) {
-
-  const hasSelectedLocation =
-    typeof latitude === "number" && typeof longitude === "number"
-
-  const position = {
-    lat: latitude ?? 14.5995,
-    lng: longitude ?? 120.9842,
-  }
-
+  const hasSelectedLocation = typeof latitude === "number" && typeof longitude === "number"
 
   return (
     <div className="h-60 overflow-hidden rounded-2xl">
 
       <Map
-        mapId="DEMO_MAP_ID"
-        center={position}
+        mapId="MAP_ID"
         zoom={15}
         gestureHandling="greedy"
-        disableDefaultUI
-
         onClick={(event)=>{
 
           const latLng = event.detail.latLng

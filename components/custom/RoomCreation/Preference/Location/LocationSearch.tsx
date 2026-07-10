@@ -4,7 +4,6 @@ import { useMapsLibrary } from "@vis.gl/react-google-maps"
 import { Search } from "lucide-react"
 import { useEffect, useRef } from "react"
 
-
 export interface SelectedPlace {
   placeId?: string
   placeName?: string
@@ -12,7 +11,6 @@ export interface SelectedPlace {
   latitude: number
   longitude: number
 }
-
 
 interface LocationSearchProps {
   onSelect: (place: SelectedPlace) => void
@@ -27,7 +25,6 @@ export function LocationSearch({
 
 
   useEffect(() => {
-
     if (!places || !containerRef.current)
       return
 
@@ -37,12 +34,10 @@ export function LocationSearch({
     })
 
     autocompleteElement.noInputIcon = true
-    autocompleteElement.className =
-      "block h-11 w-full rounded-2xl border border-input bg-background pl-9 pr-3 text-sm shadow-xs outline-none transition-[color,box-shadow] "
+    autocompleteElement.className = "block h-11 w-full rounded-2xl border border-input bg-background pl-9 pr-3 text-sm shadow-xs outline-none transition-[color,box-shadow] "
 
     const handleSelect: EventListener = async (event) => {
-      const selectEvent =
-        event as google.maps.places.PlacePredictionSelectEvent
+      const selectEvent = event as google.maps.places.PlacePredictionSelectEvent
       const place = selectEvent.placePrediction.toPlace()
 
       await place.fetchFields({
