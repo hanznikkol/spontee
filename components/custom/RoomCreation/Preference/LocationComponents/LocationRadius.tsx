@@ -1,15 +1,8 @@
 import { Slider } from "@/components/ui/slider"
 import { RADIUS_VALUES } from "@/lib/room/create/preference/location"
 
-export function RadiusSelector({
-  radius,
-  onChange,
-}: {
-  radius: number
-  onChange: (radius: number) => void
-}) {
+export function LocationRadius({ radius, onChange }: { radius: number, onChange: (radius: number) => void}) {
 
- 
   const selectedIndex = RADIUS_VALUES.indexOf(radius)
   function formatRadius(radius: number) {
     if (radius < 1000) return `${radius} m`

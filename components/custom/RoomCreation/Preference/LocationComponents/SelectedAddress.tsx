@@ -2,13 +2,7 @@ import { Badge } from "@/components/ui/badge"
 import { LocationStatus } from "@/lib/room/create/preference/location"
 import { MapPin } from "lucide-react"
 
-export function SelectedAddress({
-  status,
-  address,
-}: {
-  status: LocationStatus
-  address?: string
-}) {
+export function SelectedAddress({ status, address, }: { status: LocationStatus, address?: string }) {
   return (
     <div className="flex items-start gap-3 rounded-2xl border bg-background p-3">
       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">

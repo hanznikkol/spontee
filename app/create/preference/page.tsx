@@ -8,8 +8,8 @@ import { RoomPreferenceHeader } from "@/components/custom/RoomCreation/Preferenc
 import { SetupProgress } from "@/components/custom/RoomCreation/RoomSetupProgress"
 import { PreferenceCategorySelector } from "@/components/custom/RoomCreation/Preference/PreferenceCategorySelector"
 import { PreferenceBudgetSelector } from "@/components/custom/RoomCreation/Preference/PreferenceBudgetSelector"
-import { PreferenceLocationCard } from "@/components/custom/RoomCreation/Preference/PreferenceLocationCard"
 import { useCreateRoomStore } from "@/lib/room/create/stores/create-room-store"
+import PreferenceLocationCard from "@/components/custom/RoomCreation/Preference/PreferenceLocationCard"
 
 function RoomPreferencePage() {
   const router = useRouter()
