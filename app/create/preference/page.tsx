@@ -16,13 +16,19 @@ function RoomPreferencePage() {
   const selectedBudget = useCreateRoomStore((state) => state.budget)
   const setSelectedBudget = useCreateRoomStore((state) => state.setBudget)
 
-  const selectedCategories = useCreateRoomStore((state) => state.selectedCategoriesIds)
+  const selectedCategories = useCreateRoomStore((state) => state.selectedCategoriesbyNames)
   const toggleCategory = useCreateRoomStore((state) => state.toggleCategory)
   
   const canCreate = selectedCategories.length > 0
 
   const handleCreateRoom = () => {
     if (!canCreate) return
+
+    const store = useCreateRoomStore.getState()
+
+    console.log(
+      JSON.stringify(store, null, 2)
+    )
   }
 
   return (

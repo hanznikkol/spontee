@@ -1,4 +1,4 @@
-import { RoomOption } from "@/lib/room/create/options/option-types"
+import { RoomOption } from "./option-types"
 
 export const ROOM_STATUS = {
   LOBBY: "lobby",

@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { supabase } from "@/lib/supabase/client"
-import { ensureAnonUser } from "@/lib/user/ensure-user"
+import { ensureAnonUser } from "@/lib/user/services/auth.service"
 import { ArrowRight, Loader2, Upload, Users } from "lucide-react"
 import { extractRoomCode } from "@/lib/room/join/join"
 

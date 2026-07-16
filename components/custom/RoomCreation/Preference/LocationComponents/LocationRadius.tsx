@@ -1,5 +1,5 @@
 import { Slider } from "@/components/ui/slider"
-import { RADIUS_VALUES } from "@/lib/room/create/preference/location"
+import { RADIUS_VALUES } from "@/lib/room/create/types/location"
 
 export function LocationRadius({ radius, onChange }: { radius: number, onChange: (radius: number) => void}) {
 

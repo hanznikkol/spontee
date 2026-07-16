@@ -16,9 +16,7 @@ interface LocationSearchProps {
   onSelect: (place: SelectedPlace) => void
 }
 
-export function LocationSearch({
-  onSelect
-}: LocationSearchProps) {
+export function LocationSearch({ onSelect }: LocationSearchProps) {
 
   const containerRef = useRef<HTMLDivElement>(null)
   const places = useMapsLibrary("places")

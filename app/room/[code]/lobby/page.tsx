@@ -6,10 +6,10 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Check, Copy, Users, ArrowRight } from 'lucide-react'
-import { RoomMode } from '@/lib/room/create/room-types'
+import { RoomMode } from '@/lib/room/create/types/room-types'
 import { supabase } from '@/lib/supabase/client'
 import { QRCodeSVG } from 'qrcode.react'
-import { Participants } from '@/lib/user/participants'
+import { Participants } from '@/lib/user/type/participants'
 import { RealtimeChannel } from '@supabase/supabase-js'
 
 export default function LobbyPage() {

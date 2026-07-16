@@ -1,17 +1,14 @@
 "use client"
 import { Check } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { categories } from "@/lib/room/create/preference/categories"
+import { categories } from "@/lib/room/create/types/categories"
 
 interface PreferenceCategorySelectorProps {
   value: string[]
   onChange: (categories: string) => void
 }
 
-export function PreferenceCategorySelector({
-  value,
-  onChange,
-}: PreferenceCategorySelectorProps) {
+export function PreferenceCategorySelector({ value, onChange }: PreferenceCategorySelectorProps) {
 
   return (
     <section className="space-y-3" aria-labelledby="preference-category-title">
@@ -26,15 +23,15 @@ export function PreferenceCategorySelector({
 
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3" role="radiogroup">
         {categories.map((category) => {
-          const isSelected = value.includes(category.category)
+          const isSelected = value.includes(category.name)
 
           return (
             <button
-              key={category.category}
+              key={category.name}
               type="button"
               role="radio"
               aria-checked={isSelected}
-              onClick={() => onChange(category.category)}
+              onClick={() => onChange(category.name)}
               className={cn(
                 "relative flex min-h-20 flex-col items-start justify-between rounded-2xl border bg-background p-3 text-left transition-all hover:border-primary/40 hover:bg-primary/5 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none",
                 isSelected &&

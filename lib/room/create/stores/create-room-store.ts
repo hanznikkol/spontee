@@ -1,8 +1,8 @@
 import { create } from "zustand";
-import { RoomOption } from "../preference/option-types";
-import { RoomVisibilityTypes } from "../room-types";
-import { PreferenceBudget } from "../preference/budget";
-import { LocationStatus } from "../preference/location";
+import { RoomOption } from "../types/option-types";
+import { RoomVisibilityTypes } from "../types/room-types";
+import { PreferenceBudget } from "../types/budget";
+import { LocationStatus } from "../types/location";
 
 export interface LocationPreferenceData {
   placeId?: string
@@ -27,7 +27,7 @@ export interface CreateRoomState {
     roomVisibility: RoomVisibilityTypes,
     maxParticipants: number,
     roomPassword: string,
-    selectedCategoriesIds: string[]
+    selectedCategoriesbyNames: string[]
     options: RoomOption[]
     budget?: PreferenceBudget
     // Location
@@ -78,7 +78,7 @@ const initialState: CreateRoomState = {
   maxParticipants: 2,
   roomVisibility: "public",
   roomPassword: "",
-  selectedCategoriesIds: [],
+  selectedCategoriesbyNames: [],
   options: [],
   budget: "any",
   latitude: undefined,
@@ -96,15 +96,15 @@ export const useCreateRoomStore = create<CreateRoomStore>((set) => ({
   setRoomVisibility: (roomVisibility) => set({ roomVisibility }),
   setRoomPassword: (roomPassword) => set({ roomPassword }),
   setMaxParticipants: (value)  => set({maxParticipants: value}),
-  setSelectedCategories: (selectedCategoriesIds) => set({ selectedCategoriesIds }),
-  toggleCategory: (categoryId: string) => set((state) => {
-    const selected = state.selectedCategoriesIds
+  setSelectedCategories: (selectedCategoriesbyNames) => set({ selectedCategoriesbyNames }),
+  toggleCategory: (categoryName: string) => set((state) => {
+    const selected = state.selectedCategoriesbyNames
 
     // Remove if already selected
-    if (selected.includes(categoryId)) {
+    if (selected.includes(categoryName)) {
       return {
-        selectedCategoriesIds: selected.filter(
-          (id) => id !== categoryId
+        selectedCategoriesbyNames: selected.filter(
+          (id) => id !== categoryName
         ),
       }
     }
@@ -112,13 +112,13 @@ export const useCreateRoomStore = create<CreateRoomStore>((set) => ({
     // Maximum reached
     if (selected.length >= 3) {
       return {
-        selectedCategoriesIds: selected
+        selectedCategoriesbyNames: selected
       }
     }
 
     // Add category
     return {
-      selectedCategoriesIds: [...selected, categoryId],
+      selectedCategoriesbyNames: [...selected, categoryName],
     }
   }),
   addOption: (option) => set((state) => ({ options: [...state.options, option], })),

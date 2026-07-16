@@ -1,7 +1,7 @@
 "use client"
 
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
-import { budgetChoices, PreferenceBudget } from "@/lib/room/create/preference/budget"
+import { budgetChoices, PreferenceBudget } from "@/lib/room/create/types/budget"
 
 
 interface PreferenceBudgetSelectorProps {
@@ -9,10 +9,7 @@ interface PreferenceBudgetSelectorProps {
   onChange: (budget?: PreferenceBudget) => void
 }
 
-export function PreferenceBudgetSelector({
-  value,
-  onChange,
-}: PreferenceBudgetSelectorProps) {
+export function PreferenceBudgetSelector({ value, onChange, }: PreferenceBudgetSelectorProps) {
   return (
     <section className="space-y-3" aria-labelledby="preference-budget-title">
       <h2 id="preference-budget-title" className="text-base font-semibold">

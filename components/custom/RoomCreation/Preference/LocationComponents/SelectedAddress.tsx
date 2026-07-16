@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge"
-import { LocationStatus } from "@/lib/room/create/preference/location"
+import { LocationStatus } from "@/lib/room/create/types/location"
 import { MapPin } from "lucide-react"
 
 export function SelectedAddress({ status, address, }: { status: LocationStatus, address?: string }) {

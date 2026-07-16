@@ -1,4 +1,3 @@
-
 export type PreferenceBudget = "any" | "low" | "medium" | "high"
 
 export const budgetChoices: Array<{ value: PreferenceBudget; label: string }> = [
