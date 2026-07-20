@@ -1,3 +1,4 @@
+// THIS IS FOR UI
 export type PreferenceCategory = {
   name: string
   label: string

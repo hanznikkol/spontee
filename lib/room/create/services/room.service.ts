@@ -20,6 +20,7 @@ export async function create(data: CreateRoomPayload) {
 
   //  Attach categories
   await createCategories(room.room_id, data.selectedCategoriesbyNames);
+  console.log("Selected Categories:", data.selectedCategoriesbyNames);
 
   // Generate nearby places
   const options = await generate({

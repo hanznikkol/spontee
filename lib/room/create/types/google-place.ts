@@ -1,3 +1,4 @@
+// GOOGLE API RESPONSE ON PRICE LEVEL
 export type GooglePriceLevel = 
   | "PRICE_LEVEL_FREE"
   | "PRICE_LEVEL_INEXPENSIVE"
