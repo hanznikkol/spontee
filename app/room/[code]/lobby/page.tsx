@@ -1,154 +1,15 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
-import { useParams, useSearchParams, useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Check, Copy, Users, ArrowRight } from 'lucide-react'
-import { RoomMode } from '@/lib/room/create/types/room-types'
-import { supabase } from '@/lib/supabase/client'
 import { QRCodeSVG } from 'qrcode.react'
-import { Participants } from '@/lib/user/type/participants'
-import { RealtimeChannel } from '@supabase/supabase-js'
+import { useLobby } from '@/lib/room/lobby/hook/useLobby'
+import { useClipboard } from '@/lib/room/lobby/hook/useClipboard'
 
 export default function LobbyPage() {
-  const params = useParams()
-  const code = typeof params.code === "string" ? params.code : ""
-  const searchParams = useSearchParams()
-  const router = useRouter()
-  const channelRef = useRef<RealtimeChannel | null>(null)
-  const mode = searchParams.get('mode') as RoomMode | null
-
-  const [copiedKey, setCopiedKey] = useState<string | null>(null)
-  const [participants, setParticipants] = useState<Participants[]>([])
-  const [currentParticipant, setCurrentParticipant] = useState<Participants | null>(null)
-
-  const [roomName, setRoomName] = useState('')
-
-  const shareUrl = typeof window !== 'undefined' ? `${window.location.origin}/join?room=${code}` : ''
-
-  const shareCode = code
-
-  useEffect(() => {
-    if (!code) return
-
-    let cancelled = false
-
-    const loadRoom = async () => {
-      const normalizedCode = code.toString().trim().toUpperCase()
-
-      const { data: room } = await supabase
-        .from('rooms')
-        .select('*')
-        .eq('room_code', normalizedCode)
-        .single()
-
-      if (!room || cancelled) return
-
-      setRoomName(room.room_name)
-
-      const {data: { user }, } = await supabase.auth.getUser()
-
-      const { data: initialParticipants } = await supabase
-        .from('participants')
-        .select('*')
-        .eq('room_id', room.room_id)
-
-      if (initialParticipants) {
-        setParticipants(initialParticipants)
-
-        // 4. Find myself
-        const currentParticipant =
-          initialParticipants.find(
-            p => p.user_id === user?.id
-          ) ?? null
-
-        setCurrentParticipant(currentParticipant)
-      }
-
-      // CLEAN OLD CHANNEL FIRST
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current)
-        channelRef.current = null
-      }
-
-      const channel = supabase
-        .channel(`participants-${room.room_id}`)
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'participants',
-            filter: `room_id=eq.${room.room_id}`,
-          },
-          (payload) => {
-            const newRow = payload.new as Participants
-            const oldRow = payload.old as Participants
-
-            setParticipants((prev) => {
-              if (payload.eventType === 'INSERT') {
-                if (prev.some(p => p.participant_id === newRow.participant_id)) {
-                  return prev
-                }
-                return [...prev, newRow]
-              }
-
-              if (payload.eventType === 'DELETE') {
-                return prev.filter(p => p.participant_id !== oldRow.participant_id)
-              }
-
-              if (payload.eventType === 'UPDATE') {
-                if (currentParticipant?.participant_id === newRow.participant_id) {
-                  setCurrentParticipant(newRow)
-                }
-
-                return prev.map(p =>
-                  p.participant_id === newRow.participant_id ? newRow : p
-                )
-              }
-
-              return prev
-            })
-          }
-        )
-      channel.subscribe()
-
-      channelRef.current = channel
-    }
-
-    loadRoom()
-    return () => {
-      cancelled = true
-
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current)
-        channelRef.current = null
-      }
-    }
-  }, [code])
-
-  const handleCopy = async (text: string, key: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-
-      setCopiedKey(key)
-
-      setTimeout(() => {
-        setCopiedKey(null)
-      }, 3000)
-    } catch (err) {
-      console.log("Copy failed", err)
-    }
-  }
-
-  const handleStart = () => {
-    localStorage.setItem(`room:${code}:status`, 'active')
-    router.push(`/room/${code}?mode=${mode}`)
-  }
-
-  const modeLabel = mode === 'couple' ? 'For Two' : 'Group'
+  const { roomName, participants, currentParticipant, shareCode, shareUrl, handleStart } = useLobby()
+  const { copiedKey, handleCopy, } = useClipboard()
 
   return (
     <main className="min-h-dvh w-full flex items-center justify-center p-4 bg-background relative overflow-hidden">
@@ -165,7 +26,7 @@ export default function LobbyPage() {
           className="flex-1 flex flex-col gap-4"
         >
           <div className="text-center space-y-1">
-            <Badge variant="secondary">{modeLabel}</Badge>
+            {/* <Badge variant="secondary">{modeLabel}</Badge> */}
             <h1 className="text-2xl font-bold">{roomName}</h1>
             <p className="text-sm text-muted-foreground">
               Share the link so everyone can join
@@ -182,7 +43,6 @@ export default function LobbyPage() {
                 <div className="flex items-center gap-1 text-xs text-muted-foreground">
                   <Users className="w-3 h-3" />
                   {participants.length}
-                  {mode === 'couple' && '/2'}
                 </div>
               </div>
 
@@ -227,11 +87,7 @@ export default function LobbyPage() {
             Start Now <ArrowRight />
           </Button>
 
-          <p className="text-xs text-center text-muted-foreground">
-            {mode === 'couple'
-              ? 'Both of you need to be here before starting'
-              : 'You can start anytime'}
-          </p>
+          <p className="text-xs text-center text-muted-foreground">You can start anytime</p>
         </motion.div>
 
         {/* DIVIDER */}
