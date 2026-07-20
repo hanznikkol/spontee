@@ -3,6 +3,7 @@ import { LocationStatus } from "../types/location";
 import { RoomVisibilityTypes } from "../types/room-types";
 
 export interface CreateRoomPayload {
+  userId: string;
   hostName: string;
   roomName: string;
   roomVisibility: RoomVisibilityTypes;

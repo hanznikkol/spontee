@@ -12,6 +12,7 @@ import PreferenceLocationCard from "@/components/custom/RoomCreation/Preference/
 import { createRoomAction } from "@/lib/room/create/actions/create-room"
 import { useEffect, useState } from "react"
 import { ErrorDialog } from "@/components/custom/Modal/ErrorLogDialog"
+import { ensureAnonUser } from "@/lib/user/services/auth.service"
 
 const loadingMessages = [
   "Creating your room...",
@@ -37,10 +38,14 @@ function RoomPreferencePage() {
 
   const handleCreateRoom = async () => {
       if (!canCreate) return;
+    
+      // Get All Stored State
       const state = useCreateRoomStore.getState();
       try {
           setIsCreating(true)
+          const user = await ensureAnonUser()
           const room = await createRoomAction({
+            userId: user.id,
             hostName: state.hostName,
             roomName: state.roomName,
             roomVisibility: state.roomVisibility,

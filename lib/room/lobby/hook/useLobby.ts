@@ -5,7 +5,6 @@ import { useParams, useRouter } from "next/navigation"
 import { RealtimeChannel } from "@supabase/supabase-js"
 import { getRoom, getParticipants, getCurrentUser, subscribeParticipants, } from "../service/lobby.service"
 import { getCurrentParticipant, updateParticipants, } from "../helper/participant.helper"
-
 import { Participants } from "@/lib/user/type/participants"
 import { supabase } from "@/lib/supabase/client"
 
@@ -34,15 +33,12 @@ export function useLobby() {
 
       setRoomName(room.room_name)
 
-      const {
-        data: { user },
-      } = await getCurrentUser()
+      const { data: { user } } = await getCurrentUser()
 
-      const {
-        data: initialParticipants,
-      } = await getParticipants(room.room_id)
+      const { data: initialParticipants, } = await getParticipants(room.room_id)
 
       if (initialParticipants) {
+        console.log("Participants:", initialParticipants)
         setParticipants(initialParticipants)
 
         setCurrentParticipant(
@@ -51,7 +47,11 @@ export function useLobby() {
             user?.id
           )
         )
+       console.log("LOBBY USER:", user?.id)
+       console.log("PARTICIPANT USER:", initialParticipants[0]?.user_id)
       }
+
+       
 
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current)
@@ -92,7 +92,11 @@ export function useLobby() {
     router.push(`/room/${code}`)
   }
 
-  return { roomName, participants, currentParticipant, shareCode: code, 
+  return { 
+    roomName, 
+    participants, 
+    currentParticipant, 
+    shareCode: code, 
     shareUrl: typeof window !== "undefined" ? `${window.location.origin}/join?room=${code}` : "",
     handleStart,
   }

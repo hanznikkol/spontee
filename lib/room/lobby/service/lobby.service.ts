@@ -29,10 +29,7 @@ export async function startRoom(roomId: string) {
     .eq("room_id", roomId)
 }
 
-export async function renameParticipant(
-  participantId: string,
-  displayName: string
-) {
+export async function renameParticipant( participantId: string, displayName: string ) {
   return supabase
     .from("participants")
     .update({
@@ -41,28 +38,21 @@ export async function renameParticipant(
     .eq("participant_id", participantId)
 }
 
-export async function kickParticipant(
-  participantId: string
-) {
+export async function kickParticipant( participantId: string ) {
   return supabase
     .from("participants")
     .delete()
     .eq("participant_id", participantId)
 }
 
-export async function leaveRoom(
-  participantId: string
-) {
+export async function leaveRoom( participantId: string ) {
   return supabase
     .from("participants")
     .delete()
     .eq("participant_id", participantId)
 }
 
-export function subscribeParticipants(
-  roomId: string,
-  callback: Parameters<RealtimeChannel["on"]>[2]
-) {
+export function subscribeParticipants( roomId: string, callback: Parameters<RealtimeChannel["on"]>[2] ) {
   return supabase
     .channel(`participants-${roomId}`)
     .on(

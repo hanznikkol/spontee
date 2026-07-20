@@ -3,8 +3,7 @@
 import { useState } from "react"
 
 export function useClipboard() {
-  const [copiedKey, setCopiedKey] =
-    useState<string | null>(null)
+  const [copiedKey, setCopiedKey] = useState<string | null>(null)
 
   async function handleCopy( text: string, key: string ) {
     try {

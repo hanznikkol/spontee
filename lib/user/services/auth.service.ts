@@ -4,7 +4,10 @@ export async function ensureAnonUser() {
   const { data: { user } } = await supabase.auth.getUser()
 
   // EXISTING SESSION
-  if (user) return user
+  if (user) {
+    console.log("ENSURE EXISTING:", user.id);
+    return user
+  }
 
   // CREATE ANONYMOUS USER
   const { data, error } =
@@ -14,5 +17,6 @@ export async function ensureAnonUser() {
     throw new Error("Failed to create anonymous user")
   }
 
+  console.log("ENSURE NEW:", data.user.id);
   return data.user
 }

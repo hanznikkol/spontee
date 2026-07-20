@@ -1,27 +1,18 @@
 import { supabase } from "@/lib/supabase/client";
 import { CreateRoomPayload } from "../payload/create-room.dto";
 import { generateRoomCode } from "../utils/room-code.utils";
-import { ensureAnonUser } from "@/lib/user/services/auth.service";
 import { generate } from "./option.service";
 import { PlaceOption } from "../types/option-types";
 
 // CREATE ROOM SERVICE
 export async function create(data: CreateRoomPayload) {
-  
-  const user = await ensureAnonUser()
-
   const room = await createRoomRecord(data);
-
   //  Create host participant
-  await createParticipant(room.room_id, data.hostName, user.id);
-
+  await createParticipant(room.room_id, data.hostName, data.userId);
   //  Save preferences
   await createPreferences(room.room_id, data);
-
   //  Attach categories
   await createCategories(room.room_id, data.selectedCategoriesbyNames);
-  console.log("Selected Categories:", data.selectedCategoriesbyNames);
-
   // Generate nearby places
   const options = await generate({
       categoryNames: data.selectedCategoriesbyNames,
@@ -31,16 +22,11 @@ export async function create(data: CreateRoomPayload) {
       budget: data.budget
   });
 
-  // 6. Save options
+  // Save options
   await createOptions(room.room_id, options);
   
   return room;
-
 }
-
-// JOIN (SOON)
-
-// LEAVE (SOON)
 
 // CREATE ROOM HELPER
 async function createRoomRecord(data: CreateRoomPayload) {
@@ -62,7 +48,7 @@ async function createRoomRecord(data: CreateRoomPayload) {
 }
 
 async function createParticipant( roomId: string, hostName: string, userId: string ) {
-    const {error} = await supabase
+    const { error } = await supabase
     .from("participants")
     .insert({
         room_id: roomId,
@@ -70,7 +56,6 @@ async function createParticipant( roomId: string, hostName: string, userId: stri
         user_id: userId,
         is_host: true 
     })
-
     if (error) throw error
 }
 
