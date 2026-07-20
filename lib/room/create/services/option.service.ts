@@ -1,6 +1,7 @@
 import { GenerateOptionsPayload } from "../payload/option.dto";
 import { GooglePlace } from "../types/google-place";
 import { PlaceOption } from "../types/option-types";
+import { mapGooglePriceLevel } from "../utils/price-level";
 import * as googlePlaceService from "./google-place.service";
 
 // GENERATE SERVICE
@@ -16,19 +17,20 @@ export async function generate( payload: GenerateOptionsPayload ) {
 
 // HELPERS
 async function searchPlaces(payload: GenerateOptionsPayload) {
-    const placeTypes = payload.categoryNames.flatMap( category => googlePlaceService.getPlaceTypes(category));
-    const groups = await Promise.all(
-        placeTypes.map((placeType) =>
-            googlePlaceService.searchNearby({
-                placeType,
-                latitude: payload.latitude,
-                longitude: payload.longitude,
-                radius: payload.radius,
-            })
+    const placeTypes = [
+        ...new Set(
+            payload.categoryNames.flatMap(category =>
+                googlePlaceService.getPlaceTypes(category)
+            )
         )
-    );
+    ];
 
-    return groups.flat();
+    return googlePlaceService.searchNearby({
+        placeTypes,
+        latitude: payload.latitude,
+        longitude: payload.longitude,
+        radius: payload.radius,
+    });
 }
 
 function convertGooglePlaceToOption(places: GooglePlace[]): PlaceOption[] {
@@ -39,7 +41,7 @@ function convertGooglePlaceToOption(places: GooglePlace[]): PlaceOption[] {
         rating: place.rating ?? 0,
         latitude: place.latitude,
         longitude: place.longitude,
-        priceLevel: place.priceLevel
+        priceLevel: mapGooglePriceLevel(place.priceLevel)
     }));
 }
 

@@ -41,7 +41,6 @@ export async function create(data: CreateRoomPayload) {
 
 // LEAVE (SOON)
 
-
 // CREATE ROOM HELPER
 async function createRoomRecord(data: CreateRoomPayload) {
     const {data: room, error} = await supabase
@@ -109,23 +108,21 @@ async function createCategories( roomId: string, categoryNames: string[]) {
   if (insertError) throw insertError;
 }
 
-async function createOptions( roomId:string, options:PlaceOption[] ){
-    const records = options.map(option=>({
+async function createOptions(roomId: string, options: PlaceOption[]) {
+    const records = options.map(option => ({
         room_id: roomId,
-        place_id: option.id,
-        name: option.name,
+        title: option.name,
+        google_place_id: option.id,
         address: option.address,
-        rating: option.rating,
         latitude: option.latitude,
         longitude: option.longitude,
-        price_level: option.priceLevel
+        rating: option.rating,
+        price_level: option.priceLevel ?? 1
     }));
 
-
-    const {error} = await supabase
+    const { error } = await supabase
         .from("options")
         .insert(records);
 
-
-    if(error) throw error;
+    if (error) throw error;
 }

@@ -1,7 +1,6 @@
 "use client"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, ArrowRight } from "lucide-react"
-
+import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { RoomPreferenceHeader } from "@/components/custom/RoomCreation/Preference/RoomPreferenceHeader"
@@ -10,9 +9,24 @@ import { PreferenceCategorySelector } from "@/components/custom/RoomCreation/Pre
 import { PreferenceBudgetSelector } from "@/components/custom/RoomCreation/Preference/PreferenceBudgetSelector"
 import { useCreateRoomStore } from "@/lib/room/create/stores/create-room-store"
 import PreferenceLocationCard from "@/components/custom/RoomCreation/Preference/PreferenceLocationCard"
+import { createRoomAction } from "@/lib/room/create/actions/create-room"
+import { useEffect, useState } from "react"
+import { ErrorDialog } from "@/components/custom/Modal/ErrorLogDialog"
+
+const loadingMessages = [
+  "Creating your room...",
+  "Saving your preferences...",
+  "Finding nearby places...",
+  "Generating recommendations...",
+  "Almost ready..."
+];
 
 function RoomPreferencePage() {
   const router = useRouter()
+  const [isCreating, setIsCreating] = useState(false)
+  const [loadingMessage, setLoadingMessage] = useState(loadingMessages[0]);
+  const [isErrorOpen, setIsErrorOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const selectedBudget = useCreateRoomStore((state) => state.budget)
   const setSelectedBudget = useCreateRoomStore((state) => state.setBudget)
 
@@ -21,17 +35,53 @@ function RoomPreferencePage() {
   
   const canCreate = selectedCategories.length > 0
 
-  const handleCreateRoom = () => {
-    if (!canCreate) return
+  const handleCreateRoom = async () => {
+      if (!canCreate) return;
+      const state = useCreateRoomStore.getState();
+      try {
+          setIsCreating(true)
+          const room = await createRoomAction({
+            hostName: state.hostName,
+            roomName: state.roomName,
+            roomVisibility: state.roomVisibility,
+            roomPassword: state.roomPassword,
+            maxParticipants: state.maxParticipants,
+            selectedCategoriesbyNames: state.selectedCategoriesbyNames,
+            budget: state.budget,
+            locationStatus: state.locationStatus,
+            address: state.address,
+            latitude: state.latitude!,
+            longitude: state.longitude!,
+            radius: state.radius,
+          });
 
-    const store = useCreateRoomStore.getState()
+          console.log(room);
+          router.push(`/room/${room.room_code}/lobby`);
+      } catch (error) {
+         console.error(error);
 
-    console.log(
-      JSON.stringify(store, null, 2)
-    )
-  }
+          setErrorMessage("Error Creating a Room. Please try again.");
 
+          setIsErrorOpen(true);
+      } finally {
+        setIsCreating(false)
+      }
+  };
+
+  useEffect(() => {
+    if (!isCreating) return;
+
+    let index = 0;
+
+    const interval = setInterval(() => {
+      index = (index + 1) % loadingMessages.length;
+      setLoadingMessage(loadingMessages[index]);
+    }, 1800);
+
+    return () => clearInterval(interval);
+  }, [isCreating]);
   return (
+    <>
     <main className="relative overflow-hidden px-4 py-6 md:py-10 min-h-dvh">
       <div className="mx-auto w-full max-w-md space-y-2">
         <Button
@@ -68,16 +118,28 @@ function RoomPreferencePage() {
               type="button"
               className="w-full rounded-2xl"
               size="lg"
-              disabled={!canCreate}
+              disabled={!canCreate || isCreating}
               onClick={handleCreateRoom}
             >
-              Create
-              <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              {isCreating ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {loadingMessage}
+                </>
+              ) : (
+                <>
+                  Create
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </>
+              )}
             </Button>
           </CardContent>
         </Card>
       </div>
     </main>
+
+    <ErrorDialog open={isErrorOpen} title="Creating Room Failed" message={errorMessage} onClose={() => setIsErrorOpen(false)}/>
+  </>
   )
 }
 

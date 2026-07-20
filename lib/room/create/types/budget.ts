@@ -6,3 +6,4 @@ export const budgetChoices: Array<{ value: PreferenceBudget; label: string }> = 
   { value: "medium", label: "₱₱" },
   { value: "high", label: "₱₱₱" },
 ]
+

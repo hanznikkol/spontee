@@ -6,7 +6,7 @@ import { useCreateRoomStore } from "@/lib/room/create/stores/create-room-store"
 import { LocationSearch, SelectedPlace } from "./LocationComponents/LocationSearch"
 import { MapSelector } from "./LocationComponents/MapContainer"
 import { useMapsLibrary } from "@vis.gl/react-google-maps"
-import { useCallback } from "react"
+import { useCallback, useEffect } from "react"
 
 function formatCoordinates(latitude: number, longitude: number) {
   return `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`
@@ -25,10 +25,7 @@ function PreferenceLocationCard() {
   const setRadius = useCreateRoomStore((state) => state.setRadius)
   const geocoding = useMapsLibrary("geocoding")
 
-  const getAddressFromCoordinates = useCallback(async (
-    latitude: number,
-    longitude: number
-  ) => {
+  const getAddressFromCoordinates = useCallback(async( latitude: number, longitude: number) => {
     if (!geocoding) return formatCoordinates(latitude, longitude)
 
     try {
@@ -53,6 +50,7 @@ function PreferenceLocationCard() {
     })
   }, [setLocation])
 
+  // Map Selection
   const handleMapSelect = useCallback(async (latitude: number, longitude: number) => {
     const selectedAddress = await getAddressFromCoordinates(latitude, longitude)
 
@@ -64,6 +62,7 @@ function PreferenceLocationCard() {
     })
   }, [getAddressFromCoordinates, setCoordinates])
 
+  // Current Location Button
   const handleUseCurrentLocation = useCallback(() => {
     if (!navigator.geolocation) return
 
@@ -79,6 +78,15 @@ function PreferenceLocationCard() {
       })
     })
   }, [getAddressFromCoordinates, setCoordinates])
+
+  // Automatic Current Location
+  useEffect(() => {
+  if (!geocoding) return
+
+  if (latitude == null || longitude == null) {
+    handleUseCurrentLocation()
+  }
+  }, [geocoding, latitude, longitude, handleUseCurrentLocation])
 
   return (
     <section
