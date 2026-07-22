@@ -38,7 +38,7 @@ export function useLobby() {
       const { data: initialParticipants, } = await getParticipants(room.room_id)
 
       if (initialParticipants) {
-        console.log("Participants:", initialParticipants)
+       
         setParticipants(initialParticipants)
 
         setCurrentParticipant(
@@ -47,11 +47,7 @@ export function useLobby() {
             user?.id
           )
         )
-       console.log("LOBBY USER:", user?.id)
-       console.log("PARTICIPANT USER:", initialParticipants[0]?.user_id)
       }
-
-       
 
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current)
@@ -89,11 +85,11 @@ export function useLobby() {
       "active"
     )
 
-    router.push(`/room/${code}`)
+    router.push(`/room/${code}/lobby`)
   }
 
   return { 
-    roomName, 
+    roomName,   
     participants, 
     currentParticipant, 
     shareCode: code, 

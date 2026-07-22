@@ -26,7 +26,6 @@ export default function LobbyPage() {
           className="flex-1 flex flex-col gap-4"
         >
           <div className="text-center space-y-1">
-            {/* <Badge variant="secondary">{modeLabel}</Badge> */}
             <h1 className="text-2xl font-bold">{roomName}</h1>
             <p className="text-sm text-muted-foreground">
               Share the link so everyone can join

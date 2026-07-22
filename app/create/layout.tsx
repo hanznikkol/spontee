@@ -1,8 +1,4 @@
-export default function CreateLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function CreateLayout({ children }: { children: React.ReactNode }) {
   return (
     <main className="relative overflow-hidden min-h-full">
 

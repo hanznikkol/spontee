@@ -4,12 +4,13 @@ import { useRef, useState, type ChangeEvent } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { supabase } from "@/lib/supabase/client"
 import { ensureAnonUser } from "@/lib/user/services/auth.service"
-import { ArrowRight, Loader2, Upload, Users } from "lucide-react"
+import { ArrowRight, Loader2, Users } from "lucide-react"
 import { extractRoomCode } from "@/lib/room/join/join"
+import NameInput from "@/components/custom/Room/NameInput"
+import RoomLinkInput from "@/components/custom/RoomJoin/RoomLinkInput"
+import QRScannerCard from "@/components/custom/RoomJoin/QRScannerCard"
 
 type BarcodeDetectorResult = { rawValue: string }
 
@@ -148,30 +149,20 @@ export default function JoinPage() {
         <div className="grid gap-6 md:grid-cols-2">
           <Card className="rounded-3xl">
             <CardContent className="space-y-5 p-6">
-              <div className="space-y-2">
-                <Label htmlFor="display-name">Your name</Label>
-                <Input
-                  id="display-name"
-                  value={displayName}
-                  onChange={(event) => setDisplayName(event.target.value)}
-                  placeholder="e.g. John"
-                  className="rounded-xl"
-                />
-              </div>
+              
+              <NameInput
+                title="Your Name"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value.slice(0, 20))}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleJoin()
+                  }
+                }}
+                placeholder="e.g. John, Anna"
+              />
 
-              <div className="space-y-2">
-                <Label htmlFor="room-link">Room link or code</Label>
-                <Input
-                  id="room-link"
-                  value={roomValue}
-                  onChange={(event) => setRoomValue(event.target.value)}
-                  placeholder="Paste the host's link or room ID"
-                  className="rounded-xl"
-                />
-                <p className="text-xs text-muted-foreground">
-                  We accept full links like <span className="font-mono">/join?room=abc</span>, <span className="font-mono">/room/abc/lobby</span>, or just the room ID.
-                </p>
-              </div>
+              <RoomLinkInput value={roomValue} onChange={(e) => setRoomValue(e.target.value)}/>
 
               {feedback && (
                 <div className="rounded-2xl bg-muted/60 border border-red-500 text-red-500 px-4 py-3 text-sm">
@@ -200,52 +191,12 @@ export default function JoinPage() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-3xl border-dashed">
-            <CardContent className="space-y-4 p-6">
-              <div className="space-y-1">
-                <h2 className="text-lg font-semibold">Upload QR instead</h2>
-                <p className="text-sm text-muted-foreground">
-                  Upload a screenshot or photo of the host’s QR code and we’ll decode it for you.
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-dashed bg-muted/20 p-6 text-center space-y-3">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-background shadow-sm">
-                  <Upload className="h-5 w-5 text-muted-foreground" />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-sm font-medium">Choose a QR image</p>
-                  <p className="text-xs text-muted-foreground">
-                    PNG, JPG, or HEIC screenshots work best.
-                  </p>
-                </div>
-                <Input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleQrUpload}
-                  className="rounded-xl"
-                />
-              </div>
-
-              <div className="flex">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="flex-1 rounded-2xl gap-2"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploading}
-                >
-                  <Upload className="h-4 w-4" />
-                  {uploading ? "Reading..." : "Upload QR"}
-                </Button>
-              </div>
-
-              <div className="rounded-2xl bg-muted/50 px-4 py-3 text-xs text-muted-foreground">
-                If the QR image doesn’t work, paste the host link above instead.
-              </div>
-            </CardContent>
-          </Card>
+          <QRScannerCard
+            uploading={uploading}
+            fileInputRef={fileInputRef}
+            onUpload={handleQrUpload}
+            onScan={(value) => setRoomValue(value)}
+          />
         </div>
 
         <p className="text-center text-xs text-muted-foreground">

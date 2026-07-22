@@ -59,8 +59,6 @@ function RoomPreferencePage() {
             longitude: state.longitude!,
             radius: state.radius,
           });
-
-          console.log(room);
           router.push(`/room/${room.room_code}/lobby`);
       } catch (error) {
          console.error(error);

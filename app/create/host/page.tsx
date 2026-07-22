@@ -9,6 +9,7 @@ import { ArrowRight } from "lucide-react"
 import { SetupProgress } from "@/components/custom/RoomCreation/RoomSetupProgress"
 import HostHeader from "@/components/custom/RoomCreation/Host/HostHeader"
 import { useCreateRoomStore } from "@/lib/room/create/stores/create-room-store"
+import NameInput from "@/components/custom/Room/NameInput"
 
 export default function HostPage() {
   const router = useRouter()
@@ -37,17 +38,13 @@ export default function HostPage() {
 
             <HostHeader/>
 
-            <div className="space-y-2">
-              <Label>Host name</Label>
-              <Input
-                autoFocus
-                maxLength={20}
-                placeholder="e.g. John, Mom, Team Captain"
-                value={hostName}
-                onChange={(e) => setHostName(e.target.value.slice(0,20))}
-                onKeyDown={(e) => e.key === "Enter" && handleContinue()}
-              />
-            </div>
+            <NameInput
+              title="Host Name"
+              placeholder="e.g. John, Mom, Team Captain"
+              value = {hostName}
+              onChange={(e) => setHostName(e.target.value.slice(0,20))}
+              onKeyDown={(e) => e.key === "Enter" && handleContinue()}
+            />
 
             <Button
               className="w-full"
