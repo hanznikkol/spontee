@@ -86,7 +86,7 @@ export default function JoinPage() {
           </p>
         </div>
 
-        <div className="max-w-3xl">
+        <div className="w-full max-w-md mx-auto">
           <Card className="rounded-3xl">
             <CardContent className="space-y-5 p-6">
               
