@@ -13,7 +13,6 @@ export function useLobby() {
   const router = useRouter()
 
   const code = typeof params.code === "string" ? params.code   : ""
-
   const channelRef = useRef<RealtimeChannel | null>(null)
 
   const [roomName, setRoomName] = useState("")

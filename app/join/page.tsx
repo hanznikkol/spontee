@@ -4,72 +4,34 @@ import {useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { supabase } from "@/lib/supabase/client"
-import { ensureAnonUser } from "@/lib/user/services/auth.service"
 import { ArrowRight, Loader2, Users } from "lucide-react"
 import { extractRoomCode } from "@/lib/room/join/join"
 import NameInput from "@/components/custom/Room/NameInput"
 import RoomLinkInput from "@/components/custom/RoomJoin/RoomLinkInput"
+import { useJoinRoom } from "@/lib/room/join/hook/useJoinRoom"
 
 export default function JoinPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const initialRoom = searchParams.get("room") ?? ""
-
+  
   const [displayName, setDisplayName] = useState("")
-  const [roomValue, setRoomValue] = useState(() => initialRoom)
-  const [joining, setJoining] = useState(false)
-  const [feedback, setFeedback] = useState("")
+  const [roomValue, setRoomValue] = useState(initialRoom)
+  const {join, joining, feedback} = useJoinRoom()
 
   const handleJoin = async () => {
     const name = displayName.trim()
-    const roomCode = extractRoomCode(roomValue, window.location.origin)
-
-    if (!name) {
-      setFeedback("Please enter your name first.")
-      return
-    }
-
-    if (!roomCode) {
-      setFeedback("Paste a room link or room code from the host.")
-      return
-    }
-
-    setJoining(true)
-    setFeedback("")
+    const roomCode = extractRoomCode( roomValue, window.location.origin)
+    if (!name || !roomCode) return
 
     try {
-      const user = await ensureAnonUser()
+      const room = await join({roomCode, displayName:name})
+      router.push(
+        `/room/${room.room_code}/lobby`
+      )
 
-      const { data: room, error: roomError } = await supabase
-        .from("rooms")
-        .select("room_id, room_code")
-        .eq("room_code", roomCode)
-        .single()
+    } catch {}
 
-      if (roomError || !room) {
-        throw new Error("We couldn’t find that room. Check the invite link.")
-      }
-
-      const { error: participantError } = await supabase
-        .from("participants")
-        .upsert({
-          room_id: room.room_id,
-          user_id: user.id,
-          display_name: name,
-          is_host: false,
-      })  
-
-      if (participantError) {
-        throw participantError
-      }
-
-      router.push(`/room/${room.room_code}/lobby`)
-    } catch (error) {
-      setFeedback(error instanceof Error ? error.message : "Unable to join the room right now.")
-    } finally {
-      setJoining(false)
-    }
   }
 
   return (
@@ -103,7 +65,13 @@ export default function JoinPage() {
                 placeholder="e.g. John, Anna"
               />
 
-              <RoomLinkInput value={roomValue} onChange={(e) => setRoomValue(e.target.value)}/>
+              <RoomLinkInput value={roomValue} 
+                onChange={(e) => setRoomValue(e.target.value)} 
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleJoin()
+                  }
+                }}/>
 
               {feedback && (
                 <div className="rounded-2xl bg-muted/60 border border-red-500 text-red-500 px-4 py-3 text-sm">
@@ -115,7 +83,7 @@ export default function JoinPage() {
                 className="w-full rounded-2xl gap-2"
                 size="lg"
                 onClick={handleJoin}
-                disabled={joining || !displayName.trim()}
+                disabled={ joining || !displayName.trim() || !roomValue.trim()}
               >
                 {joining ? (
                   <>
@@ -135,7 +103,7 @@ export default function JoinPage() {
 
         <p className="text-center text-xs text-muted-foreground">
           Need to host instead?{" "}
-          <button type="button" className="font-medium text-foreground underline underline-offset-4" onClick={() => router.push("/create")}>
+          <button type="button" className="font-medium text-foreground underline underline-offset-4 hover:text-primary hover:cursor-pointer duration-100" onClick={() => router.push("/create")}>
             Go to create
           </button>
         </p>
