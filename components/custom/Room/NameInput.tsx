@@ -5,15 +5,19 @@ import React from "react"
 interface NameInputProps {
   title: string
   value: string
+  required?: boolean
   onChange: React.ChangeEventHandler<HTMLInputElement>
   onKeyDown: React.KeyboardEventHandler<HTMLInputElement>
   placeholder?: string
 }
 
-export default function NameInput({ title, value, onChange, onKeyDown, placeholder}: NameInputProps) {
+export default function NameInput({ title, value, required = false, onChange, onKeyDown, placeholder}: NameInputProps) {
   return (
     <div className="space-y-2">
-      <Label>{title}</Label>
+      <Label>
+        {title}
+        {required && (<span className="text-destructive">*</span>) }
+      </Label>
       <Input
         autoFocus
         maxLength={20}

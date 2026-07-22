@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState, type ChangeEvent } from "react"
+import {useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -10,15 +10,6 @@ import { ArrowRight, Loader2, Users } from "lucide-react"
 import { extractRoomCode } from "@/lib/room/join/join"
 import NameInput from "@/components/custom/Room/NameInput"
 import RoomLinkInput from "@/components/custom/RoomJoin/RoomLinkInput"
-import QRScannerCard from "@/components/custom/RoomJoin/QRScannerCard"
-
-type BarcodeDetectorResult = { rawValue: string }
-
-type BarcodeDetectorInstance = {
-  detect: (source: HTMLImageElement) => Promise<BarcodeDetectorResult[]>
-}
-
-type BarcodeDetectorConstructor = new (options: { formats: string[] }) => BarcodeDetectorInstance
 
 export default function JoinPage() {
   const router = useRouter()
@@ -28,58 +19,7 @@ export default function JoinPage() {
   const [displayName, setDisplayName] = useState("")
   const [roomValue, setRoomValue] = useState(() => initialRoom)
   const [joining, setJoining] = useState(false)
-  const [uploading, setUploading] = useState(false)
   const [feedback, setFeedback] = useState("")
-
-  const fileInputRef = useRef<HTMLInputElement | null>(null)
-
-  const decodeQrFromFile = async (file: File) => {
-    if (!("BarcodeDetector" in window)) {
-      throw new Error("QR scanning from uploads is not supported in this browser.")
-    }
-
-    const BarcodeDetector = window.BarcodeDetector as unknown as BarcodeDetectorConstructor
-    const detector = new BarcodeDetector({ formats: ["qr_code"] })
-    const image = new Image()
-    const objectUrl = URL.createObjectURL(file)
-
-    try {
-      const result = await new Promise<HTMLImageElement>((resolve, reject) => {
-        image.onload = () => resolve(image)
-        image.onerror = () => reject(new Error("Could not read that image."))
-        image.src = objectUrl
-      })
-
-      const codes = await detector.detect(result)
-      const rawValue = codes[0]?.rawValue
-
-      if (!rawValue) {
-        throw new Error("No QR code was found in that image.")
-      }
-
-      setRoomValue(rawValue)
-      setFeedback("QR code loaded. You can join now.")
-    } finally {
-      URL.revokeObjectURL(objectUrl)
-    }
-  }
-
-  const handleQrUpload = async (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (!file) return
-
-    setUploading(true)
-    setFeedback("")
-
-    try {
-      await decodeQrFromFile(file)
-    } catch (error) {
-      setFeedback(error instanceof Error ? error.message : "Unable to read that QR image.")
-    } finally {
-      setUploading(false)
-      event.target.value = ""
-    }
-  }
 
   const handleJoin = async () => {
     const name = displayName.trim()
@@ -108,7 +48,7 @@ export default function JoinPage() {
         .single()
 
       if (roomError || !room) {
-        throw new Error("We couldn’t find that room. Check the link or QR code.")
+        throw new Error("We couldn’t find that room. Check the invite link.")
       }
 
       const { error: participantError } = await supabase
@@ -142,17 +82,18 @@ export default function JoinPage() {
           </p>
           <h1 className="text-3xl font-bold tracking-tight">Join a host’s room</h1>
           <p className="text-sm text-muted-foreground">
-            Enter your name, paste the host link, or scan their QR code to get in fast.
+             Enter your name and join the room through the host&apos;s invite.
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="max-w-3xl">
           <Card className="rounded-3xl">
             <CardContent className="space-y-5 p-6">
               
               <NameInput
                 title="Your Name"
                 value={displayName}
+                required
                 onChange={(e) => setDisplayName(e.target.value.slice(0, 20))}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
@@ -174,7 +115,7 @@ export default function JoinPage() {
                 className="w-full rounded-2xl gap-2"
                 size="lg"
                 onClick={handleJoin}
-                disabled={joining}
+                disabled={joining || !displayName.trim()}
               >
                 {joining ? (
                   <>
@@ -190,13 +131,6 @@ export default function JoinPage() {
               </Button>
             </CardContent>
           </Card>
-
-          <QRScannerCard
-            uploading={uploading}
-            fileInputRef={fileInputRef}
-            onUpload={handleQrUpload}
-            onScan={(value) => setRoomValue(value)}
-          />
         </div>
 
         <p className="text-center text-xs text-muted-foreground">

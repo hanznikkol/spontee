@@ -10,7 +10,7 @@ interface RoomLinkProps {
 function RoomLinkInput({value, onChange}: RoomLinkProps) {
   return (
     <div className="space-y-2">
-        <Label htmlFor="room-link">Room link or code</Label>
+        <Label htmlFor="room-link">Invite Link</Label>
         <Input
             id="room-link"
             value={value}

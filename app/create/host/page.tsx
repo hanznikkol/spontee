@@ -13,7 +13,6 @@ import NameInput from "@/components/custom/Room/NameInput"
 
 export default function HostPage() {
   const router = useRouter()
-  // Zustand Store
   const hostName = useCreateRoomStore((state) => state.hostName)
   const setHostName = useCreateRoomStore((state) => state.setHostName)
   
