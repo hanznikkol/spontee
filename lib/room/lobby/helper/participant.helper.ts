@@ -9,6 +9,7 @@ export function getCurrentParticipant( participants: Participants[], userId?: st
   )
 }
 
+// Realtime update for participants
 export function updateParticipants( participants: Participants[], payload: RealtimePostgresChangesPayload<Participants> ): Participants[] {
   const newRow = payload.new as Participants
   const oldRow = payload.old as Participants

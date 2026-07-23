@@ -1,11 +1,10 @@
 import { RoomOption } from "./option-types"
 
 export const ROOM_STATUS = {
-  LOBBY: "lobby",       // waiting for people
-  ACTIVE: "active",     // host started session
-  SWIPING: "swiping",   // voting phase
-  RESULT: "result",     // final decision
-  CLOSED: "closed",     // ended/expired
+  LOBBY: "lobby",     // Waiting for the host
+  ACTIVE: "active",   // Room is open
+  RESULT: "result",   // Everyone finished
+  CLOSED: "closed",   // Room ended
 } as const
 
 export type RoomVisibilityTypes = "public" | "private"

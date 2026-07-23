@@ -2,14 +2,18 @@
 import { motion } from 'framer-motion'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Check, Copy, Users, ArrowRight } from 'lucide-react'
+import { ArrowRight, Check, Clock3, Copy, Play, Users } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import { useLobby } from '@/lib/room/lobby/hook/useLobby'
 import { useClipboard } from '@/lib/room/lobby/hook/useClipboard'
+import { Badge } from '@/components/ui/badge'
 
 export default function LobbyPage() {
-  const { roomName, participants, currentParticipant, shareCode, shareUrl, handleStart } = useLobby()
+  const { room, participants, currentParticipant, shareCode, shareUrl, handleOpenRoom } = useLobby()
   const { copiedKey, handleCopy, } = useClipboard()
+  const isHost = currentParticipant?.is_host
+  const isLobby = room?.status === "lobby"
+  const isActive = room?.status === "active"
 
   return (
     <main className="min-h-dvh w-full flex items-center justify-center p-4 bg-background relative overflow-hidden">
@@ -25,8 +29,12 @@ export default function LobbyPage() {
           animate={{ opacity: 1, y: 0 }}
           className="flex-1 flex flex-col gap-4"
         >
+          {/* Header */}
           <div className="text-center space-y-1">
-            <h1 className="text-2xl font-bold">{roomName}</h1>
+            <h1 className="text-2xl font-bold">{room?.room_name}</h1>
+            <Badge variant={isActive ? "default" : "secondary"} className="rounded-full px-3">
+              {isActive ? "🟢 Room Open" : "🟡 Waiting for Host"}
+            </Badge>
             <p className="text-sm text-muted-foreground">
               Share the link so everyone can join
             </p>
@@ -78,13 +86,43 @@ export default function LobbyPage() {
             </CardContent>
           </Card>
 
-          <Button
-            size="lg"
-            className="rounded-2xl gap-2 cursor-pointer"
-            onClick={handleStart}
-          >
-            Start Now <ArrowRight />
-          </Button>
+          {isHost && isLobby && (
+            <Button onClick={handleOpenRoom}>
+              <Play className="w-4 h-4"/>
+              Open Room 
+            </Button>
+          )}
+
+          {isHost && isActive && (
+            <Button
+              size="lg"
+              className="rounded-2xl gap-2"
+            >
+              Start Voting 
+              <ArrowRight className="w-4 h-4"/>
+            </Button>
+          )}
+
+          {!isHost && isLobby && (
+            <Button
+              size="lg"
+              disabled
+              className="rounded-2xl"
+            >
+              <Clock3 className="w-4 h-4" />
+              Waiting for Host...
+            </Button>
+          )}
+
+          {!isHost && isActive && (
+            <Button
+              size="lg"
+              className="rounded-2xl"
+            >
+              Start Voting
+              <ArrowRight className="w-4 h-4"/>
+            </Button>
+          )}
 
           <p className="text-xs text-center text-muted-foreground">You can start anytime</p>
         </motion.div>

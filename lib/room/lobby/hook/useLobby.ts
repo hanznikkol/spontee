@@ -3,19 +3,22 @@
 import { useEffect, useRef, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { RealtimeChannel } from "@supabase/supabase-js"
-import { getRoom, getParticipants, getCurrentUser, subscribeParticipants, } from "../service/lobby.service"
+import { getRoom, getParticipants, getCurrentUser, subscribeParticipants, subscribeRoom, openRoom, } from "../service/lobby.service"
 import { getCurrentParticipant, updateParticipants, } from "../helper/participant.helper"
 import { Participants } from "@/lib/user/type/participants"
 import { supabase } from "@/lib/supabase/client"
+import { Room } from "../../create/types/room-types"
+import { updateRoom } from "../../create/helpers/room-helper"
 
 export function useLobby() {
   const params = useParams()
   const router = useRouter()
 
   const code = typeof params.code === "string" ? params.code   : ""
-  const channelRef = useRef<RealtimeChannel | null>(null)
+  const participantChannelRef = useRef<RealtimeChannel | null>(null)
+  const roomChannelRef = useRef<RealtimeChannel | null>(null)
 
-  const [roomName, setRoomName] = useState("")
+  const [room, setRoom] = useState<Room | null>(null)
   const [participants, setParticipants] = useState<Participants[]>([])
   const [currentParticipant, setCurrentParticipant] = useState<Participants | null>(null)
 
@@ -25,19 +28,15 @@ export function useLobby() {
     let cancelled = false
 
     async function load() {
-      const { data: room } =
-        await getRoom(code.toUpperCase())
-
+      const { data: room } = await getRoom(code.toUpperCase())
       if (!room || cancelled) return
-
-      setRoomName(room.room_name)
+      
+      setRoom(room)
 
       const { data: { user } } = await getCurrentUser()
-
       const { data: initialParticipants, } = await getParticipants(room.room_id)
 
       if (initialParticipants) {
-       
         setParticipants(initialParticipants)
 
         setCurrentParticipant(
@@ -48,23 +47,35 @@ export function useLobby() {
         )
       }
 
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current)
+      if (participantChannelRef.current) {
+        supabase.removeChannel(participantChannelRef.current)
       }
 
-      const channel =
-        subscribeParticipants(
+      if (roomChannelRef.current) {
+        supabase.removeChannel(roomChannelRef.current)
+      }
+
+      // Participant Channel
+      const participantChannel  = subscribeParticipants(
           room.room_id,
           payload => {
             setParticipants(prev =>
               updateParticipants(prev, payload)
             )
           }
-        )
+      )
+      participantChannel.subscribe()
 
-      channel.subscribe()
+      const roomChannel = subscribeRoom(
+          room.room_id,
+          payload => {
+            setRoom(updateRoom(payload))
+          }
+      )
+      roomChannel.subscribe()
 
-      channelRef.current = channel
+      participantChannelRef.current = participantChannel
+      roomChannelRef.current = roomChannel
     }
 
     load()
@@ -72,27 +83,32 @@ export function useLobby() {
     return () => {
       cancelled = true
 
-      if (channelRef.current) {
-        supabase.removeChannel(channelRef.current)
+      if (participantChannelRef.current) {
+        supabase.removeChannel(participantChannelRef.current)
+      }
+
+      if (roomChannelRef.current) {
+        supabase.removeChannel(roomChannelRef.current)
       }
     }
   }, [code])
 
-  function handleStart() {
-    localStorage.setItem(
-      `room:${code}:status`,
-      "active"
-    )
+  async function handleOpenRoom() {
+    if (!room) return
 
-    router.push(`/room/${code}/lobby`)
+    const { error } = await openRoom(room.room_id)
+
+    if (error) {
+      console.error(error)
+    }
   }
 
   return { 
-    roomName,   
+    room,   
     participants, 
     currentParticipant, 
     shareCode: code, 
     shareUrl: typeof window !== "undefined" ? `${window.location.origin}/join?room=${code}` : "",
-    handleStart,
+    handleOpenRoom,
   }
 }
