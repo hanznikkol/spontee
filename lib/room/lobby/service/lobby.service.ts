@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase/client"
 import { RealtimeChannel } from "@supabase/supabase-js"
+import { ParticipantStatus } from "../types/participants-types"
 
 export function subscribeRoom( roomId: string, callback: Parameters<RealtimeChannel["on"]>[2]) {
   return supabase
@@ -62,6 +63,13 @@ export async function leaveRoom( participantId: string ) {
   return supabase
     .from("participants")
     .delete()
+    .eq("participant_id", participantId)
+}
+
+export async function updateParticipantStatus( participantId: string, status: ParticipantStatus) {
+   return supabase
+    .from("participants")
+    .update({ status })
     .eq("participant_id", participantId)
 }
 

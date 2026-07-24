@@ -13,6 +13,7 @@ import { createRoomAction } from "@/lib/room/create/actions/create-room"
 import { useEffect, useState } from "react"
 import { ErrorDialog } from "@/components/custom/Modal/ErrorLogDialog"
 import { ensureAnonUser } from "@/lib/user/services/auth.service"
+import { useRoomSessionStore } from "@/lib/room/stores/room-session-store.store"
 
 const loadingMessages = [
   "Creating your room...",
@@ -28,11 +29,13 @@ function RoomPreferencePage() {
   const [loadingMessage, setLoadingMessage] = useState(loadingMessages[0]);
   const [isErrorOpen, setIsErrorOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  // For Room Creation
   const selectedBudget = useCreateRoomStore((state) => state.budget)
   const setSelectedBudget = useCreateRoomStore((state) => state.setBudget)
-
   const selectedCategories = useCreateRoomStore((state) => state.selectedCategoriesbyNames)
   const toggleCategory = useCreateRoomStore((state) => state.toggleCategory)
+  // For Session
+  const setSession = useRoomSessionStore(state => state.setSession)
   
   const canCreate = selectedCategories.length > 0
 
@@ -44,7 +47,7 @@ function RoomPreferencePage() {
       try {
           setIsCreating(true)
           const user = await ensureAnonUser()
-          const room = await createRoomAction({
+          const {room, participant}  = await createRoomAction({
             userId: user.id,
             hostName: state.hostName,
             roomName: state.roomName,
@@ -59,18 +62,23 @@ function RoomPreferencePage() {
             longitude: state.longitude!,
             radius: state.radius,
           });
+
+          setSession({
+            roomId: room.room_id,
+            participantId: participant.participant_id,
+            isHost: participant.is_host,
+          })
           router.push(`/room/${room.room_code}/lobby`);
       } catch (error) {
-         console.error(error);
-
-          setErrorMessage("Error Creating a Room. Please try again.");
-
-          setIsErrorOpen(true);
+        console.error(error);
+        setErrorMessage("Error Creating a Room. Please try again.");
+        setIsErrorOpen(true);
       } finally {
         setIsCreating(false)
       }
   };
 
+  // Loading Messages Generating
   useEffect(() => {
     if (!isCreating) return;
 
@@ -79,10 +87,11 @@ function RoomPreferencePage() {
     const interval = setInterval(() => {
       index = (index + 1) % loadingMessages.length;
       setLoadingMessage(loadingMessages[index]);
-    }, 1800);
+    }, 1500);
 
     return () => clearInterval(interval);
   }, [isCreating]);
+
   return (
     <>
     <main className="relative overflow-hidden px-4 py-6 md:py-10 min-h-dvh">

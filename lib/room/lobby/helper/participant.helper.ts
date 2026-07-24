@@ -1,7 +1,8 @@
-import { Participants } from "@/lib/user/type/participants"
-import { RealtimePostgresChangesPayload } from "@supabase/supabase-js"
 
-export function getCurrentParticipant( participants: Participants[], userId?: string ): Participants | null {
+import { RealtimePostgresChangesPayload } from "@supabase/supabase-js"
+import { Participants } from "../types/participants-types"
+
+export function getCurrentParticipants( participants: Participants[], userId?: string ): Participants | null {
   return (
     participants.find(
       participant => participant.user_id === userId

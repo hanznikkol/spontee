@@ -2,14 +2,14 @@
 import { motion } from 'framer-motion'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ArrowRight, Check, Clock3, Copy, Play, Users } from 'lucide-react'
+import { ArrowRight, Check, Clock3, Copy, Loader2, Play, Users } from 'lucide-react'
 import { QRCodeSVG } from 'qrcode.react'
 import { useLobby } from '@/lib/room/lobby/hook/useLobby'
 import { useClipboard } from '@/lib/room/lobby/hook/useClipboard'
 import { Badge } from '@/components/ui/badge'
 
 export default function LobbyPage() {
-  const { room, participants, currentParticipant, shareCode, shareUrl, handleOpenRoom } = useLobby()
+  const { loading, room, participants, currentParticipant, shareCode, shareUrl, handleOpenRoom, handleStartVoting } = useLobby()
   const { copiedKey, handleCopy, } = useClipboard()
   const isHost = currentParticipant?.is_host
   const isLobby = room?.status === "lobby"
@@ -86,6 +86,8 @@ export default function LobbyPage() {
             </CardContent>
           </Card>
 
+
+          {/* For Host */}
           {isHost && isLobby && (
             <Button onClick={handleOpenRoom}>
               <Play className="w-4 h-4"/>
@@ -97,12 +99,24 @@ export default function LobbyPage() {
             <Button
               size="lg"
               className="rounded-2xl gap-2"
+              onClick={handleStartVoting}
+              disabled={loading}
             >
-              Start Voting 
-              <ArrowRight className="w-4 h-4"/>
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Loading...
+                </>
+              ) : (
+                <>
+                  Start Voting
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
             </Button>
           )}
 
+          {/* For Guest */}
           {!isHost && isLobby && (
             <Button
               size="lg"
@@ -117,10 +131,21 @@ export default function LobbyPage() {
           {!isHost && isActive && (
             <Button
               size="lg"
-              className="rounded-2xl"
+              className="rounded-2xl gap-2"
+              onClick={handleStartVoting}
+              disabled={loading}
             >
-              Start Voting
-              <ArrowRight className="w-4 h-4"/>
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Loading...
+                </>
+              ) : (
+                <>
+                  Start Voting
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
             </Button>
           )}
 

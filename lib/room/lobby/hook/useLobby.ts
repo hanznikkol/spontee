@@ -3,12 +3,13 @@
 import { useEffect, useRef, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { RealtimeChannel } from "@supabase/supabase-js"
-import { getRoom, getParticipants, getCurrentUser, subscribeParticipants, subscribeRoom, openRoom, } from "../service/lobby.service"
-import { getCurrentParticipant, updateParticipants, } from "../helper/participant.helper"
-import { Participants } from "@/lib/user/type/participants"
+import { getRoom, getParticipants, getCurrentUser, subscribeParticipants, subscribeRoom, openRoom, updateParticipantStatus, } from "../service/lobby.service"
+import { getCurrentParticipants, updateParticipants, } from "../helper/participant.helper"
 import { supabase } from "@/lib/supabase/client"
 import { Room } from "../../create/types/room-types"
 import { updateRoom } from "../../create/helpers/room-helper"
+import { PARTICIPANT_STATUS, Participants } from "../types/participants-types"
+import { useRoomSessionStore } from "../../stores/room-session-store.store"
 
 export function useLobby() {
   const params = useParams()
@@ -19,8 +20,11 @@ export function useLobby() {
   const roomChannelRef = useRef<RealtimeChannel | null>(null)
 
   const [room, setRoom] = useState<Room | null>(null)
+  const participantId = useRoomSessionStore( state => state.participantId)
   const [participants, setParticipants] = useState<Participants[]>([])
   const [currentParticipant, setCurrentParticipant] = useState<Participants | null>(null)
+  const [loading, setLoading] = useState(false)
+  
 
   useEffect(() => {
     if (!code) return
@@ -40,7 +44,7 @@ export function useLobby() {
         setParticipants(initialParticipants)
 
         setCurrentParticipant(
-          getCurrentParticipant(
+          getCurrentParticipants(
             initialParticipants,
             user?.id
           )
@@ -103,12 +107,36 @@ export function useLobby() {
     }
   }
 
+  const handleStartVoting = async () => {
+    if (!room || !participantId) return
+
+    setLoading(true)
+
+    try {
+      const { error } = await updateParticipantStatus(
+        participantId,
+        PARTICIPANT_STATUS.WAITING
+      )
+
+      if (error) throw error
+
+      router.push(`/room/${room.room_code}`)
+    } catch (error) {
+      console.error(error)
+      setLoading(false)
+    }
+  }
+  
+
   return { 
     room,   
     participants, 
+    loading,
     currentParticipant, 
     shareCode: code, 
     shareUrl: typeof window !== "undefined" ? `${window.location.origin}/join?room=${code}` : "",
     handleOpenRoom,
+    handleStartVoting,
+    router
   }
 }

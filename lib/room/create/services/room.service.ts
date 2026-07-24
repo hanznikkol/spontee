@@ -3,12 +3,11 @@ import { CreateRoomPayload } from "../payload/create-room.dto";
 import { generateRoomCode } from "../utils/room-code.utils";
 import { generate } from "./option.service";
 import { PlaceOption } from "../types/option-types";
-
-// CREATE ROOM SERVICE
+import { PARTICIPANT_STATUS } from "../../lobby/types/participants-types";
 export async function create(data: CreateRoomPayload) {
   const room = await createRoomRecord(data);
   //  Create host participant
-  await createParticipant(room.room_id, data.hostName, data.userId);
+  const participant = await createParticipant(room.room_id, data.hostName, data.userId);
   //  Save preferences
   await createPreferences(room.room_id, data);
   //  Attach categories
@@ -24,8 +23,7 @@ export async function create(data: CreateRoomPayload) {
 
   // Save options
   await createOptions(room.room_id, options);
-  
-  return room;
+  return {room, participant};
 }
 
 // CREATE ROOM HELPER
@@ -48,15 +46,20 @@ async function createRoomRecord(data: CreateRoomPayload) {
 }
 
 async function createParticipant( roomId: string, hostName: string, userId: string ) {
-    const { error } = await supabase
+    const { data: participant, error } = await supabase
     .from("participants")
     .insert({
         room_id: roomId,
         display_name: hostName,
         user_id: userId,
-        is_host: true 
+        is_host: true,
+        status: PARTICIPANT_STATUS.WAITING
     })
+    .select()
+    .single()
     if (error) throw error
+
+    return participant
 }
 
 async function createPreferences( roomId: string, data: CreateRoomPayload ) {

@@ -6,11 +6,8 @@ interface JoinRoomPayload {
   displayName: string
 }
 
-
 export async function joinRoom({ roomCode, displayName, }: JoinRoomPayload) {
-
   const user = await ensureAnonUser()
-
 
   const { data: room, error: roomError } = await supabase
     .from("rooms")
@@ -36,7 +33,7 @@ export async function joinRoom({ roomCode, displayName, }: JoinRoomPayload) {
   }
 
 
-  const { error: participantError } = await supabase
+  const {data : participant, error: participantError } = await supabase
     .from("participants")
     .upsert({
       room_id: room.room_id,
@@ -44,12 +41,15 @@ export async function joinRoom({ roomCode, displayName, }: JoinRoomPayload) {
       display_name: displayName,
       is_host: false,
     })
-
+    .select()
+    .single()
 
   if(participantError){
     throw participantError
   }
-
-
-  return room
+  
+  return {
+    room,
+    participant,
+  }
 }
