@@ -8,6 +8,7 @@ interface RoomSessionStore {
 
   setSession: (session: {
     roomId: string
+    roomCode?: string
     participantId: string
     isHost: boolean
   }) => void
@@ -24,6 +25,7 @@ export const useRoomSessionStore = create<RoomSessionStore>((set) => ({
   setSession:(session) =>
     set({
         roomId: session.roomId,
+        roomCode: session.roomCode,
         participantId: session.participantId,
         isHost: session.isHost,
     }),
@@ -31,6 +33,7 @@ export const useRoomSessionStore = create<RoomSessionStore>((set) => ({
   clearSession: () =>
     set({
       roomId: undefined,
+      roomCode: undefined,
       participantId: undefined,
       isHost: false,
     }),

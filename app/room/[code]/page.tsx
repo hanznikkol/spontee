@@ -3,7 +3,6 @@
 import { AnimatePresence } from 'framer-motion'
 import SwipeCard from '@/components/custom/Room/SwipeCards'
 import { useVoting } from '@/lib/room/voting/hook/useVoting'
-import { useParams } from 'next/navigation'
 // import ResultScreen from '@/components/custom/Room/Phase/ResultScreen'
 
 export default function RoomPage() {
