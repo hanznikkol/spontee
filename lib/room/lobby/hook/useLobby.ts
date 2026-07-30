@@ -9,7 +9,7 @@ import { supabase } from "@/lib/supabase/client"
 import { Room } from "../../create/types/room-types"
 import { updateRoom } from "../../create/helpers/room-helper"
 import { PARTICIPANT_STATUS, Participants } from "../types/participants-types"
-import { useRoomSessionStore } from "../../stores/room-session-store.store"
+import { useRoomSessionStore } from "../../main/stores/room-session-store.store"
 
 export function useLobby() {
   const params = useParams()

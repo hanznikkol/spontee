@@ -1,27 +1,37 @@
 import { supabase } from "@/lib/supabase/client";
-import { DirectionTypes } from "../types/vote.types";
+import { Vote } from "../types/vote.types";
+import { RoomOption } from "../../create/types/option-types";
 
-export async function getOptions(roomId: string) {
-    return supabase
-    .from('options')
-    .select('*')
-    .eq("room_id", roomId)
+export async function getOptions(roomId: string): Promise<RoomOption[]> {
+    const { data, error } = await supabase
+        .from("options")
+        .select("*")
+        .eq("room_id", roomId);
+
+    if (error) throw error;
+
+    return (data ?? []).map(option => ({
+        option_id: option.option_id,
+        title: option.title,
+        description: option.description,
+        googlePlaceId: option.google_place_id,
+        address: option.address,
+        latitude: option.latitude,
+        longitude: option.longitude,
+        rating: option.rating,
+        totalReviews: option.total_reviews,
+        imageUrl: option.image_url,
+        priceLevel: option.price_level,
+    }));
 }
-
-export function submitSwipe(roomId: string, optionId: string, participantId:string, direction: DirectionTypes) {
+export function submitVote(roomId: string, optionId: string, participantId:string, vote: Vote) {
     return supabase
         .from('swipes')
         .insert({
             room_id: roomId,
             option_id: optionId,
-            direction: direction,
-            participant_id: participantId
+            participant_id: participantId,
+            vote,
         })
         .single()
 }
-
-export function subscribeSwipes() {}
-
-export function finishVoting() {}
-
-export function getWinner() {}
