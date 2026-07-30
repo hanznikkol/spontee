@@ -4,7 +4,6 @@ import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { RoomPreferenceHeader } from "@/components/custom/RoomCreation/Preference/RoomPreferenceHeader"
-import { SetupProgress } from "@/components/custom/RoomCreation/RoomSetupProgress"
 import { PreferenceCategorySelector } from "@/components/custom/RoomCreation/Preference/PreferenceCategorySelector"
 import { PreferenceBudgetSelector } from "@/components/custom/RoomCreation/Preference/PreferenceBudgetSelector"
 import { useCreateRoomStore } from "@/lib/room/create/stores/create-room-store"
@@ -14,6 +13,7 @@ import { useEffect, useState } from "react"
 import { ErrorDialog } from "@/components/custom/Modal/ErrorLogDialog"
 import { ensureAnonUser } from "@/lib/user/services/auth.service"
 import { useRoomSessionStore } from "@/lib/room/main/stores/room-session-store.store"
+import { SetupProgress } from "@/components/custom/RoomCreation/Setup/SetupProgress"
 
 const loadingMessages = [
   "Creating your room...",

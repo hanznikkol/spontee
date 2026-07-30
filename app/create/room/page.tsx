@@ -6,11 +6,11 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, ArrowRight, Lock } from "lucide-react"
-import { SetupProgress } from "@/components/custom/RoomCreation/RoomSetupProgress"
 import { RoomVisibility } from "@/components/custom/RoomCreation/Setup/RoomVisibility"
 import RoomSetupHeader from "@/components/custom/RoomCreation/Setup/RoomSetupHeader"
 import { useCreateRoomStore } from "@/lib/room/create/stores/create-room-store"
 import RoomMaxParticipants from "@/components/custom/RoomCreation/Setup/RoomMaxParticipants"
+import { SetupProgress } from "@/components/custom/RoomCreation/Setup/SetupProgress"
 
 function RoomSetup() {
   const router = useRouter()

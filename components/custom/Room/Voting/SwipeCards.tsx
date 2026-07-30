@@ -119,7 +119,6 @@ export default function SwipeCard({ option, direction, onSwipe }: SwipeCardProps
             onClick={() => triggerSwipe('left')}
           >
             <X/>
-            Pass
           </Button>
           <Button
             size="lg"
@@ -127,7 +126,6 @@ export default function SwipeCard({ option, direction, onSwipe }: SwipeCardProps
             onClick={() => triggerSwipe('right')}
           >
             <Check/>
-            Go!
           </Button>
         </div>
         <p className="text-xs text-muted-foreground">or use ← → arrow keys</p>

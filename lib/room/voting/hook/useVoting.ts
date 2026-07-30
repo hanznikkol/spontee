@@ -13,17 +13,24 @@ export function useVoting() {
     const roomId = useRoomSessionStore(state => state.roomId)
     const roomCode = useRoomSessionStore(state => state.roomCode)
     const [options, setOptions] = useState<RoomOption[]>([])
+    const [initialOptionCount, setInitialOptionCount] = useState(0)
     const [loading, setLoading] = useState(true)
     const [exitDirection, setExitDirection] = useState(0)
+
     const currentOption = getCurrentOption(options)
+    const remainingOptions = options.length
+    const currentCardNum = initialOptionCount > 0 ? initialOptionCount - remainingOptions + (currentOption ? 1 : 0) : 0;
+    const progress = initialOptionCount > 0 ? (currentCardNum / initialOptionCount) * 100 : 0;
+    const progressLabel = initialOptionCount > 0? `${currentCardNum} / ${initialOptionCount}` : ""
 
     // Fetch Options
     useEffect(() => {
         async function loadOptions() {
          if (!roomId) return;
             try {
-                const options = await getOptions(roomId);
-                setOptions(options);
+                const fetchedOptions = await getOptions(roomId);
+                setOptions(fetchedOptions);
+                setInitialOptionCount(fetchedOptions.length);
             } catch (error) {
                 console.error(error);
             } finally {
@@ -69,9 +76,13 @@ export function useVoting() {
 
     return {
         loading,
-        options,
         currentOption,
         exitDirection,
-        handleSwipe
+        handleSwipe,
+
+        initialOptionCount,
+        currentCardNum,
+        progress,
+        progressLabel,
     }
 }
