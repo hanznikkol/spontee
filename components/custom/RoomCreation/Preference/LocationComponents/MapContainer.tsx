@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { AdvancedMarker, Circle, Map, useMap } from "@vis.gl/react-google-maps"
-import { LocateFixed } from "lucide-react"
+import { Loader2, LocateFixed } from "lucide-react"
 import { useEffect, useMemo } from "react"
 
 const DEFAULT_CENTER = { lat: 14.5995, lng: 120.9842 }
@@ -17,6 +17,7 @@ interface MapSelectorProps {
     longitude:number
   ) => void
   onUseCurrentLocation: () => void
+  isLocating: boolean
 }
 
 function MapCameraSync({ position }: { position?: google.maps.LatLngLiteral }) {
@@ -34,13 +35,7 @@ function MapCameraSync({ position }: { position?: google.maps.LatLngLiteral }) {
   return null
 }
 
-export function MapSelector({
-  latitude,
-  longitude,
-  radius,
-  onSelectLocation,
-  onUseCurrentLocation,
-}: MapSelectorProps) {
+export function MapSelector({ latitude, longitude, radius, onSelectLocation, onUseCurrentLocation, isLocating }: MapSelectorProps) {
   const hasSelectedLocation = typeof latitude === "number" && typeof longitude === "number"
   const position = useMemo(
     () => hasSelectedLocation ? { lat: latitude, lng: longitude } : undefined,
@@ -49,7 +44,6 @@ export function MapSelector({
 
   return (
     <div className="relative h-60 overflow-hidden rounded-2xl">
-
       <Map
         mapId={process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID ?? "DEMO_MAP_ID"}
         defaultZoom={12}
@@ -85,6 +79,18 @@ export function MapSelector({
         ) : null}
 
       </Map>
+
+      {/* Loading Overlay */}
+      {isLocating && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/30 backdrop-blur-xs">
+          <div className="flex flex-col items-center gap-2 rounded-xl bg-background/90 px-4 py-3 shadow-lg">
+            <Loader2 className="h-7 w-7 animate-spin text-primary" />
+            <p className="text-sm font-medium">
+              Getting your location...
+            </p>
+          </div>
+        </div>
+      )}
 
       <Button
         type="button"
