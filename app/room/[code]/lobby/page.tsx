@@ -11,9 +11,14 @@ import { Badge } from '@/components/ui/badge'
 export default function LobbyPage() {
   const { loading, room, participants, currentParticipant, shareCode, shareUrl, handleOpenRoom, handleStartVoting } = useLobby()
   const { copiedKey, handleCopy, } = useClipboard()
+
+  const participantCount = participants.length
+  const maxParticipants = room?.max_participants ?? 0
   const isHost = currentParticipant?.is_host
   const isLobby = room?.status === "lobby"
   const isActive = room?.status === "active"
+  const canOpenRoom = isHost && isLobby && participantCount >= 2
+  const isRoomFull = maxParticipants > 0 && participantCount >= maxParticipants
 
   return (
     <main className="min-h-dvh w-full flex items-center justify-center p-4 bg-background relative overflow-hidden">
@@ -45,11 +50,19 @@ export default function LobbyPage() {
 
               <div className="flex justify-between">
                 <p className="text-xs uppercase text-muted-foreground">
-                  Members
+                  Participants
                 </p>
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Users className="w-3 h-3" />
-                  {participants.length}
+                <div className="flex items-center gap-2">
+                  {isRoomFull && (
+                    <Badge variant="secondary" className="rounded-full">
+                      Full
+                    </Badge>
+                  )}
+
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Users className="w-3 h-3" />
+                    {participantCount} / {maxParticipants}
+                  </div>
                 </div>
               </div>
 
@@ -89,9 +102,28 @@ export default function LobbyPage() {
 
           {/* For Host */}
           {isHost && isLobby && (
-            <Button onClick={handleOpenRoom}>
-              <Play className="w-4 h-4"/>
-              Open Room 
+            <Button
+              size="lg"
+              className="rounded-2xl gap-2"
+              onClick={handleOpenRoom}
+              disabled={!canOpenRoom || loading}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Opening...
+                </>
+              ) : participantCount < 2 ? (
+                <>
+                  <Clock3 className="w-4 h-4" />
+                  Waiting for Others...
+                </>
+              ) : (
+                <>
+                  <Play className="w-4 h-4" />
+                  Open Room
+                </>
+              )}
             </Button>
           )}
 

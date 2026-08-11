@@ -21,19 +21,30 @@ export default function JoinPage() {
 
   const handleJoin = async () => {
     const name = displayName.trim()
-    const roomCode = extractRoomCode( roomValue, window.location.origin)
+    const roomCode = extractRoomCode(roomValue, window.location.origin)
+
+    console.log("JOIN INPUT:", {
+      name,
+      roomValue,
+      roomCode,
+    })
+
     if (!name || !roomCode) return
 
     try {
-      const room = await join({roomCode, displayName:name})
-      router.push(
-        `/room/${room.room_code}/lobby`
-      )
+      const room = await join({
+        roomCode,
+        displayName: name,
+      })
 
-    } catch {}
+      console.log("JOIN SUCCESS:", room)
 
+      router.push(`/room/${room.room_code}/lobby`)
+    } catch (error) {
+      console.error("JOIN ROOM ERROR:", error)
+    }
   }
-
+  
   return (
     <main className="min-h-dvh bg-background px-4 py-10">
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">

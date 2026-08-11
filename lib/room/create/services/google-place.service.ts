@@ -28,7 +28,7 @@ export async function searchNearby({ placeTypes, latitude, longitude, radius }: 
             headers: {
                 "Content-Type": "application/json",
                 "X-Goog-Api-Key": apiKey,
-                "X-Goog-FieldMask": [ "places.id", "places.displayName", "places.formattedAddress", "places.location", "places.rating", "places.priceLevel" ].join(",")
+                "X-Goog-FieldMask": [ "places.id", "places.displayName", "places.formattedAddress", "places.location", "places.rating", "places.priceLevel", "places.photos" ].join(",")
             },
             
         },
@@ -38,15 +38,20 @@ export async function searchNearby({ placeTypes, latitude, longitude, radius }: 
     const places: GooglePlaceResponse[] = response.data.places ?? [];
     console.log(response.data.places)
 
-    return places.map((place) => ({
-        id: place.id,
-        name: place.displayName?.text ?? "",
-        rating: place.rating,
-        address: place.formattedAddress,
-        latitude: place.location?.latitude ?? 0,
-        longitude: place.location?.longitude ?? 0,
-        priceLevel: place.priceLevel
-    }));
+    return places.map((place) => {
+
+        const photoName = place.photos?.[0]?.name
+        return {
+            id: place.id,
+            name: place.displayName?.text ?? "",
+            rating: place.rating,
+            address: place.formattedAddress,
+            latitude: place.location?.latitude ?? 0,
+            longitude: place.location?.longitude ?? 0,
+            priceLevel: place.priceLevel,
+            imageUrl: photoName ? `https://places.googleapis.com/v1/${photoName}/media?maxHeightPx=800&key=${apiKey}` : undefined,
+        }
+    });
 
     } catch (error) {
         console.error("Google Places API Error:", error);
@@ -57,7 +62,3 @@ export async function searchNearby({ placeTypes, latitude, longitude, radius }: 
 export function getPlaceTypes(categoryName: string) { 
     return CATEGORY_PLACE_TYPES[ categoryName as keyof typeof CATEGORY_PLACE_TYPES ] ?? [];
 }
-
-// getPlaceDetails()
-
-// getPlacePhoto()

@@ -17,7 +17,7 @@ export function PreferenceCategorySelector({ value, onChange }: PreferenceCatego
           What are you deciding today?
         </h2>
         <p className="text-sm leading-relaxed text-muted-foreground">
-          Choose at least 3 category. We&apos;ll find nearby places for your group.
+          Choose <strong className="text-primary">at least 1 and up to 3 categories</strong>. We&apos;ll find nearby places for your group.
         </p>
       </div>
 

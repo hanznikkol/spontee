@@ -9,10 +9,10 @@ export async function generate( payload: GenerateOptionsPayload ) {
     const places = await searchPlaces(payload);
     const uniquePlaces = removeDuplicateOptions(places);
     // const budgetPlaces = filterByBudget(uniquePlaces, payload.budget);
-    // const distancePlaces = sortByDistance( budgetPlaces, payload.latitude, payload.longitude );
-    // const ratingPlaces = sortByRating(distancePlaces);
 
-    return convertGooglePlaceToOption(uniquePlaces);
+    const limitedPlaces = limitOptions(uniquePlaces, 15)
+
+    return convertGooglePlaceToOption(limitedPlaces);
 }
 
 // HELPERS
@@ -41,7 +41,8 @@ function convertGooglePlaceToOption(places: GooglePlace[]): PlaceOption[] {
         rating: place.rating ?? 0,
         latitude: place.latitude,
         longitude: place.longitude,
-        priceLevel: mapGooglePriceLevel(place.priceLevel)
+        priceLevel: mapGooglePriceLevel(place.priceLevel),
+        imageUrl: place.imageUrl
     }));
 }
 
@@ -55,8 +56,10 @@ function removeDuplicateOptions( places:GooglePlace[] ):GooglePlace[] {
     return Array.from(map.values());
 }
 
-// function sortByDistance() {}
+function limitOptions( places: GooglePlace[], limit = 20 ): GooglePlace[] {
+    return places.slice(0, limit);
+}
+
+
 
 // function filterByBudget() {}
-
-// function sortByRating() {}

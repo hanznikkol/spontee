@@ -17,10 +17,10 @@ export interface Room {
   room_name: string
   status: RoomStatus
   ends_at: string | null
-
   visibility: RoomVisibilityTypes
   created_at: string
   options: RoomOption[]
+  max_participants: number
 }
 
 

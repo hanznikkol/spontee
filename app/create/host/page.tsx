@@ -4,10 +4,10 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ArrowRight } from "lucide-react"
-import { SetupProgress } from "@/components/custom/RoomCreation/RoomSetupProgress"
 import HostHeader from "@/components/custom/RoomCreation/Host/HostHeader"
 import { useCreateRoomStore } from "@/lib/room/create/stores/create-room-store"
 import NameInput from "@/components/custom/Room/NameInput"
+import { SetupProgress } from "@/components/custom/RoomCreation/Setup/SetupProgress"
 
 export default function HostPage() {
   const router = useRouter()

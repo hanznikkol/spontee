@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { joinRoom } from "../service/join.service"
-import { useRoomSessionStore } from "../../stores/room-session-store.store"
+import { useRoomSessionStore } from "../../main/stores/room-session-store.store"
 
 export function useJoinRoom(){
   const [joining,setJoining] = useState(false)

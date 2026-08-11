@@ -12,9 +12,15 @@ interface PreferenceBudgetSelectorProps {
 export function PreferenceBudgetSelector({ value, onChange, }: PreferenceBudgetSelectorProps) {
   return (
     <section className="space-y-3" aria-labelledby="preference-budget-title">
-      <h2 id="preference-budget-title" className="text-base font-semibold">
-        Budget
-      </h2>
+      <div className="space-y-1">
+        <h2 id="preference-budget-title" className="text-base font-semibold">
+          Budget
+        </h2>
+
+        <p className="text-sm text-muted-foreground">
+          Select your preferred <strong>budget range</strong> (₱ to ₱₱₱) or choose <strong>Any</strong>.
+        </p>
+      </div>
 
       <ToggleGroup
         type="single"

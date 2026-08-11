@@ -4,7 +4,6 @@ import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { RoomPreferenceHeader } from "@/components/custom/RoomCreation/Preference/RoomPreferenceHeader"
-import { SetupProgress } from "@/components/custom/RoomCreation/RoomSetupProgress"
 import { PreferenceCategorySelector } from "@/components/custom/RoomCreation/Preference/PreferenceCategorySelector"
 import { PreferenceBudgetSelector } from "@/components/custom/RoomCreation/Preference/PreferenceBudgetSelector"
 import { useCreateRoomStore } from "@/lib/room/create/stores/create-room-store"
@@ -13,7 +12,8 @@ import { createRoomAction } from "@/lib/room/create/actions/create-room"
 import { useEffect, useState } from "react"
 import { ErrorDialog } from "@/components/custom/Modal/ErrorLogDialog"
 import { ensureAnonUser } from "@/lib/user/services/auth.service"
-import { useRoomSessionStore } from "@/lib/room/stores/room-session-store.store"
+import { useRoomSessionStore } from "@/lib/room/main/stores/room-session-store.store"
+import { SetupProgress } from "@/components/custom/RoomCreation/Setup/SetupProgress"
 
 const loadingMessages = [
   "Creating your room...",
@@ -65,6 +65,7 @@ function RoomPreferencePage() {
 
           setSession({
             roomId: room.room_id,
+            roomCode: room.room_code,
             participantId: participant.participant_id,
             isHost: participant.is_host,
           })
@@ -95,6 +96,7 @@ function RoomPreferencePage() {
   return (
     <>
     <main className="relative overflow-hidden px-4 py-6 md:py-10 min-h-dvh">
+      {/* Progress Bar */}
       <div className="mx-auto w-full max-w-md space-y-2">
         <Button
           variant="ghost"
@@ -115,17 +117,21 @@ function RoomPreferencePage() {
             <RoomPreferenceHeader />
 
             <div className="space-y-6">
+              {/* Category Selection */}
               <PreferenceCategorySelector
                 value={selectedCategories}
                 onChange={toggleCategory}
               />
+              {/* Budget Preference */}
               <PreferenceBudgetSelector
                 value={selectedBudget}
                 onChange={setSelectedBudget}
               />
+              {/* Location Radius */}
               <PreferenceLocationCard />
             </div>
 
+            {/* Create Button */}
             <Button
               type="button"
               className="w-full rounded-2xl"

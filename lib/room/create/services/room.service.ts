@@ -4,6 +4,7 @@ import { generateRoomCode } from "../utils/room-code.utils";
 import { generate } from "./option.service";
 import { PlaceOption } from "../types/option-types";
 import { PARTICIPANT_STATUS } from "../../lobby/types/participants-types";
+
 export async function create(data: CreateRoomPayload) {
   const room = await createRoomRecord(data);
   //  Create host participant
@@ -106,7 +107,8 @@ async function createOptions(roomId: string, options: PlaceOption[]) {
         latitude: option.latitude,
         longitude: option.longitude,
         rating: option.rating,
-        price_level: option.priceLevel ?? 1
+        price_level: option.priceLevel ?? 1,
+        image_url: option.imageUrl,
     }));
 
     const { error } = await supabase
