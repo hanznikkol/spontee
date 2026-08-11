@@ -40,6 +40,7 @@ export async function joinRoom({ roomCode, displayName, }: JoinRoomPayload) {
       user_id: user.id,
       display_name: displayName,
       is_host: false,
+      status: "waiting"
     })
     .select()
     .single()
