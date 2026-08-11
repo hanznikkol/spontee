@@ -18,6 +18,7 @@ export default function LobbyPage() {
   const isLobby = room?.status === "lobby"
   const isActive = room?.status === "active"
   const canOpenRoom = isHost && isLobby && participantCount >= 2
+  const isRoomFull = maxParticipants > 0 && participantCount >= maxParticipants
 
   return (
     <main className="min-h-dvh w-full flex items-center justify-center p-4 bg-background relative overflow-hidden">
@@ -49,11 +50,19 @@ export default function LobbyPage() {
 
               <div className="flex justify-between">
                 <p className="text-xs uppercase text-muted-foreground">
-                  Members
+                  Participants
                 </p>
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Users className="w-3 h-3" />
-                  {participants.length}
+                <div className="flex items-center gap-2">
+                  {isRoomFull && (
+                    <Badge variant="secondary" className="rounded-full">
+                      Full
+                    </Badge>
+                  )}
+
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Users className="w-3 h-3" />
+                    {participantCount} / {maxParticipants}
+                  </div>
                 </div>
               </div>
 
