@@ -5,8 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, ArrowRight, Lock } from "lucide-react"
-import { RoomVisibility } from "@/components/custom/RoomCreation/Setup/RoomVisibility"
+import { ArrowLeft, ArrowRight } from "lucide-react"
 import RoomSetupHeader from "@/components/custom/RoomCreation/Setup/RoomSetupHeader"
 import { useCreateRoomStore } from "@/lib/room/create/stores/create-room-store"
 import RoomMaxParticipants from "@/components/custom/RoomCreation/Setup/RoomMaxParticipants"
@@ -16,16 +15,12 @@ function RoomSetup() {
   const router = useRouter()
   // Zustand Store
   const setRoomName = useCreateRoomStore((state) => state.setRoomName)
-  const setRoomVisibility = useCreateRoomStore((state) => state.setRoomVisibility)
-  const setRoomPassword = useCreateRoomStore((state) => state.setRoomPassword)
   const setMaxParticipants = useCreateRoomStore((state) => state.setMaxParticipants)
 
   const maxParticipants = useCreateRoomStore((state) => state.maxParticipants)
   const roomName = useCreateRoomStore((state) => state.roomName)
-  const roomVisibility = useCreateRoomStore((state) => state.roomVisibility)
-  const roomPassword = useCreateRoomStore((state) => state.roomPassword)
 
-  const canContinue = !!roomName.trim() && ( roomVisibility === "public" || roomPassword.length >= 4 )
+  const canContinue = !!roomName.trim()
 
   const handleNext = async () => {
     if (!canContinue) return
@@ -73,25 +68,6 @@ function RoomSetup() {
                   className="rounded-xl"
                 />
               </div>
-
-              {/* VISIBILITY */}
-              <RoomVisibility value={roomVisibility} onChange={setRoomVisibility}/> 
-              {roomVisibility === "private" && (
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <Label>Password</Label>
-                    <Lock className="w-4 h-4 text-muted-foreground"/>
-                  </div>
-                  
-                  <Input
-                    type="password"
-                    placeholder="Set room password"
-                    value={roomPassword}
-                    onChange={(e) => setRoomPassword(e.target.value)}
-                    className="rounded-xl"
-                  />
-                </div>
-              )}
 
               <RoomMaxParticipants
                 value={maxParticipants}

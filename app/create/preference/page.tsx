@@ -51,8 +51,6 @@ function RoomPreferencePage() {
             userId: user.id,
             hostName: state.hostName,
             roomName: state.roomName,
-            roomVisibility: state.roomVisibility,
-            roomPassword: state.roomPassword,
             maxParticipants: state.maxParticipants,
             selectedCategoriesbyNames: state.selectedCategoriesbyNames,
             budget: state.budget,

@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { RoomOption } from "../types/option-types";
-import { RoomVisibilityTypes } from "../types/room-types";
 import { PreferenceBudget } from "../types/budget";
 import { LocationStatus } from "../types/location";
 
@@ -24,9 +23,7 @@ export interface CreateRoomState {
     hostName: string,
     // Room Preference
     roomName: string,
-    roomVisibility: RoomVisibilityTypes,
     maxParticipants: number,
-    roomPassword: string,
     selectedCategoriesbyNames: string[]
     options: RoomOption[]
     budget?: PreferenceBudget
@@ -46,8 +43,6 @@ interface CreateRoomStore extends CreateRoomState {
     setHostName: (name: string) => void
     // Room Setup
     setRoomName: (roomName: string) => void
-    setRoomVisibility: (visibility: RoomVisibilityTypes) => void
-    setRoomPassword: (password: string) => void
     setMaxParticipants: (value: number) => void
     setSelectedCategories: (categories: string[]) => void
     toggleCategory: (categoryId: string) => void
@@ -76,8 +71,6 @@ const initialState: CreateRoomState = {
   hostName: "",
   roomName: "",
   maxParticipants: 2,
-  roomVisibility: "public",
-  roomPassword: "",
   selectedCategoriesbyNames: [],
   options: [],
   budget: "any",
@@ -93,8 +86,6 @@ export const useCreateRoomStore = create<CreateRoomStore>((set) => ({
   ...initialState,
   setHostName: (hostName) => set({ hostName }),
   setRoomName: (roomName) => set({ roomName }),
-  setRoomVisibility: (roomVisibility) => set({ roomVisibility }),
-  setRoomPassword: (roomPassword) => set({ roomPassword }),
   setMaxParticipants: (value)  => set({maxParticipants: value}),
   setSelectedCategories: (selectedCategoriesbyNames) => set({ selectedCategoriesbyNames }),
   toggleCategory: (categoryName: string) => set((state) => {

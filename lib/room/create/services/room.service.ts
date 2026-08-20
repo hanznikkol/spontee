@@ -33,8 +33,6 @@ async function createRoomRecord(data: CreateRoomPayload) {
     .from("rooms")
     .insert({
         room_name: data.roomName,
-        room_visibility: data.roomVisibility,
-        room_password: data.roomPassword || null,
         max_participants: data.maxParticipants,
         room_code: generateRoomCode()
     })
