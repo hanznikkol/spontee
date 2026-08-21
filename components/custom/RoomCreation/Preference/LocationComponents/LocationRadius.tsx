@@ -2,12 +2,13 @@ import { Slider } from "@/components/ui/slider"
 import { RADIUS_VALUES } from "@/lib/room/create/types/location"
 
 export function LocationRadius({ radius, onChange }: { radius: number, onChange: (radius: number) => void}) {
-
   const selectedIndex = RADIUS_VALUES.indexOf(radius)
+
   function formatRadius(radius: number) {
     if (radius < 1000) return `${radius} m`
     return `${radius / 1000} km`
   }
+  
   return (
     <div className="space-y-3 rounded-2xl border bg-background p-3">
       <div className="flex items-start justify-between gap-4">

@@ -78,7 +78,7 @@ const initialState: CreateRoomState = {
   longitude: undefined,
   locationStatus: "required",
   address: "",
-  radius: 3000,
+  radius: 1000,
 }
 
 // Store
