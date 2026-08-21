@@ -7,8 +7,6 @@ export const ROOM_STATUS = {
   CLOSED: "closed",   // Room ended
 } as const
 
-export type RoomVisibilityTypes = "public" | "private"
-
 export type RoomStatus =typeof ROOM_STATUS[keyof typeof ROOM_STATUS]
 
 export interface Room {
@@ -17,7 +15,6 @@ export interface Room {
   room_name: string
   status: RoomStatus
   ends_at: string | null
-  visibility: RoomVisibilityTypes
   created_at: string
   options: RoomOption[]
   max_participants: number

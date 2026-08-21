@@ -249,6 +249,7 @@ export default function LobbyPage() {
                     </div>
                   </div>
                 </div>
+                
                 {/* QR */}
                 <div className="relative">
                   <div className="absolute inset-0 bg-linear-to-br from-pink-400/20 to-blue-400/20 blur-2xl scale-125 rounded-full" />
