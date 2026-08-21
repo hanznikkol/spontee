@@ -18,7 +18,7 @@ export default function HostPage() {
 
   const handleContinue = () => {
     if (!hostName.trim()) return
-    router.push(`/create/room`)
+    router.replace(`/create/room`)
   }
 
   return (

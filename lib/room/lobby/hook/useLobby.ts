@@ -1,3 +1,9 @@
+/*
+  IMPORTANT NOTE:
+  User = who the user is.
+  Participant = who the user is inside a specific room.
+*/
+
 "use client"
 
 import { useEffect, useRef, useState } from "react"
@@ -25,7 +31,6 @@ export function useLobby() {
   const [currentParticipant, setCurrentParticipant] = useState<Participants | null>(null)
   const [loading, setLoading] = useState(false)
   
-
   useEffect(() => {
     if (!code) return
 

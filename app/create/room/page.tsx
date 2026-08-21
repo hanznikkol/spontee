@@ -24,11 +24,11 @@ function RoomSetup() {
 
   const handleNext = async () => {
     if (!canContinue) return
-    router.push("/create/preference")
+    router.replace("/create/preference")
   }
 
   const handleBack = () => {
-    router.push("/create/host")
+    router.replace("/create/host")
   }
   
   return (

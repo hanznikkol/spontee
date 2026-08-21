@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 interface RoomSessionStore {
   roomId?: string
@@ -16,25 +17,32 @@ interface RoomSessionStore {
   clearSession: () => void
 }
 
-export const useRoomSessionStore = create<RoomSessionStore>((set) => ({
-  roomId: undefined,
-  roomCode: undefined,
-  participantId: undefined,
-  isHost: false,
+export const useRoomSessionStore = create<RoomSessionStore>()(
+  persist(
+    (set) => ({
+    roomId: undefined,
+    roomCode: undefined,
+    participantId: undefined,
+    isHost: false,
 
-  setSession:(session) =>
-    set({
-        roomId: session.roomId,
-        roomCode: session.roomCode,
-        participantId: session.participantId,
-        isHost: session.isHost,
-    }),
+    setSession:(session) =>
+      set({
+          roomId: session.roomId,
+          roomCode: session.roomCode,
+          participantId: session.participantId,
+          isHost: session.isHost,
+      }),
 
-  clearSession: () =>
-    set({
-      roomId: undefined,
-      roomCode: undefined,
-      participantId: undefined,
-      isHost: false,
-    }),
-}));
+    clearSession: () =>
+      set({
+        roomId: undefined,
+        roomCode: undefined,
+        participantId: undefined,
+        isHost: false,
+      }),
+  }),
+
+  {
+    name: "spontee-room-session"
+  }
+));

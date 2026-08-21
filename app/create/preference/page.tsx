@@ -67,7 +67,7 @@ function RoomPreferencePage() {
             participantId: participant.participant_id,
             isHost: participant.is_host,
           })
-          router.push(`/room/${room.room_code}/lobby`);
+          router.replace(`/room/${room.room_code}/lobby`);
       } catch (error) {
         console.error(error);
         setErrorMessage("Error Creating a Room. Please try again.");
@@ -101,7 +101,7 @@ function RoomPreferencePage() {
           size="sm"
           className="w-fit px-0"
           type="button"
-          onClick={() => router.push("/create/room")}
+          onClick={() => router.replace("/create/room")}
         >
           <ArrowLeft className="mr-2 h-4 w-4" aria-hidden="true" />
           Back
