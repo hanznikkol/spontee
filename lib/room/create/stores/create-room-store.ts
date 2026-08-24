@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware"
+import { createJSONStorage, persist } from "zustand/middleware"
 import { RoomOption } from "../types/option-types";
 import { PreferenceBudget } from "../types/budget";
 import { LocationStatus } from "../types/location";
@@ -89,7 +89,7 @@ export const useCreateRoomStore = create<CreateRoomStore>()(
       ...initialState,
       setHostName: (hostName) => set({ hostName }),
       setRoomName: (roomName) => set({ roomName }),
-      setMaxParticipants: (value)  => set({maxParticipants: value}),
+      setMaxParticipants: (value)  => set({ maxParticipants: value }),
       setSelectedCategories: (selectedCategoriesbyNames) => set({ selectedCategoriesbyNames }),
 
       toggleCategory: (categoryName: string) => set((state) => {
@@ -130,7 +130,7 @@ export const useCreateRoomStore = create<CreateRoomStore>()(
       removeOption: (id) => set((state) => ({ options: state.options.filter((o) => o.option_id !== id) })),
       clearOptions: () => set({ options: [] }),
       reset: () => set(initialState),
-      setBudget: (budget) => {set({budget})},
+      setBudget: (budget) => {set({ budget })},
 
       // Location
       setLocation: (status, data) =>
@@ -164,6 +164,7 @@ export const useCreateRoomStore = create<CreateRoomStore>()(
     }),
     {
       name: "spontee-create-room",
+      storage: createJSONStorage(() => sessionStorage)
     }
   )
 )

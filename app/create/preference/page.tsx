@@ -67,6 +67,11 @@ function RoomPreferencePage() {
             participantId: participant.participant_id,
             isHost: participant.is_host,
           })
+
+          useCreateRoomStore.getState().reset();
+
+          useCreateRoomStore.persist.clearStorage();
+
           router.replace(`/room/${room.room_code}/lobby`);
       } catch (error) {
         console.error(error);
