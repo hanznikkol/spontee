@@ -16,6 +16,7 @@ export function useJoinRoom(){
       
       setSession({
         roomId: room.room_id,
+        roomCode: room.room_code,
         participantId: participant.participant_id,
         isHost: participant.is_host,
       })
