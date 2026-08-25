@@ -3,14 +3,13 @@
   User = who the user is.
   Participant = who the user is inside a specific room.
 */
-
 "use client"
 
 import { useEffect, useRef, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { RealtimeChannel } from "@supabase/supabase-js"
-import { getRoom, getParticipants, getCurrentUser, subscribeParticipants, subscribeRoom, openRoom, updateParticipantStatus, } from "../service/lobby.service"
-import { getCurrentParticipants, updateParticipants, } from "../helper/participant.helper"
+import { getRoom, getParticipants, subscribeParticipants, subscribeRoom, openRoom, updateParticipantStatus, } from "../service/lobby.service"
+import { updateParticipants } from "../helper/participant.helper"
 import { supabase } from "@/lib/supabase/client"
 import { Room } from "../../create/types/room-types"
 import { updateRoom } from "../../create/helpers/room-helper"
@@ -26,34 +25,31 @@ export function useLobby() {
   const roomChannelRef = useRef<RealtimeChannel | null>(null)
 
   const [room, setRoom] = useState<Room | null>(null)
-  const participantId = useRoomSessionStore( state => state.participantId)
+  const participantId = useRoomSessionStore(state => state.participantId)
   const [participants, setParticipants] = useState<Participants[]>([])
-  const [currentParticipant, setCurrentParticipant] = useState<Participants | null>(null)
+  
   const [loading, setLoading] = useState(false)
   
+  const currentParticipant = participants.find(
+    participant =>
+      participant.participant_id === participantId
+  ) ?? null
+
+  // Participants Realtime
   useEffect(() => {
     if (!code) return
 
     let cancelled = false
 
     async function load() {
+      
       const { data: room } = await getRoom(code.toUpperCase())
       if (!room || cancelled) return
-      
       setRoom(room)
 
-      const { data: { user } } = await getCurrentUser()
-      const { data: initialParticipants, } = await getParticipants(room.room_id)
-
+      const { data: initialParticipants } = await getParticipants(room.room_id)
       if (initialParticipants) {
         setParticipants(initialParticipants)
-
-        setCurrentParticipant(
-          getCurrentParticipants(
-            initialParticipants,
-            user?.id
-          )
-        )
       }
 
       if (participantChannelRef.current) {
@@ -65,7 +61,7 @@ export function useLobby() {
       }
 
       // Participant Channel
-      const participantChannel  = subscribeParticipants(
+      const participantChannel = subscribeParticipants(
           room.room_id,
           payload => {
             setParticipants(prev =>
@@ -102,6 +98,7 @@ export function useLobby() {
     }
   }, [code])
 
+  // Opening the Room
   async function handleOpenRoom() {
     if (!room) return
 
@@ -112,6 +109,7 @@ export function useLobby() {
     }
   }
 
+  // Start Voting
   const handleStartVoting = async () => {
     if (!room || !participantId) return
 
@@ -120,7 +118,7 @@ export function useLobby() {
     try {
       const { error } = await updateParticipantStatus(
         participantId,
-        PARTICIPANT_STATUS.WAITING
+        PARTICIPANT_STATUS.VOTING
       )
 
       if (error) throw error
@@ -131,7 +129,6 @@ export function useLobby() {
       setLoading(false)
     }
   }
-  
 
   return { 
     room,   
@@ -142,6 +139,5 @@ export function useLobby() {
     shareUrl: typeof window !== "undefined" ? `${window.location.origin}/join?room=${code}` : "",
     handleOpenRoom,
     handleStartVoting,
-    router
   }
 }

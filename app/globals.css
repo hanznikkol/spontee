@@ -10,6 +10,34 @@ gmp-place-autocomplete {
   color-scheme: light;
 }
 
+/* Swipe Custom Animate */
+@keyframes swipe {
+  0% {
+    transform: translateX(0) rotate(0deg);
+    opacity: 0.5;
+  }
+
+  40% {
+    transform: translateX(5px) rotate(3deg);
+    opacity: 1;
+  }
+
+  70% {
+    transform: translateX(8px) rotate(5deg);
+    opacity: 0;
+  }
+
+  71% {
+    transform: translateX(-4px) rotate(-3deg);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateX(0) rotate(0deg);
+    opacity: 0.5;
+  }
+}
+
 /* Custom Scrollbar */
 .custom-scrollbar {
   scrollbar-width: thin;
