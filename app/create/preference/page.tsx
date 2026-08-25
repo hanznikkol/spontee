@@ -68,11 +68,10 @@ function RoomPreferencePage() {
             isHost: participant.is_host,
           })
 
-          useCreateRoomStore.getState().reset();
-
-          useCreateRoomStore.persist.clearStorage();
-
           router.replace(`/room/${room.room_code}/lobby`);
+          
+          useCreateRoomStore.getState().reset();
+          useCreateRoomStore.persist.clearStorage();         
       } catch (error) {
         console.error(error);
         setErrorMessage("Error Creating a Room. Please try again.");
