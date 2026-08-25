@@ -7,14 +7,8 @@ import { ProgressBar } from '@/components/custom/ProgressBar'
 import LogoBranding from '@/components/custom/Landing/LogoBranding'
 // import ResultScreen from '@/components/custom/Room/Phase/ResultScreen'
 
-export default function RoomPage() {
-  const {
-    currentOption,
-    exitDirection,
-    handleSwipe,
-    progress,
-    progressLabel,
-  } = useVoting()
+export default function VotingPage() {
+  const { currentOption, exitDirection, handleSwipe, progress, progressLabel } = useVoting()
 
   return (
   <>

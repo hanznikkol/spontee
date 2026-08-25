@@ -18,16 +18,10 @@ export default function JoinPage() {
   const [displayName, setDisplayName] = useState("")
   const [roomValue, setRoomValue] = useState(initialRoom)
   const {join, joining, feedback} = useJoinRoom()
-
+  
   const handleJoin = async () => {
     const name = displayName.trim()
     const roomCode = extractRoomCode(roomValue, window.location.origin)
-
-    console.log("JOIN INPUT:", {
-      name,
-      roomValue,
-      roomCode,
-    })
 
     if (!name || !roomCode) return
 
@@ -41,7 +35,7 @@ export default function JoinPage() {
 
       router.push(`/room/${room.room_code}/lobby`)
     } catch (error) {
-      console.error("JOIN ROOM ERROR:", error)
+      return error
     }
   }
   
@@ -114,7 +108,7 @@ export default function JoinPage() {
 
         <p className="text-center text-xs text-muted-foreground">
           Need to host instead?{" "}
-          <button type="button" className="font-medium text-foreground underline underline-offset-4 hover:text-primary hover:cursor-pointer duration-100" onClick={() => router.push("/create")}>
+          <button type="button" className="font-medium text-foreground underline underline-offset-4 hover:text-primary hover:cursor-pointer duration-100" onClick={() => router.push("/create/host")}>
             Go to create
           </button>
         </p>

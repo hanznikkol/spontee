@@ -1,6 +1,6 @@
 export type Phase = 'swiping' | 'result'
 export type SwipeDirection = 'left' | 'right'
-export type Vote = 'GO' | 'PASS'
+export type Vote = 'go' | 'pass'
 
 export interface Swipe {
   swipe_id: string

@@ -5,7 +5,6 @@ import { getOptions, submitVote } from "../service/vote.service";
 import  { useRouter } from "next/navigation";
 import { SwipeDirection, Vote } from "../types/vote.types";
 import { useRoomSessionStore } from "../../main/stores/room-session-store.store";
-import { updateParticipantStatus } from "../../lobby/service/lobby.service";
 
 export function useVoting() {
     const router = useRouter()
@@ -45,28 +44,19 @@ export function useVoting() {
     const handleSwipe = useCallback(async (direction: SwipeDirection) => {
         if (!roomId || !currentOption || !participantId) return
         try {
-            const vote: Vote = direction === "right" ? "GO" : "PASS"
+            const vote: Vote = direction === "right" ? "go" : "pass"
             setExitDirection(direction === "right" ? 1 : -1)
+            // Save to database
             await submitVote(roomId, currentOption.option_id, participantId, vote)
 
-            const remainingOptions = removeCurrentOption(options)
-            const finished = remainingOptions.length === 0
-
-            
-            setTimeout(async () => {
-                setOptions(prev => removeCurrentOption(prev))
-                if (finished) {
-                    await updateParticipantStatus(
-                        participantId,
-                        'finished'
-                    )
-                }
-            }, 150)
+            setTimeout(() => {
+                setOptions(prev => removeCurrentOption(prev));
+            }, 150);
 
         } catch (error) {
             console.error(error)
         }
-    }, [roomId, participantId, currentOption, options])
+    }, [roomId, participantId, currentOption])
 
     useEffect(() => {
         if (!loading && !currentOption) {
