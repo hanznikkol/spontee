@@ -10,14 +10,17 @@ import RoomSetupHeader from "@/components/custom/RoomCreation/Setup/RoomSetupHea
 import { useCreateRoomStore } from "@/lib/room/create/stores/create-room-store"
 import RoomMaxParticipants from "@/components/custom/RoomCreation/Setup/RoomMaxParticipants"
 import { SetupProgress } from "@/components/custom/RoomCreation/Setup/SetupProgress"
+import { RoomMaxOptions } from "@/components/custom/RoomCreation/Setup/RoomMaxOptions"
 
 function RoomSetup() {
   const router = useRouter()
   // Zustand Store
   const setRoomName = useCreateRoomStore((state) => state.setRoomName)
   const setMaxParticipants = useCreateRoomStore((state) => state.setMaxParticipants)
+  const setMaxOptions = useCreateRoomStore((state) => state.setMaxOptions)
 
   const maxParticipants = useCreateRoomStore((state) => state.maxParticipants)
+  const maxOptions = useCreateRoomStore((state) => state.maxOptions)
   const roomName = useCreateRoomStore((state) => state.roomName)
 
   const canContinue = !!roomName.trim()
@@ -74,6 +77,11 @@ function RoomSetup() {
                 onChange={setMaxParticipants}
                 min={2}
                 max={25}
+              />
+
+              <RoomMaxOptions
+                maxOptions={maxOptions}
+                onChange={setMaxOptions}
               />
 
             </div>

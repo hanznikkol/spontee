@@ -52,6 +52,7 @@ function RoomPreferencePage() {
             hostName: state.hostName,
             roomName: state.roomName,
             maxParticipants: state.maxParticipants,
+            maxOption: state.maxOptions,
             selectedCategoriesbyNames: state.selectedCategoriesbyNames,
             budget: state.budget,
             locationStatus: state.locationStatus,

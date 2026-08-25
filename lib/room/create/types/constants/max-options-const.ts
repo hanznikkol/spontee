@@ -1,0 +1,1 @@
+export const MAX_OPTIONS_VALUES = [5, 10, 15, 20]

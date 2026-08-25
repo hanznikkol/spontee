@@ -19,7 +19,8 @@ export async function create(data: CreateRoomPayload) {
       latitude: data.latitude,
       longitude: data.longitude,
       radius: data.radius,
-      budget: data.budget
+      budget: data.budget,
+      maxOptions: data.maxOptions
   });
 
   // Save options
@@ -34,6 +35,7 @@ async function createRoomRecord(data: CreateRoomPayload) {
     .insert({
         room_name: data.roomName,
         max_participants: data.maxParticipants,
+        max_options: data.maxOptions,
         room_code: generateRoomCode()
     })
     .select()

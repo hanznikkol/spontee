@@ -6,4 +6,5 @@ export interface GenerateOptionsPayload {
   latitude: number
   longitude: number
   radius: number
+  maxOptions: number
 }

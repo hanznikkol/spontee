@@ -25,6 +25,7 @@ export interface CreateRoomState {
     // Room Preference
     roomName: string,
     maxParticipants: number,
+    maxOptions: number,
     selectedCategoriesbyNames: string[]
     options: RoomOption[]
     budget?: PreferenceBudget
@@ -45,6 +46,7 @@ interface CreateRoomStore extends CreateRoomState {
     // Room Setup
     setRoomName: (roomName: string) => void
     setMaxParticipants: (value: number) => void
+    setMaxOptions: (value: number) => void
     setSelectedCategories: (categories: string[]) => void
     toggleCategory: (categoryId: string) => void
     addOption: (option: RoomOption) => void
@@ -72,6 +74,7 @@ const initialState: CreateRoomState = {
   hostName: "",
   roomName: "",
   maxParticipants: 2,
+  maxOptions: 10,
   selectedCategoriesbyNames: [],
   options: [],
   budget: "any",
@@ -90,6 +93,7 @@ export const useCreateRoomStore = create<CreateRoomStore>()(
       setHostName: (hostName) => set({ hostName }),
       setRoomName: (roomName) => set({ roomName }),
       setMaxParticipants: (value)  => set({ maxParticipants: value }),
+      setMaxOptions: (value) => set({ maxOptions: value }),
       setSelectedCategories: (selectedCategoriesbyNames) => set({ selectedCategoriesbyNames }),
 
       toggleCategory: (categoryName: string) => set((state) => {

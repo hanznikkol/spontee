@@ -6,6 +6,7 @@ export interface CreateRoomPayload {
   hostName: string;
   roomName: string;
   maxParticipants: number;
+  maxOptions: number;
   selectedCategoriesbyNames: string[];
   budget?: PreferenceBudget;
   locationStatus: LocationStatus;

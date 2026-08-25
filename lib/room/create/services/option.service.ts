@@ -8,9 +8,10 @@ import * as googlePlaceService from "./google-place.service";
 export async function generate( payload: GenerateOptionsPayload ) {
     const places = await searchPlaces(payload);
     const uniquePlaces = removeDuplicateOptions(places);
+
     // const budgetPlaces = filterByBudget(uniquePlaces, payload.budget);
 
-    const limitedPlaces = limitOptions(uniquePlaces, 15)
+    const limitedPlaces = limitOptions(uniquePlaces, payload.maxOptions)
 
     return convertGooglePlaceToOption(limitedPlaces);
 }
@@ -56,7 +57,7 @@ function removeDuplicateOptions( places:GooglePlace[] ):GooglePlace[] {
     return Array.from(map.values());
 }
 
-function limitOptions( places: GooglePlace[], limit = 20 ): GooglePlace[] {
+function limitOptions( places: GooglePlace[], limit: number ): GooglePlace[] {
     return places.slice(0, limit);
 }
 
