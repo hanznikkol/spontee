@@ -53,7 +53,7 @@ export async function calculateRoomResult({
     const goCount = swipes.filter(
       (swipe) =>
         swipe.option_id === option.option_id &&
-        swipe.vote === "GO"
+        swipe.vote === "go"
     ).length
 
     return {
