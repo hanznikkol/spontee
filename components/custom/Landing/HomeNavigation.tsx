@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Users, Plus, MessageSquare, Menu, X, Sparkles, ArrowRight } from "lucide-react"
+import { Users, Plus, MessageSquare, Menu, X, ArrowRight } from "lucide-react"
 import { FeedbackDialog } from "@/components/custom/Modal/FeedbackDialog"
 
 export function HomeNavigation() {
@@ -42,11 +42,6 @@ export function HomeNavigation() {
               href="/"
               className="group flex items-center gap-2.5 transition-transform active:scale-95"
             >
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-tr from-pink-500 via-purple-500 to-blue-500 p-0.5 shadow-md shadow-pink-500/20 group-hover:shadow-pink-500/35 transition-all">
-                <div className="flex h-full w-full items-center justify-center rounded-[10px] bg-background">
-                  <Sparkles className="h-4 w-4 text-pink-500 transition-transform group-hover:rotate-12" />
-                </div>
-              </div>
               <span className="text-xl font-bold tracking-tight">
                 Spont
                 <span className="bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
@@ -94,12 +89,11 @@ export function HomeNavigation() {
             </Button>
 
             <Button
-              size="sm"
+              size="lg"
               asChild
               className="group rounded-xl bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 px-4 text-sm font-semibold text-white shadow-md shadow-pink-500/25 transition-all hover:scale-[1.02] hover:shadow-pink-500/40 active:scale-[0.98]"
             >
               <Link href="/create/host">
-                <Plus className="mr-1 h-4 w-4" />
                 Create Room
                 <ArrowRight className="ml-1 h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
               </Link>

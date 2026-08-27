@@ -37,7 +37,7 @@ export default function HowItWorksSection() {
                 <div className="space-y-4">
                   {/* TOP ROW: ICON + STEP NUMBER */}
                   <div className="flex items-center justify-between">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-tr from-pink-500/15 to-purple-500/15 text-pink-500 ring-1 ring-pink-500/20 group-hover:scale-105 transition-transform">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-linear-to-tr from-pink-500/15 to-purple-500/15 text-pink-500 ring-1 ring-pink-500/20 group-hover:scale-105 transition-transform">
                       <Icon className="h-5 w-5" />
                     </div>
                     <span className="font-mono text-xl font-extrabold text-muted-foreground/30 group-hover:text-pink-500/60 transition">

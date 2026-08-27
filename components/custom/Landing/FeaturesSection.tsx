@@ -7,7 +7,7 @@ import {
   Zap,
   Users,
   ShieldCheck,
-  Sparkles,
+  Blocks,
 } from "lucide-react"
 
 export default function FeaturesSection() {
@@ -17,7 +17,7 @@ export default function FeaturesSection() {
         {/* SECTION HEADER */}
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
           <div className="inline-flex items-center gap-1.5 rounded-full border border-border/70 bg-background/80 px-3.5 py-1 text-xs font-semibold text-muted-foreground backdrop-blur-sm shadow-xs">
-            <Sparkles className="h-3.5 w-3.5 text-pink-500" />
+            <Blocks className="h-3.5 w-3.5 text-pink-500" />
             Product Capabilities
           </div>
 

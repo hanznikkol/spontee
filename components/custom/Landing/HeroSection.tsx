@@ -6,15 +6,14 @@ import Image from "next/image"
 import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import {
-  Sparkles,
   ArrowRight,
   Users,
   MapPin,
   Star,
   Check,
   X,
-  Zap,
   CheckCircle2,
+  MessageCircleOff,
 } from "lucide-react"
 
 export default function HeroSection() {
@@ -52,10 +51,10 @@ export default function HeroSection() {
               transition={{ duration: 0.5 }}
               className="inline-flex items-center gap-2 rounded-full border border-pink-500/20 bg-pink-500/5 px-4 py-1.5 text-xs sm:text-sm font-medium text-pink-600 dark:text-pink-400 backdrop-blur-md shadow-xs"
             >
-              <Sparkles className="h-3.5 w-3.5 text-pink-500 animate-pulse" />
-              <span>The Group Decision Engine</span>
-              <span className="h-1 w-1 rounded-full bg-pink-500/60" />
-              <span className="text-muted-foreground font-normal">Zero arguing</span>
+             <MessageCircleOff className="h-3.5 w-3.5 text-pink-500" />
+                <span>Skip the group-chat debate</span>
+                <span className="h-1 w-1 rounded-full bg-pink-500/60" />
+                <span>The Group Decision Engine</span>
             </motion.div>
 
             {/* HEADLINE */}
@@ -99,7 +98,6 @@ export default function HeroSection() {
                 className="w-full sm:w-auto h-13 px-8 rounded-2xl bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 text-base font-semibold text-white shadow-xl shadow-pink-500/25 hover:shadow-pink-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
                 <Link href="/create/host">
-                  <Zap className="mr-2 h-5 w-5 fill-white" />
                   Create a Room
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
@@ -242,76 +240,95 @@ export default function HeroSection() {
               {/* CONVERGING PARTICIPANTS TICKER BELOW CARD */}
               <div className="w-full mt-4 bg-background/85 backdrop-blur-xl border border-border/70 rounded-2xl p-3 shadow-lg z-20">
                 <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
-                  <span className="font-semibold text-foreground flex items-center gap-1.5">
+                <span className="font-semibold text-foreground flex items-center gap-1.5">
                     <Users className="h-3.5 w-3.5 text-pink-500" />
-                    Group Ballots
-                  </span>
-                  <span className="text-[11px] font-mono font-medium text-pink-500">
-                    {convergeStep >= 2 ? "Consensus Found!" : "Voting in progress..."}
-                  </span>
+                    Group Voting
+                </span>
+
+                <span className="text-[11px] font-mono font-medium text-pink-500">
+                    {convergeStep >= 2
+                    ? "Everyone finished!"
+                    : "Voting in progress..."}
+                </span>
                 </div>
 
-                {/* VOTES CONVERGING ANIMATION */}
+                {/* VOTING STATUS */}
                 <div className="space-y-1.5">
-                  <div className="flex items-center justify-between text-xs py-0.5">
-                    <div className="flex items-center gap-2">
-                      <div className="h-5 w-5 rounded-full bg-pink-500/20 text-pink-600 dark:text-pink-300 font-bold flex items-center justify-center text-[10px]">
-                        M
-                      </div>
-                      <span className="font-medium text-foreground">Maya (Host)</span>
-                    </div>
-                    <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                      <Check className="h-3 w-3" /> Voted Go
-                    </span>
-                  </div>
+                    <div className="flex items-center justify-between text-xs py-0.5">
+                        <div className="flex items-center gap-2">
+                        <div className="h-5 w-5 rounded-full bg-pink-500/20 text-pink-600 dark:text-pink-300 font-bold flex items-center justify-center text-[10px]">
+                            M
+                        </div>
+                        <span className="font-medium text-foreground">
+                            Maya (Host)
+                        </span>
+                        </div>
 
-                  <div className="flex items-center justify-between text-xs py-0.5">
-                    <div className="flex items-center gap-2">
-                      <div className="h-5 w-5 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-300 font-bold flex items-center justify-center text-[10px]">
-                        L
-                      </div>
-                      <span className="font-medium text-foreground">Liam</span>
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                        <Check className="h-3 w-3" />
+                        Finished
+                        </span>
                     </div>
-                    {convergeStep >= 1 ? (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full animate-in fade-in zoom-in duration-200">
-                        <Check className="h-3 w-3" /> Voted Go
-                      </span>
-                    ) : (
-                      <span className="text-[11px] text-muted-foreground italic">swiping...</span>
-                    )}
-                  </div>
 
-                  <div className="flex items-center justify-between text-xs py-0.5">
-                    <div className="flex items-center gap-2">
-                      <div className="h-5 w-5 rounded-full bg-purple-500/20 text-purple-600 dark:text-purple-300 font-bold flex items-center justify-center text-[10px]">
-                        Y
-                      </div>
-                      <span className="font-medium text-foreground">You</span>
+                    <div className="flex items-center justify-between text-xs py-0.5">
+                        <div className="flex items-center gap-2">
+                        <div className="h-5 w-5 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-300 font-bold flex items-center justify-center text-[10px]">
+                            L
+                        </div>
+                        <span className="font-medium text-foreground">
+                            Liam
+                        </span>
+                        </div>
+
+                        {convergeStep >= 1 ? (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full animate-in fade-in zoom-in duration-200">
+                            <Check className="h-3 w-3" />
+                            Finished
+                        </span>
+                        ) : (
+                        <span className="text-[11px] text-muted-foreground italic">
+                            Voting...
+                        </span>
+                        )}
                     </div>
-                    {convergeStep >= 2 ? (
-                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full animate-in fade-in zoom-in duration-200">
-                        <Check className="h-3 w-3" /> Voted Go
-                      </span>
-                    ) : (
-                      <span className="text-[11px] text-muted-foreground italic">swiping...</span>
-                    )}
-                  </div>
+
+                    <div className="flex items-center justify-between text-xs py-0.5">
+                        <div className="flex items-center gap-2">
+                        <div className="h-5 w-5 rounded-full bg-purple-500/20 text-purple-600 dark:text-purple-300 font-bold flex items-center justify-center text-[10px]">
+                            Y
+                        </div>
+                        <span className="font-medium text-foreground">
+                            You
+                        </span>
+                        </div>
+
+                        {convergeStep >= 2 ? (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full animate-in fade-in zoom-in duration-200">
+                            <Check className="h-3 w-3" />
+                            Finished
+                        </span>
+                        ) : (
+                        <span className="text-[11px] text-muted-foreground italic">
+                            Voting...
+                        </span>
+                        )}
+                    </div>
                 </div>
 
                 {/* FINAL RESULT BANNER */}
                 <AnimatePresence>
-                  {convergeStep >= 2 && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                      animate={{ opacity: 1, height: "auto", marginTop: 8 }}
-                      exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                      className="pt-2 border-t border-border/50 text-center"
-                    >
-                      <div className="inline-flex items-center gap-1.5 rounded-lg bg-linear-to-r from-emerald-500/15 via-teal-500/15 to-emerald-500/15 px-2.5 py-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 w-full justify-center">
-                        <span>🎉 Unanimous Match: Mendokoro Ramenba</span>
-                      </div>
-                    </motion.div>
-                  )}
+                    {convergeStep >= 2 && (
+                        <motion.div
+                        initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                        animate={{ opacity: 1, height: "auto", marginTop: 8 }}
+                        exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                        className="pt-2 border-t border-border/50 text-center"
+                        >
+                        <div className="inline-flex items-center gap-1.5 rounded-lg bg-linear-to-r from-emerald-500/15 via-teal-500/15 to-emerald-500/15 px-2.5 py-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 w-full justify-center">
+                            <span>🎉 Everyone finished — finding your match...</span>
+                        </div>
+                        </motion.div>
+                    )}
                 </AnimatePresence>
               </div>
             </div>
