@@ -1,6 +1,6 @@
 "use client"
 
-import {useState } from "react"
+import { useState, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -10,7 +10,7 @@ import NameInput from "@/components/custom/Room/NameInput"
 import RoomLinkInput from "@/components/custom/RoomJoin/RoomLinkInput"
 import { useJoinRoom } from "@/lib/room/join/hook/useJoinRoom"
 
-export default function JoinPage() {
+function JoinContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const initialRoom = searchParams.get("room") ?? ""
@@ -114,5 +114,22 @@ export default function JoinPage() {
         </p>
       </div>
     </main>
+  )
+}
+
+export default function JoinPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-dvh bg-background px-4 py-10 flex items-center justify-center">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Loading join details...
+          </div>
+        </main>
+      }
+    >
+      <JoinContent />
+    </Suspense>
   )
 }

@@ -1,6 +1,7 @@
 // GOOGLE API RESPONSE ON PRICE LEVEL
 
 import { GooglePriceLevel } from "./budget";
+export type { GooglePriceLevel };
 
 
 // API Reponse
