@@ -4,23 +4,19 @@ import { useParams } from "next/navigation"
 import { Room } from "../../create/types/room-types"
 import { Participants } from "../../lobby/types/participants-types"
 import { getRoom } from "../../lobby/service/lobby.service"
-import { getParticipants } from "../../lobby/service/participant.service"
+import { getParticipants, subscribeParticipants } from "../../lobby/service/participant.service"
+import { updateParticipants } from "../../lobby/helper/participant.helper"
 
 export function useWaiting() {
   const params = useParams()
-
   const code = typeof params?.code === 'string' ? params.code.toUpperCase() : ''
-
-  const participantId = useRoomSessionStore(
-    (state) => state.participantId
-  )
-
+  const participantId = useRoomSessionStore((state) => state.participantId)
   const [room, setRoom] = useState<Room | null>(null)
-
   const [participants, setParticipants] = useState<Participants[]>([])
 
   useEffect(() => {
     let cancelled = false
+    let channel: ReturnType<typeof subscribeParticipants> | null = null
 
     async function loadWaitingData() {
       if (!code) return
@@ -33,58 +29,37 @@ export function useWaiting() {
         if (fetchedRoom) {
           setRoom(fetchedRoom)
 
-          const { data: fetchedParticipants } =
-            await getParticipants(fetchedRoom.room_id)
+          const { data: fetchedParticipants } = await getParticipants(fetchedRoom.room_id)
 
           if (cancelled) return
 
-          if (fetchedParticipants && fetchedParticipants.length > 0) {
-            // Ensure the current participant is marked as finished on this screen
-            const mapped = fetchedParticipants.map((p) =>
-              p.participant_id === participantId
-                ? { ...p, status: 'finished' as const }
-                : p
-            )
-
-            setParticipants(mapped)
-            return
+          if (fetchedParticipants) {
+            setParticipants(fetchedParticipants)
           }
+
+          // Component may have unmounted while fetching participants
+          if (cancelled) return
+
+          channel = subscribeParticipants(
+            fetchedRoom.room_id,
+            (payload) => {
+                if (cancelled) return
+
+                setParticipants((current) =>
+                updateParticipants(current, payload)
+                )
+            }
+          )
+
+          channel.subscribe()
+
+          return
+
         }
       } catch (error) {
-        console.error('Error loading waiting room data:', error)
-      }
-
-      if (!cancelled) {
-        // Fallback demo data matching the Participants model when previewed directly
-        setParticipants([
-          {
-            participant_id: participantId || 'demo-user-me',
-            user_id: 'demo-user-me',
-            display_name: 'You',
-            session_id: 'sess-1',
-            is_host: true,
-            status: 'finished',
-            joined_at: new Date().toISOString(),
-          },
-          {
-            participant_id: 'demo-user-2',
-            user_id: 'demo-user-2',
-            display_name: 'Sarah',
-            session_id: 'sess-2',
-            is_host: false,
-            status: 'voting',
-            joined_at: new Date().toISOString(),
-          },
-          {
-            participant_id: 'demo-user-3',
-            user_id: 'demo-user-3',
-            display_name: 'Alex',
-            session_id: 'sess-3',
-            is_host: false,
-            status: 'finished',
-            joined_at: new Date().toISOString(),
-          },
-        ])
+        if(!cancelled) {
+            console.error('Error loading waiting room data:', error)
+        } 
       }
     }
 
@@ -92,8 +67,9 @@ export function useWaiting() {
 
     return () => {
       cancelled = true
+      channel?.unsubscribe()
     }
-  }, [code, participantId])
+  }, [code])
 
   // Computed state from participants
   const currentParticipant = useMemo(() => {
@@ -112,14 +88,9 @@ export function useWaiting() {
     (p) => p.status === 'finished'
   ).length
 
-  const progressPercent =
-    totalParticipants > 0
-      ? (finishedCount / totalParticipants) * 100
-      : 0
+  const progressPercent = totalParticipants > 0? (finishedCount / totalParticipants) * 100 : 0
 
-  const isAllFinished =
-    totalParticipants > 0 &&
-    finishedCount === totalParticipants
+  const isAllFinished = totalParticipants > 0 && finishedCount === totalParticipants
 
   return {
     code,

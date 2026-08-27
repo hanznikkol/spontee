@@ -1,6 +1,5 @@
 import { supabase } from "@/lib/supabase/client"
 import { RealtimeChannel } from "@supabase/supabase-js"
-import { ParticipantStatus } from "../types/participants-types"
 
 export function subscribeRoom( roomId: string, callback: Parameters<RealtimeChannel["on"]>[2]) {
   return supabase
