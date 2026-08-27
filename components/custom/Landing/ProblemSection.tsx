@@ -21,7 +21,7 @@ export default function ProblemSection() {
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
             Everyone has an opinion.
             <br />
-            <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
               Nobody wants to decide.
             </span>
           </h2>
@@ -79,7 +79,7 @@ export default function ProblemSection() {
                       className={`max-w-[85%] rounded-2xl px-3.5 py-2 text-xs leading-relaxed ${
                         quote.isHost
                           ? "rounded-tl-xs bg-muted/80 text-foreground border border-border/40"
-                          : "rounded-tr-xs bg-gradient-to-br from-pink-500/15 via-purple-500/10 to-blue-500/15 text-foreground border border-pink-500/20"
+                          : "rounded-tr-xs bg-linear-to-br from-pink-500/15 via-purple-500/10 to-blue-500/15 text-foreground border border-pink-500/20"
                       }`}
                     >
                       {quote.text}
@@ -155,7 +155,7 @@ export default function ProblemSection() {
 
         {/* TRANSITION BRIDGE TO SOLUTION */}
         <div className="mt-14 pt-8 text-center max-w-xl mx-auto flex flex-col items-center gap-2">
-          <div className="h-8 w-px bg-gradient-to-b from-transparent via-pink-500 to-purple-500" />
+          <div className="h-8 w-px bg-linear-to-b from-transparent via-pink-500 to-purple-500" />
           <p className="text-sm font-semibold tracking-wide uppercase text-muted-foreground">
             The Spontee Solution
           </p>

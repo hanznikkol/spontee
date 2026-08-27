@@ -8,7 +8,7 @@ export default function FinalCtaSection() {
   return (
     <section className="relative py-20 sm:py-28 overflow-hidden">
       {/* Soft atmospheric backlight */}
-      <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[360px] bg-gradient-to-r from-pink-500/20 via-purple-500/15 to-blue-500/20 blur-3xl rounded-full -z-10" />
+      <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-175 h-90 bg-linear-to-r from-pink-500/20 via-purple-500/15 to-blue-500/20 blur-3xl rounded-full -z-10" />
 
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="relative mx-auto max-w-4xl rounded-[36px] border border-border/80 bg-linear-to-b from-card/80 to-card/40 p-8 sm:p-12 md:p-16 text-center backdrop-blur-2xl shadow-2xl overflow-hidden">
@@ -39,7 +39,7 @@ export default function FinalCtaSection() {
               <Button
                 asChild
                 size="lg"
-                className="w-full sm:w-auto h-13 px-8 rounded-2xl bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-base font-semibold text-white shadow-xl shadow-pink-500/25 hover:shadow-pink-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                className="w-full sm:w-auto h-13 px-8 rounded-2xl bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 text-base font-semibold text-white shadow-xl shadow-pink-500/25 hover:shadow-pink-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
                 <Link href="/create/host">
                   <Zap className="mr-2 h-5 w-5 fill-white" />

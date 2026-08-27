@@ -37,7 +37,7 @@ export default function HeroSection() {
   return (
     <section className="relative pt-8 pb-16 md:pt-14 md:pb-24 lg:pt-16 lg:pb-28 overflow-hidden">
       {/* Soft ambient background glows */}
-      <div className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-pink-500/20 via-purple-500/15 to-blue-500/20 blur-3xl rounded-full -z-10 opacity-70" />
+      <div className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-150 h-87.5 bg-linear-to-tr from-pink-500/20 via-purple-500/15 to-blue-500/20 blur-3xl rounded-full -z-10 opacity-70" />
       <div className="pointer-events-none absolute top-1/2 -right-48 w-96 h-96 bg-blue-500/10 blur-3xl rounded-full -z-10" />
       <div className="pointer-events-none absolute bottom-0 -left-48 w-96 h-96 bg-pink-500/10 blur-3xl rounded-full -z-10" />
 
@@ -68,7 +68,7 @@ export default function HeroSection() {
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.08]">
                 Stop arguing.
                 <br />
-                <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
+                <span className="bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
                   Start swiping.
                 </span>
               </h1>
@@ -96,7 +96,7 @@ export default function HeroSection() {
               <Button
                 asChild
                 size="lg"
-                className="w-full sm:w-auto h-13 px-8 rounded-2xl bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-base font-semibold text-white shadow-xl shadow-pink-500/25 hover:shadow-pink-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                className="w-full sm:w-auto h-13 px-8 rounded-2xl bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 text-base font-semibold text-white shadow-xl shadow-pink-500/25 hover:shadow-pink-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
                 <Link href="/create/host">
                   <Zap className="mr-2 h-5 w-5 fill-white" />
@@ -143,7 +143,7 @@ export default function HeroSection() {
           {/* RIGHT COLUMN: THE SWIPE & CONVERGENCE SHOWCASE */}
           <div className="lg:col-span-5 flex flex-col items-center justify-center relative">
             {/* Visual demo container */}
-            <div className="relative w-full max-w-[360px] sm:max-w-[390px] aspect-[9/12] flex flex-col items-center justify-center">
+            <div className="relative w-full max-w-90 sm:max-w-97.5 aspect-9/12 flex flex-col items-center justify-center">
               {/* SWIPE AFFORDANCE LABELS */}
               <div className="absolute -top-7 left-0 right-0 flex items-center justify-between px-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase pointer-events-none select-none z-20">
                 <span className="flex items-center gap-1 text-red-500/80">
@@ -181,7 +181,7 @@ export default function HeroSection() {
                 />
 
                 {/* Dark gradient overlay matching real Spontee voting UI */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent pointer-events-none" />
+                <div className="absolute inset-0 bg-linear-to-t from-black/95 via-black/40 to-transparent pointer-events-none" />
 
                 {/* PASS! STAMP OVERLAY */}
                 <motion.div
@@ -307,7 +307,7 @@ export default function HeroSection() {
                       exit={{ opacity: 0, height: 0, marginTop: 0 }}
                       className="pt-2 border-t border-border/50 text-center"
                     >
-                      <div className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-emerald-500/15 via-teal-500/15 to-emerald-500/15 px-2.5 py-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 w-full justify-center">
+                      <div className="inline-flex items-center gap-1.5 rounded-lg bg-linear-to-r from-emerald-500/15 via-teal-500/15 to-emerald-500/15 px-2.5 py-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 w-full justify-center">
                         <span>🎉 Unanimous Match: Mendokoro Ramenba</span>
                       </div>
                     </motion.div>

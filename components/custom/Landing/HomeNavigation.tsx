@@ -42,14 +42,14 @@ export function HomeNavigation() {
               href="/"
               className="group flex items-center gap-2.5 transition-transform active:scale-95"
             >
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-pink-500 via-purple-500 to-blue-500 p-0.5 shadow-md shadow-pink-500/20 group-hover:shadow-pink-500/35 transition-all">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-linear-to-tr from-pink-500 via-purple-500 to-blue-500 p-0.5 shadow-md shadow-pink-500/20 group-hover:shadow-pink-500/35 transition-all">
                 <div className="flex h-full w-full items-center justify-center rounded-[10px] bg-background">
                   <Sparkles className="h-4 w-4 text-pink-500 transition-transform group-hover:rotate-12" />
                 </div>
               </div>
               <span className="text-xl font-bold tracking-tight">
                 Spont
-                <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
+                <span className="bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
                   ee
                 </span>
               </span>
@@ -96,7 +96,7 @@ export function HomeNavigation() {
             <Button
               size="sm"
               asChild
-              className="group rounded-xl bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 px-4 text-sm font-semibold text-white shadow-md shadow-pink-500/25 transition-all hover:scale-[1.02] hover:shadow-pink-500/40 active:scale-[0.98]"
+              className="group rounded-xl bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 px-4 text-sm font-semibold text-white shadow-md shadow-pink-500/25 transition-all hover:scale-[1.02] hover:shadow-pink-500/40 active:scale-[0.98]"
             >
               <Link href="/create/host">
                 <Plus className="mr-1 h-4 w-4" />
@@ -111,7 +111,7 @@ export function HomeNavigation() {
             <Button
               size="sm"
               asChild
-              className="rounded-xl bg-gradient-to-r from-pink-500 to-blue-500 px-3 text-xs font-semibold text-white shadow-xs"
+              className="rounded-xl bg-linear-to-r from-pink-500 to-blue-500 px-3 text-xs font-semibold text-white shadow-xs"
             >
               <Link href="/create/host">Create</Link>
             </Button>
@@ -158,7 +158,7 @@ export function HomeNavigation() {
 
               <Button
                 asChild
-                className="w-full justify-center rounded-xl bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 py-2.5 text-sm font-semibold text-white shadow-md shadow-pink-500/25"
+                className="w-full justify-center rounded-xl bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 py-2.5 text-sm font-semibold text-white shadow-md shadow-pink-500/25"
               >
                 <Link href="/create/host" onClick={() => setMobileMenuOpen(false)}>
                   <Plus className="mr-1.5 h-4 w-4" />

@@ -16,14 +16,14 @@ export default function Footer() {
             {/* BRAND COLUMN */}
             <div className="md:col-span-5 space-y-3">
               <Link href="/" className="inline-flex items-center gap-2">
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-tr from-pink-500 via-purple-500 to-blue-500 p-0.5 shadow-xs">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-linear-to-tr from-pink-500 via-purple-500 to-blue-500 p-0.5 shadow-xs">
                   <div className="flex h-full w-full items-center justify-center rounded-[6px] bg-background">
                     <Sparkles className="h-3 w-3 text-pink-500" />
                   </div>
                 </div>
                 <span className="text-lg font-bold tracking-tight">
                   Spont
-                  <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
+                  <span className="bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
                     ee
                   </span>
                 </span>
@@ -69,7 +69,7 @@ export default function Footer() {
               </Link>
               <Link
                 href="/create/host"
-                className="rounded-xl bg-gradient-to-r from-pink-500 to-blue-500 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs hover:opacity-95 transition"
+                className="rounded-xl bg-linear-to-r from-pink-500 to-blue-500 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs hover:opacity-95 transition"
               >
                 Create Room
               </Link>
