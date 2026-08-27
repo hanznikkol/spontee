@@ -8,13 +8,14 @@
 import { useEffect, useRef, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { RealtimeChannel } from "@supabase/supabase-js"
-import { getRoom, getParticipants, subscribeParticipants, subscribeRoom, openRoom, updateParticipantStatus, } from "../service/lobby.service"
+import { getRoom, subscribeRoom, openRoom } from "../service/lobby.service"
 import { updateParticipants } from "../helper/participant.helper"
 import { supabase } from "@/lib/supabase/client"
 import { Room } from "../../create/types/room-types"
 import { updateRoom } from "../../create/helpers/room-helper"
 import { PARTICIPANT_STATUS, Participants } from "../types/participants-types"
 import { useRoomSessionStore } from "../../main/stores/room-session-store.store"
+import { getParticipants, subscribeParticipants, updateParticipantStatus } from "../service/participant.service"
 
 export function useLobby() {
   const params = useParams()

@@ -25,65 +25,9 @@ export async function getRoom(code: string) {
     .single()
 }
 
-export async function getParticipants(roomId: string) {
-  return supabase
-    .from("participants")
-    .select("*")
-    .eq("room_id", roomId)
-}
-
-export async function getCurrentUser() {
-  return supabase.auth.getUser()
-}
-
 export async function openRoom(roomId: string) {
   return supabase
     .from("rooms")
     .update({ status: "active" })
     .eq("room_id", roomId)
-}
-
-export async function renameParticipant( participantId: string, displayName: string ) {
-  return supabase
-    .from("participants")
-    .update({
-      display_name: displayName,
-    })
-    .eq("participant_id", participantId)
-}
-
-export async function kickParticipant( participantId: string ) {
-  return supabase
-    .from("participants")
-    .delete()
-    .eq("participant_id", participantId)
-}
-
-export async function leaveRoom( participantId: string ) {
-  return supabase
-    .from("participants")
-    .delete()
-    .eq("participant_id", participantId)
-}
-
-export async function updateParticipantStatus( participantId: string, status: ParticipantStatus) {
-   return supabase
-    .from("participants")
-    .update({ status })
-    .eq("participant_id", participantId)
-}
-
-export function subscribeParticipants( roomId: string, callback: Parameters<RealtimeChannel["on"]>[2] ) {
-  return supabase
-    .channel(`participants-${roomId}`)
-    .on(
-      "postgres_changes",
-      {
-        event: "*",
-        schema: "public",
-        table: "participants",
-        filter: `room_id=eq.${roomId}`,
-      },
-      callback
-    )
 }
