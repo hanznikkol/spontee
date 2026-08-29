@@ -20,7 +20,7 @@ export default function ResultNoMatchCard() {
           </h2>
 
           <p className="text-xs sm:text-sm md:text-base text-muted-foreground max-w-sm mx-auto mb-6 sm:mb-8 leading-relaxed">
-            We couldn't find an option that works for everyone. Don't worry, start fresh with new picks!
+            We couldn&apos;t find an option that works for everyone. Don&apos;t worry, start fresh with new picks!
           </p>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5 sm:gap-3 w-full">

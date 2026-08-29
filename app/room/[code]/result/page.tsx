@@ -20,7 +20,7 @@ const MOCK_TOTAL_OPTIONS = 12
 const MOCK_OPTION: RoomOption = {
   option_id: 'opt_123',
   title: 'The Rustic Spoon',
-  category: 'food' as any,
+  category: 'restaurant' as unknown as RoomOption['category'],
   rating: 4.8,
   totalReviews: 1240,
   priceLevel: 2,
@@ -62,7 +62,7 @@ export default function ResultPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-[100dvh] flex flex-col items-center justify-center bg-background p-4">
+      <div className="min-h-dvh flex flex-col items-center justify-center bg-background p-4">
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 rounded-full border-3 border-primary/20 border-t-primary animate-spin" />
           <p className="text-xs sm:text-sm text-muted-foreground font-medium animate-pulse">
@@ -74,9 +74,9 @@ export default function ResultPage() {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-background relative overflow-x-hidden flex flex-col justify-start py-5 px-3.5 sm:px-6 sm:py-8 md:py-12">
+    <div className="min-h-dvh bg-background relative overflow-x-hidden flex flex-col justify-start py-5 px-3.5 sm:px-6 sm:py-8 md:py-12">
       {/* Subtle Ambient Background Aura */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[800px] h-[360px] opacity-35 pointer-events-none">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-200 h-90 opacity-35 pointer-events-none">
         <div className="absolute inset-0 bg-linear-to-b from-pink-500/20 via-purple-500/10 to-transparent blur-[80px] rounded-full mix-blend-screen dark:opacity-45" />
       </div>
 

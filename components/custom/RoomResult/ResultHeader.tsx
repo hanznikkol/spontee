@@ -37,7 +37,7 @@ export default function ResultHeader({ type, participantCount }: ResultHeaderPro
         <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight text-foreground">
           Everyone decided.
           <span className="block bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent pb-0.5">
-            Here's where you're going.
+            Here&apos;s where you&apos;re going.
           </span>
         </h1>
       </div>

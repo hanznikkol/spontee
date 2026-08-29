@@ -1,48 +1,76 @@
 'use client'
 
+import { useParams } from 'next/navigation'
 import { AnimatePresence } from 'framer-motion'
 import SwipeCard from '@/components/custom/Room/Voting/SwipeCards'
 import { useVoting } from '@/lib/room/voting/hook/useVoting'
 import { ProgressBar } from '@/components/custom/ProgressBar'
 import LogoBranding from '@/components/custom/Landing/LogoBranding'
-// import ResultScreen from '@/components/custom/Room/Phase/ResultScreen'
+import { useRoomSessionStore } from '@/lib/room/main/stores/room-session-store.store'
 
 export default function VotingPage() {
-  const { currentOption, exitDirection, handleSwipe, progress, progressLabel } = useVoting()
+  const params = useParams()
+  const routeCode = params?.code as string
+  const sessionRoomCode = useRoomSessionStore((state) => state.roomCode)
+  const roomCode = routeCode || sessionRoomCode || 'ROOM'
+
+  const {
+    loading,
+    currentOption,
+    exitDirection,
+    handleSwipe,
+    progress,
+    progressLabel,
+  } = useVoting()
 
   return (
-  <>
-  <LogoBranding/>
-  <main className="relative min-h-dvh w-full flex flex-col items-center justify-center px-4 gap-2 bg-background">
-    <div className="absolute inset-0 overflow-hidden -z-10">
-      <div className="absolute -top-32 -left-20 h-80 w-80 rounded-full bg-primary/10 blur-3xl"/>
-      <div className="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-pink-500/10 blur-3xl"/>
-    </div>
+    <>
+      <LogoBranding />
+      <main className="relative min-h-dvh w-full flex flex-col items-center justify-start pt-14 sm:pt-16 pb-4 sm:pb-6 px-4 bg-background overflow-x-hidden">
+        {/* Ambient background glow */}
+        <div className="pointer-events-none absolute -top-40 left-1/2 h-87.5 w-175 -translate-x-1/2 rounded-full bg-linear-to-r from-pink-500/10 via-purple-500/10 to-blue-500/10 blur-3xl -z-10" />
 
-    {/* Top bar */}
-    <div className="mx-auto w-full max-w-sm px-4 pt-6 space-y-2">
-      <ProgressBar value={progress} leftLabel={progressLabel}/>
-        <p className="text-center text-xs text-muted-foreground">
-          Swipe left to pass • Swipe right to go
-        </p>
-    </div>
+        <div className="w-full max-w-sm sm:max-w-md mx-auto flex flex-col flex-1 min-h-0">
+          {/* Top Session Information */}
+          <div className="mb-3 sm:mb-4 px-1">
+            <ProgressBar
+              value={progress}
+              leftLabel={
+                <span className="flex items-center gap-2">
+                  <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
+                  <span className="font-semibold text-foreground">
+                    Room: {roomCode}
+                  </span>
+                </span>
+              }
+              rightLabel={progressLabel}
+            />
+          </div>
 
-    {/* Card + buttons */}
-    <div className="relative w-full max-w-sm aspect-9/16 max-h-[75dvh] lg:max-h-[80dvh] mx-auto">
-      <AnimatePresence initial={false}>
-        {currentOption && (
-          <SwipeCard
-            key={currentOption.option_id}
-            option={currentOption}
-            direction={exitDirection}
-            onSwipe={handleSwipe}
-          />
-        )}
-      </AnimatePresence>
-    </div>
-
-  </main>
-  </>
-
+          {/* Swipe Card Viewport (No outer border enclosure — card moves freely) */}
+          <div className="relative w-full flex-1 min-h-110 max-h-160 mx-auto">
+            {loading ? (
+              <div className="flex flex-col items-center justify-center h-full gap-3 p-6 text-center">
+                <div className="h-9 w-9 animate-spin rounded-full border-3 border-primary/20 border-t-primary" />
+                <p className="text-xs sm:text-sm font-medium text-muted-foreground animate-pulse">
+                  Loading voting deck...
+                </p>
+              </div>
+            ) : (
+              <AnimatePresence initial={false}>
+                {currentOption && (
+                  <SwipeCard
+                    key={currentOption.option_id}
+                    option={currentOption}
+                    direction={exitDirection}
+                    onSwipe={handleSwipe}
+                  />
+                )}
+              </AnimatePresence>
+            )}
+          </div>
+        </div>
+      </main>
+    </>
   )
 }

@@ -27,9 +27,7 @@ import { DEMO_OPTIONS, DemoOption } from "@/lib/landing/text-metadata"
 export default function InteractiveShowcase() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [direction, setDirection] = useState<"left" | "right">("right")
-  const [userVotes, setUserVotes] = useState<
-    Record<string, "go" | "pass">
-  >({})
+  const [userVotes, setUserVotes] = useState<Record<string, "go" | "pass">>({})
   const [activePartnerStatus, setActivePartnerStatus] = useState(
     "Maya and Liam are voting..."
   )
@@ -310,9 +308,9 @@ export default function InteractiveShowcase() {
                       style={{
                         opacity: opacityPass,
                       }}
-                      className="pointer-events-none absolute right-5 top-5 z-20"
+                      className="pointer-events-none absolute right-4 top-5 z-20 sm:right-5 sm:top-5"
                     >
-                      <span className="inline-block rotate-12 rounded-xl border-[3px] border-red-500 bg-black/40 px-3 py-1 text-2xl font-black uppercase tracking-widest text-red-500 backdrop-blur-xs">
+                      <span className="inline-block rotate-12 rounded-xl border-[3px] border-red-500 bg-black/40 px-3 py-1 text-xl font-black uppercase tracking-widest text-red-500 backdrop-blur-xs sm:text-2xl">
                         Pass!
                       </span>
                     </motion.div>
@@ -322,9 +320,9 @@ export default function InteractiveShowcase() {
                       style={{
                         opacity: opacityGo,
                       }}
-                      className="pointer-events-none absolute left-5 top-5 z-20"
+                      className="pointer-events-none absolute left-4 top-5 z-20 sm:left-5 sm:top-5"
                     >
-                      <span className="inline-block -rotate-12 rounded-xl border-[3px] border-emerald-400 bg-black/40 px-3 py-1 text-2xl font-black uppercase tracking-widest text-emerald-400 backdrop-blur-xs">
+                      <span className="inline-block -rotate-12 rounded-xl border-[3px] border-emerald-400 bg-black/40 px-3 py-1 text-xl font-black uppercase tracking-widest text-emerald-400 backdrop-blur-xs sm:text-2xl">
                         Go!
                       </span>
                     </motion.div>
@@ -337,36 +335,40 @@ export default function InteractiveShowcase() {
                     </div>
 
                     {/* DETAILS */}
-                    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 space-y-2 p-5 text-white">
-                      <div className="flex items-center gap-2 text-xs">
-                        <span className="rounded-full bg-white/20 px-2.5 py-0.5 font-medium backdrop-blur-md">
+                    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex flex-col justify-end p-5 sm:p-6 text-white">
+                      
+                      {/* Badges */}
+                      <div className="mb-1.5 sm:mb-2 flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
+                        <span className="rounded-full bg-white/20 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[11px] sm:text-xs font-medium capitalize text-white backdrop-blur-md border border-white/10">
                           {currentOption.category}
                         </span>
 
-                        <span className="rounded-full bg-white/20 px-2.5 py-0.5 font-medium backdrop-blur-md">
-                          {"₱".repeat(
-                            currentOption.priceLevel
-                          )}
+                        <span className="flex items-center gap-1 rounded-full bg-amber-400/20 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[11px] sm:text-xs font-semibold text-amber-300 backdrop-blur-md border border-amber-400/20">
+                          <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                          {currentOption.rating} ({currentOption.reviewsCount})
                         </span>
 
-                        <span className="flex items-center gap-1 rounded-full bg-amber-400/20 px-2.5 py-0.5 font-semibold text-amber-300 backdrop-blur-md">
-                          <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-                          {currentOption.rating}{" "}
-                          ({currentOption.reviewsCount})
+                        <span className="rounded-full bg-white/20 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[11px] sm:text-xs font-medium tracking-widest text-white backdrop-blur-md border border-white/10">
+                          {"₱".repeat(currentOption.priceLevel)}
                         </span>
                       </div>
 
-                      <h3 className="text-2xl font-bold leading-snug tracking-tight">
+                      {/* Title */}
+                      <h3 className="line-clamp-2 wrap-break-word text-xl sm:text-2xl font-bold leading-tight tracking-tight">
                         {currentOption.title}
                       </h3>
 
-                      <p className="line-clamp-1 text-xs text-white/80">
-                        {currentOption.highlight}
-                      </p>
+                      {/* Highlight */}
+                      {currentOption.highlight && (
+                        <p className="mt-1 line-clamp-1 text-[11px] sm:text-xs text-white/85">
+                          {currentOption.highlight}
+                        </p>
+                      )}
 
-                      <p className="flex items-center gap-1 pt-1 text-[11px] text-white/70">
-                        <MapPin className="h-3 w-3 shrink-0 text-pink-400" />
-                        {currentOption.address}
+                      {/* Address */}
+                      <p className="mt-1.5 flex items-start gap-1.5 text-[11px] sm:text-xs text-white/85 line-clamp-1">
+                        <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0 text-pink-400" />
+                        <span className="truncate">{currentOption.address}</span>
                       </p>
                     </div>
                   </motion.div>
@@ -492,32 +494,27 @@ export default function InteractiveShowcase() {
 
             {/* CONTROLS */}
             {!isFinished && (
-              <div className="mt-4 flex flex-col items-center gap-2">
-                <div className="flex w-full gap-3">
-                  <Button
-                    size="lg"
-                    variant="outline"
+              <div className="mt-5 sm:mt-6 flex flex-col items-center gap-2 w-full">
+                <div className="flex justify-center gap-6 sm:gap-10 w-full px-4">
+                  <button
+                    type="button"
                     disabled={isAnimating}
-                    onClick={() =>
-                      handleSwipe("pass")
-                    }
-                    className="flex-1 rounded-2xl border-red-200 font-semibold text-red-600 transition hover:border-red-400 hover:bg-red-50 dark:border-red-950 dark:hover:bg-red-950/40"
+                    onClick={() => handleSwipe("pass")}
+                    aria-label="Pass"
+                    className="h-14 w-14 sm:h-16 sm:w-16 flex items-center justify-center rounded-full border-2 border-red-200 text-red-500 bg-background/80 hover:bg-red-50 dark:hover:bg-red-950 hover:border-red-400 shadow-lg backdrop-blur-md active:scale-95 transition-all disabled:opacity-50 disabled:active:scale-100"
                   >
-                    <X className="mr-1.5 h-5 w-5" />
-                    Pass
-                  </Button>
+                    <X className="h-7 w-7 sm:h-8 sm:w-8 stroke-[2.5]" />
+                  </button>
 
-                  <Button
-                    size="lg"
+                  <button
+                    type="button"
                     disabled={isAnimating}
-                    onClick={() =>
-                      handleSwipe("go")
-                    }
-                    className="flex-1 rounded-2xl bg-emerald-500 font-semibold text-white shadow-md shadow-emerald-500/20 transition hover:bg-emerald-600"
+                    onClick={() => handleSwipe("go")}
+                    aria-label="Go"
+                    className="h-14 w-14 sm:h-16 sm:w-16 flex items-center justify-center rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 hover:bg-emerald-600 active:scale-95 transition-all disabled:opacity-50 disabled:active:scale-100"
                   >
-                    <Check className="mr-1.5 h-5 w-5" />
-                    Go
-                  </Button>
+                    <Check className="h-7 w-7 sm:h-8 sm:w-8 stroke-3" />
+                  </button>
                 </div>
 
                 <p className="text-[11px] text-muted-foreground">
