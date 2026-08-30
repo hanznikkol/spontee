@@ -52,7 +52,7 @@ export default function SolutionSection() {
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
             How Spontee replaces
             <br />
-            <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
               endless debates
             </span>
           </h2>
@@ -73,7 +73,7 @@ export default function SolutionSection() {
               >
                 {/* Subtle top accent gradient */}
                 <div
-                  className={`pointer-events-none absolute inset-x-0 top-0 h-32 rounded-t-3xl bg-gradient-to-b ${item.accent} opacity-40 transition group-hover:opacity-80`}
+                  className={`pointer-events-none absolute inset-x-0 top-0 h-32 rounded-t-3xl bg-linear-to-b ${item.accent} opacity-40 transition group-hover:opacity-80`}
                 />
 
                 <div className="relative space-y-5">

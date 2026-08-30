@@ -2,7 +2,6 @@
 
 import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion'
 import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { useCallback, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { SwipeDirection } from '@/lib/room/voting/types/vote.types'
@@ -36,7 +35,7 @@ export default function SwipeCard({ option, direction, onSwipe }: SwipeCardProps
     if (hasSwiped.current) return
     hasSwiped.current = true
     onSwipe(dir)
-  }, [onSwipe])
+  }, [onSwipe]) 
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -56,9 +55,10 @@ export default function SwipeCard({ option, direction, onSwipe }: SwipeCardProps
   }
 
   return (
-    <div className="absolute inset-0 flex flex-col items-center justify-between touch-none">
-      {/* Swipeable Card Area */}
-      <div className="relative w-full flex-1 min-h-0">
+    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 sm:gap-6 touch-none">
+
+      {/* Card */}
+      <div className="relative w-full flex-1">
         <MotionCard
           drag="x"
           dragDirectionLock
@@ -66,95 +66,75 @@ export default function SwipeCard({ option, direction, onSwipe }: SwipeCardProps
           style={{ x, rotate }}
           onDragEnd={handleDragEnd}
           whileDrag={{ scale: 1.02 }}
-          exit={{
-            opacity: 0,
-            x: direction > 0 ? 300 : -300,
-            transition: { duration: 0.25, ease: 'easeOut' },
-          }}
-          className="absolute inset-0 cursor-grab active:cursor-grabbing select-none overflow-hidden rounded-[24px] border border-white/20 shadow-xl bg-card z-10"
+          exit={{ opacity: 0, x: direction > 0 ? 300 : -300, transition: { duration: 0.25, ease: "easeOut" } }}
+          className="absolute inset-0 rounded-2xl sm:rounded-3xl md:rounded-[32px] border-border/80 shadow-2xl cursor-grab active:cursor-grabbing z-10 overflow-hidden bg-card"
         >
           {/* Background image */}
           <Image
-            src={
-              option.imageUrl ??
-              'https://placehold.co/600x900/1a1a1a/444444?text=No+Photo'
-            }
+            src={option.imageUrl ?? '/public/images/placeholder.png'}
             alt={option.title}
             fill
             priority
-            sizes="(max-width: 768px) 100vw, 420px"
-            onError={(e) => {
-              ;(e.target as HTMLImageElement).src =
-                'https://placehold.co/600x900/1a1a1a/444444?text=No+Photo'
-            }}
-            className="pointer-events-none object-cover select-none"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 600px"
+            onError={(e) => { (e.target as HTMLImageElement).src = '/public/images/placeholder.png' }}
+            className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
             draggable={false}
           />
 
-          {/* Dark gradient overlay for text legibility */}
-          <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/95 via-black/40 to-transparent" />
+          {/* Dark gradient overlay for text readability */}
+          <div className="absolute inset-0 bg-linear-to-t from-black/95 via-black/40 to-transparent pointer-events-none" />
 
-          {/* Top Category Badge */}
-          {option.category && (
-            <div className="pointer-events-none absolute left-4 top-4 z-10">
-              <span className="rounded-full bg-pink-500/90 px-2.5 py-0.5 text-[11px] font-semibold text-white backdrop-blur-md capitalize">
-                {String(option.category).replace('_', ' ')}
-              </span>
-            </div>
-          )}
-
-          {/* PASS Stamp */}
+          {/* NOPE stamp */}
           <motion.div
             style={{ opacity: rejectOpacity }}
-            className="pointer-events-none absolute right-4 top-5 z-20 sm:right-5 sm:top-5"
+            className="pointer-events-none absolute right-4 top-5 sm:right-6 sm:top-6 z-20"
           >
-            <span className="inline-block rotate-12 rounded-xl border-[3px] border-red-500 bg-black/40 px-3 py-1 text-xl font-black uppercase tracking-widest text-red-500 backdrop-blur-xs sm:text-2xl">
+            <span className="inline-block rotate-12 rounded-xl border-[3px] border-red-500 bg-black/40 px-3 sm:px-4 py-1 text-2xl sm:text-3xl font-black uppercase tracking-widest text-red-500 backdrop-blur-xs">
               Pass!
             </span>
           </motion.div>
 
-          {/* GO Stamp */}
+          {/* LIKE stamp */}
           <motion.div
             style={{ opacity: acceptOpacity }}
-            className="pointer-events-none absolute left-4 top-5 z-20 sm:left-5 sm:top-5"
+            className="pointer-events-none absolute left-4 top-5 sm:left-6 sm:top-6 z-20"
           >
-            <span className="inline-block -rotate-12 rounded-xl border-[3px] border-emerald-400 bg-black/40 px-3 py-1 text-xl font-black uppercase tracking-widest text-emerald-400 backdrop-blur-xs sm:text-2xl">
+            <span className="inline-block -rotate-12 rounded-xl border-[3px] border-emerald-400 bg-black/40 px-3 sm:px-4 py-1 text-2xl sm:text-3xl font-black uppercase tracking-widest text-emerald-400 backdrop-blur-xs">
               Go!
             </span>
           </motion.div>
 
-          {/* Card Info Overlay */}
+          {/* Text info  */}
           <CardInfo option={option} />
         </MotionCard>
       </div>
 
-      {/* Action Controls */}
-      <div className="mt-3.5 sm:mt-4 flex flex-col items-center gap-1.5 sm:gap-2 w-full shrink-0">
-        <div className="flex w-full gap-3">
-          <Button
-            size="lg"
-            variant="outline"
+      {/* Buttons container fixed at bottom */}
+      <div className="flex flex-col items-center gap-1 sm:gap-2 w-full shrink-0">
+        <div className="flex justify-center gap-6 sm:gap-10 w-full px-4">
+          <button
+            type="button"
+            className="h-14 w-14 sm:h-16 sm:w-16 flex items-center justify-center rounded-full border-2 border-red-200 text-red-500 bg-background/80 hover:bg-red-50 dark:hover:bg-red-950 hover:border-red-400 shadow-lg backdrop-blur-md active:scale-95 transition-all"
             onClick={() => triggerSwipe('left')}
-            className="flex-1 h-12 sm:h-13 rounded-2xl border-red-200 font-semibold text-red-600 transition hover:border-red-400 hover:bg-red-50 dark:border-red-950 dark:hover:bg-red-950/40 shadow-xs active:scale-[0.98]"
+            aria-label="Pass"
           >
-            <X className="mr-1.5 h-5 w-5 stroke-[2.5]" />
-            Pass
-          </Button>
-
-          <Button
-            size="lg"
+            <X className="h-7 w-7 sm:h-8 sm:w-8 stroke-[2.5]" />
+          </button>
+          
+          <button
+            type="button"
+            className="h-14 w-14 sm:h-16 sm:w-16 flex items-center justify-center rounded-full bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 hover:bg-emerald-600 active:scale-95 transition-all"
             onClick={() => triggerSwipe('right')}
-            className="flex-1 h-12 sm:h-13 rounded-2xl bg-emerald-500 font-semibold text-white shadow-md shadow-emerald-500/20 transition hover:bg-emerald-600 active:scale-[0.98]"
+            aria-label="Go"
           >
-            <Check className="mr-1.5 h-5 w-5 stroke-[3]" />
-            Go
-          </Button>
+            <Check className="h-7 w-7 sm:h-8 sm:w-8 stroke-3" />
+          </button>
         </div>
-
-        <p className="text-[11px] text-muted-foreground">
-          Drag the card or use ← →
+        <p className="text-[10px] sm:text-xs text-muted-foreground font-medium hidden xs:block mt-1 sm:mt-0">
+          Drag the card or use ← → arrow keys
         </p>
       </div>
+
     </div>
   )
 }

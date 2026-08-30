@@ -25,12 +25,15 @@ export default function VotingPage() {
 
   return (
     <>
+      {/* Logo */}
       <LogoBranding />
+
+      {/* Main */}
       <main className="relative min-h-dvh w-full flex flex-col items-center justify-start pt-14 sm:pt-16 pb-4 sm:pb-6 px-4 bg-background overflow-x-hidden">
         {/* Ambient background glow */}
         <div className="pointer-events-none absolute -top-40 left-1/2 h-87.5 w-175 -translate-x-1/2 rounded-full bg-linear-to-r from-pink-500/10 via-purple-500/10 to-blue-500/10 blur-3xl -z-10" />
 
-        <div className="w-full max-w-sm sm:max-w-md mx-auto flex flex-col flex-1 min-h-0">
+        <div className="w-full justify-center max-w-sm sm:max-w-md mx-auto flex flex-col flex-1 min-h-0">
           {/* Top Session Information */}
           <div className="mb-3 sm:mb-4 px-1">
             <ProgressBar

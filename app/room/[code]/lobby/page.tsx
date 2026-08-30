@@ -28,7 +28,6 @@ export default function LobbyPage() {
       <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-blue-400/20 rounded-full blur-3xl" />
 
       <div className="w-full max-w-6xl flex flex-col md:flex-row gap-6">
-
         {/* LEFT */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex-1 flex flex-col gap-4">
           <LobbyHeader
