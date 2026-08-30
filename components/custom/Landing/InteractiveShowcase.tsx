@@ -26,7 +26,6 @@ import { DEMO_OPTIONS, DemoOption } from "@/lib/landing/text-metadata"
 
 export default function InteractiveShowcase() {
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [direction, setDirection] = useState<"left" | "right">("right")
   const [userVotes, setUserVotes] = useState<Record<string, "go" | "pass">>({})
   const [activePartnerStatus, setActivePartnerStatus] = useState(
     "Maya and Liam are voting..."
@@ -66,10 +65,6 @@ export default function InteractiveShowcase() {
       setIsAnimating(true)
 
       const swipeDirection = vote === "go" ? 1 : -1
-
-      setDirection(
-        vote === "go" ? "right" : "left"
-      )
 
       setUserVotes((prev) => ({
         ...prev,
