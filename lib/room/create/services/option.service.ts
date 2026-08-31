@@ -9,9 +9,9 @@ export async function generate( payload: GenerateOptionsPayload ) {
     const places = await searchPlaces(payload);
     const uniquePlaces = removeDuplicateOptions(places);
 
-    // const budgetPlaces = filterByBudget(uniquePlaces, payload.budget);
-
-    const limitedPlaces = limitOptions(uniquePlaces, payload.maxOptions)
+    const filteredPlaces = filterCandidates(uniquePlaces);
+    const rankedPlaces = rankCandidates(filteredPlaces);
+    const limitedPlaces = limitOptions(rankedPlaces, payload.maxOptions);
 
     return convertGooglePlaceToOption(limitedPlaces);
 }
@@ -32,6 +32,33 @@ async function searchPlaces(payload: GenerateOptionsPayload) {
         longitude: payload.longitude,
         radius: payload.radius,
     });
+}
+
+function filterCandidates(places: GooglePlace[]): GooglePlace[] {
+    return places.filter((place) => {
+        // 1. Business status check: exclude closed places
+        if (place.businessStatus === "CLOSED_PERMANENTLY" ||place.businessStatus === "CLOSED_TEMPORARILY") {
+            return false;
+        }
+
+        // 2. Review confidence check: minimum 20 user ratings
+        if ((place.userRatingCount ?? 0) < 20) {
+            return false;
+        }
+
+        return true;
+    });
+}
+
+function calculateQualityScore(place: GooglePlace): number {
+    const rating = place.rating ?? 0;
+    const userRatingCount = place.userRatingCount ?? 0;
+    if (rating <= 0 || userRatingCount <= 0) return 0;
+    return rating * Math.log10(userRatingCount);
+}
+
+function rankCandidates(places: GooglePlace[]): GooglePlace[] {
+    return [...places].sort((a, b) => calculateQualityScore(b) - calculateQualityScore(a));
 }
 
 function convertGooglePlaceToOption(places: GooglePlace[]): PlaceOption[] {
@@ -60,7 +87,3 @@ function removeDuplicateOptions( places:GooglePlace[] ):GooglePlace[] {
 function limitOptions( places: GooglePlace[], limit: number ): GooglePlace[] {
     return places.slice(0, limit);
 }
-
-
-
-// function filterByBudget() {}

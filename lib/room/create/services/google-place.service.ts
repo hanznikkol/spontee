@@ -18,7 +18,7 @@ export async function searchNearby({ placeTypes, latitude, longitude, radius }: 
     const response = await axios.post("https://places.googleapis.com/v1/places:searchNearby",
         {
             includedTypes: placeTypes,
-            maxResultCount: 15,
+            maxResultCount: 20,
             locationRestriction: {
                 circle: { center: {latitude, longitude}, radius}
             }
@@ -28,7 +28,17 @@ export async function searchNearby({ placeTypes, latitude, longitude, radius }: 
             headers: {
                 "Content-Type": "application/json",
                 "X-Goog-Api-Key": apiKey,
-                "X-Goog-FieldMask": [ "places.id", "places.displayName", "places.formattedAddress", "places.location", "places.rating", "places.priceLevel", "places.photos" ].join(",")
+                "X-Goog-FieldMask": [
+                    "places.id",
+                    "places.displayName",
+                    "places.formattedAddress",
+                    "places.location",
+                    "places.rating",
+                    "places.userRatingCount",
+                    "places.priceLevel",
+                    "places.businessStatus",
+                    "places.photos"
+                ].join(",")
             },
             
         },
@@ -51,10 +61,12 @@ export async function searchNearby({ placeTypes, latitude, longitude, radius }: 
             id: place.id,
             name: place.displayName?.text ?? "",
             rating: place.rating,
+            userRatingCount: place.userRatingCount,
             address: place.formattedAddress,
             latitude: place.location?.latitude ?? 0,
             longitude: place.location?.longitude ?? 0,
             priceLevel: place.priceLevel,
+            businessStatus: place.businessStatus,
             imageUrls,
         }
     });
