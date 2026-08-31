@@ -33,7 +33,7 @@ export default function HostPage() {
           >
             <span className="text-xl font-bold tracking-tight">
               Spont
-              <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
                 ee
               </span>
             </span>
@@ -66,7 +66,7 @@ export default function HostPage() {
             </div>
 
             <Button
-              className="w-full h-11 sm:h-12 rounded-2xl bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-white font-semibold text-sm sm:text-base shadow-lg shadow-pink-500/25 hover:shadow-pink-500/40 hover:scale-[1.01] active:scale-[0.99] transition-all gap-2"
+              className="w-full h-11 sm:h-12 rounded-2xl bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 text-white font-semibold text-sm sm:text-base shadow-lg shadow-pink-500/25 hover:shadow-pink-500/40 hover:scale-[1.01] active:scale-[0.99] transition-all gap-2"
               size="lg"
               disabled={!isValidName}
               onClick={handleContinue}

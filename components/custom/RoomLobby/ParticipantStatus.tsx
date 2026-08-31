@@ -1,7 +1,5 @@
 import { Check, Clock3 } from "lucide-react"
-
 import { Badge } from "@/components/ui/badge"
-
 import {
   ParticipantStatus as Status,
 } from "@/lib/room/lobby/types/participants-types"
@@ -18,9 +16,8 @@ const statusConfig = {
     className:
       "border-amber-500/20 bg-amber-500/10 text-amber-600 dark:text-amber-400",
   },
-
   finished: {
-    label: "Finished",
+    label: "Ready",
     icon: Check,
     className:
       "border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
@@ -32,28 +29,28 @@ export function ParticipantStatus({ status }: ParticipantStatusProps) {
     return (
       <Badge
         variant="outline"
-        className="rounded-full gap-1.5 px-2.5 py-1 text-[11px] font-medium border-primary/20 bg-primary/10 text-primary"
+        className="rounded-full gap-1.5 px-2.5 py-0.5 text-[11px] font-medium border-pink-500/25 bg-pink-500/10 text-pink-600 dark:text-pink-400"
       >
         <SwipeIndicator />
-        Voting
+        <span>Voting</span>
       </Badge>
     )
   }
 
-  const config = statusConfig[status]
+  const config = statusConfig[status] ?? statusConfig.waiting
   const Icon = config.icon
 
   return (
     <Badge
       variant="outline"
       className={`
-        rounded-full gap-1.5 px-2.5 py-1
+        rounded-full gap-1 px-2.5 py-0.5
         text-[11px] font-medium
         ${config.className}
       `}
     >
       <Icon className="h-3 w-3" />
-      {config.label}
+      <span>{config.label}</span>
     </Badge>
   )
 }
