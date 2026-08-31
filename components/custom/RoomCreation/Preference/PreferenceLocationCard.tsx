@@ -1,12 +1,13 @@
 "use client"
 
+import React, { useCallback, useEffect, useState } from "react"
+import { useMapsLibrary } from "@vis.gl/react-google-maps"
+import { MapPin } from "lucide-react"
+import { useCreateRoomStore } from "@/lib/room/create/stores/create-room-store"
 import { SelectedAddress } from "./LocationComponents/SelectedAddress"
 import { LocationRadius } from "./LocationComponents/LocationRadius"
-import { useCreateRoomStore } from "@/lib/room/create/stores/create-room-store"
 import { LocationSearch, SelectedPlace } from "./LocationComponents/LocationSearch"
 import { MapSelector } from "./LocationComponents/MapContainer"
-import { useMapsLibrary } from "@vis.gl/react-google-maps"
-import { useCallback, useEffect, useState } from "react"
 
 function formatCoordinates(latitude: number, longitude: number) {
   return `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`
@@ -26,44 +27,55 @@ function PreferenceLocationCard() {
   const geocoding = useMapsLibrary("geocoding")
   const [isLocating, setIsLocating] = useState(false)
 
-  // Get Address
-  const getAddressFromCoordinates = useCallback(async( latitude: number, longitude: number) => {
-    if (!geocoding) return formatCoordinates(latitude, longitude)
+  // Get Address from Coordinates
+  const getAddressFromCoordinates = useCallback(
+    async (lat: number, lng: number) => {
+      if (!geocoding) return formatCoordinates(lat, lng)
 
-    try {
-      const geocoder = new geocoding.Geocoder()
-      const response = await geocoder.geocode({
-        location: { lat: latitude, lng: longitude },
+      try {
+        const geocoder = new geocoding.Geocoder()
+        const response = await geocoder.geocode({
+          location: { lat, lng },
+        })
+
+        return (
+          response.results[0]?.formatted_address ?? formatCoordinates(lat, lng)
+        )
+      } catch {
+        return formatCoordinates(lat, lng)
+      }
+    },
+    [geocoding]
+  )
+
+  // Fetch Selected Place from Search
+  const handlePlaceSelect = useCallback(
+    (place: SelectedPlace) => {
+      setLocation("custom", {
+        placeId: place.placeId,
+        placeName: place.placeName,
+        address: place.address,
+        latitude: place.latitude,
+        longitude: place.longitude,
       })
+    },
+    [setLocation]
+  )
 
-      return response.results[0]?.formatted_address ?? formatCoordinates(latitude, longitude)
-    } catch {
-      return formatCoordinates(latitude, longitude)
-    }
-  }, [geocoding])
+  // Map Selection on Click
+  const handleMapSelect = useCallback(
+    async (lat: number, lng: number) => {
+      const selectedAddress = await getAddressFromCoordinates(lat, lng)
 
-  // Fetch Selected Place
-  const handlePlaceSelect = useCallback((place: SelectedPlace) => {
-    setLocation("custom", {
-      placeId: place.placeId,
-      placeName: place.placeName,
-      address: place.address,
-      latitude: place.latitude,
-      longitude: place.longitude,
-    })
-  }, [setLocation])
-
-  // Map Selection
-  const handleMapSelect = useCallback(async (latitude: number, longitude: number) => {
-    const selectedAddress = await getAddressFromCoordinates(latitude, longitude)
-
-    setCoordinates(latitude, longitude, {
-      status: "custom",
-      placeId: undefined,
-      placeName: undefined,
-      address: selectedAddress,
-    })
-  }, [getAddressFromCoordinates, setCoordinates])
+      setCoordinates(lat, lng, {
+        status: "custom",
+        placeId: undefined,
+        placeName: undefined,
+        address: selectedAddress,
+      })
+    },
+    [getAddressFromCoordinates, setCoordinates]
+  )
 
   // Current Location Button
   const handleUseCurrentLocation = useCallback(() => {
@@ -74,14 +86,11 @@ function PreferenceLocationCard() {
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         try {
-          const { latitude, longitude } = position.coords
+          const { latitude: lat, longitude: lng } = position.coords
 
-          const selectedAddress = await getAddressFromCoordinates(
-            latitude,
-            longitude
-          )
+          const selectedAddress = await getAddressFromCoordinates(lat, lng)
 
-          setCoordinates(latitude, longitude, {
+          setCoordinates(lat, lng, {
             status: "current",
             placeId: undefined,
             placeName: undefined,
@@ -97,32 +106,34 @@ function PreferenceLocationCard() {
     )
   }, [getAddressFromCoordinates, setCoordinates])
 
-  // Automatic Current Location
+  // Automatic Current Location initialization
   useEffect(() => {
     if (!geocoding) return
     if (latitude != null && longitude != null) return
 
-    const currentLocationTimeOut = setTimeout(() => {
+    const currentLocationTimeout = setTimeout(() => {
       handleUseCurrentLocation()
     }, 0)
 
-    return () => clearTimeout(currentLocationTimeOut)
+    return () => clearTimeout(currentLocationTimeout)
   }, [geocoding, latitude, longitude, handleUseCurrentLocation])
 
   return (
-    <section className="space-y-4" aria-labelledby="preference-location-title">
-      <div className="space-y-1">
-        <h2 id="preference-location-title" className="text-base font-semibold">
-          Location
+    <section className="space-y-3" aria-labelledby="preference-location-title">
+      <div className="space-y-0.5">
+        <h2
+          id="preference-location-title"
+          className="text-sm font-semibold flex items-center gap-1.5"
+        >
+          <MapPin className="h-4 w-4 text-blue-500" />
+          Location & Radius
         </h2>
-
-        <p className="text-sm text-muted-foreground">
-          Choose where you&apos;d like to search for recommendations.
+        <p className="text-xs text-muted-foreground">
+          Choose where to search for places nearby.
         </p>
       </div>
 
-      <div className="space-y-4 rounded-2xl border bg-background p-4">
-
+      <div className="space-y-3.5 rounded-3xl border border-border/70 bg-card/60 p-3.5 sm:p-5 transition-all">
         {/* Search Component */}
         <LocationSearch onSelect={handlePlaceSelect} />
 
@@ -136,16 +147,11 @@ function PreferenceLocationCard() {
           isLocating={isLocating}
         />
 
-        <SelectedAddress
-          status={locationStatus}
-          address={address}
-        />
+        {/* Selected Address Display */}
+        <SelectedAddress status={locationStatus} address={address} />
 
-        <LocationRadius
-          radius={radius}
-          onChange={setRadius}
-        />
-
+        {/* Radius Slider */}
+        <LocationRadius radius={radius} onChange={setRadius} />
       </div>
     </section>
   )

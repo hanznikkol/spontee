@@ -1,23 +1,15 @@
-import { House } from 'lucide-react'
-
-function RoomSetupHeader() {
+export default function RoomSetupHeader() {
   return (
-    <div className="text-center space-y-3">
-        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-primary/10 text-primary">
-            <House className="h-6 w-6" aria-hidden="true" />
-        </div>
-
-        <div className="space-y-2">
-            <h1 className="text-2xl font-bold">
-            Room Setup
-            </h1>
-
-            <p className="text-sm text-muted-foreground">
-            Configure your room before inviting everyone.
-            </p>
-        </div>
+    <div className="text-center space-y-1.5">
+      <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-foreground">
+        Configure your{" "}
+        <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
+          room
+        </span>
+      </h1>
+      <p className="text-xs sm:text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed">
+        Set your group session name, guest capacity, and place options.
+      </p>
     </div>
   )
 }
-
-export default RoomSetupHeader

@@ -1,5 +1,11 @@
+"use client"
+
+import React from "react"
 import { Slider } from "@/components/ui/slider"
+import { Label } from "@/components/ui/label"
+import { Layers } from "lucide-react"
 import { MAX_OPTIONS_VALUES } from "@/lib/room/create/types/constants/max-options-const"
+import { cn } from "@/lib/utils"
 
 interface RoomMaxOptionsProps {
   maxOptions: number
@@ -10,38 +16,64 @@ export function RoomMaxOptions({ maxOptions, onChange }: RoomMaxOptionsProps) {
   const selectedIndex = MAX_OPTIONS_VALUES.indexOf(maxOptions)
 
   return (
-    <div className="space-y-3 rounded-2xl border bg-background p-3">
-      <div className="flex items-start justify-between gap-4">
-        <div className="space-y-1">
-          <h3 className="text-sm font-semibold">
-            Maximum Options
-          </h3>
-
+    <div className="space-y-3.5 rounded-2xl border border-border/70 bg-background/50 p-4 transition-all">
+      <div className="flex items-center justify-between">
+        <div className="space-y-0.5">
+          <Label className="text-sm font-semibold flex items-center gap-1.5">
+            <Layers className="h-4 w-4 text-purple-500" />
+            Places to Vote On
+          </Label>
           <p className="text-xs text-muted-foreground">
-            How many places should we find?
+            How many options should we discover?
           </p>
         </div>
 
-        <span className="shrink-0 text-sm font-semibold text-primary">
-          {maxOptions}
+        <span className="inline-flex items-center rounded-full bg-purple-500/10 px-2.5 py-0.5 text-xs font-bold text-purple-600 dark:text-purple-400">
+          {maxOptions} places
         </span>
       </div>
 
-      <Slider
-        value={[selectedIndex === -1 ? 1 : selectedIndex]}
-        min={0}
-        max={MAX_OPTIONS_VALUES.length - 1}
-        step={1}
-        onValueChange={([nextIndex]) =>
-          onChange(MAX_OPTIONS_VALUES[nextIndex] ?? maxOptions)
-        }
-        aria-label="Maximum options"
-      />
+      {/* QUICK PRESET BUTTONS */}
+      <div className="grid grid-cols-4 gap-2 pt-1">
+        {MAX_OPTIONS_VALUES.map((val) => {
+          const isSelected = val === maxOptions
+          return (
+            <button
+              key={val}
+              type="button"
+              onClick={() => onChange(val)}
+              className={cn(
+                "flex flex-col items-center justify-center rounded-xl py-2 px-1 text-xs font-semibold transition-all cursor-pointer",
+                isSelected
+                  ? "bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-sm shadow-pink-500/25"
+                  : "bg-muted/70 text-muted-foreground hover:bg-muted hover:text-foreground border border-border/40"
+              )}
+            >
+              <span className="text-sm font-bold">{val}</span>
+              <span className="text-[10px] opacity-80">spots</span>
+            </button>
+          )
+        })}
+      </div>
 
-      <div className="flex justify-between text-[0.7rem] text-muted-foreground">
-        {MAX_OPTIONS_VALUES.map((value) => (
-          <span key={value}>{value}</span>
-        ))}
+      {/* SLIDER FOR ACCESSIBILITY & CONTINUOUS ADJUSTMENT */}
+      <div className="pt-1 space-y-1.5">
+        <Slider
+          value={[selectedIndex === -1 ? 1 : selectedIndex]}
+          min={0}
+          max={MAX_OPTIONS_VALUES.length - 1}
+          step={1}
+          onValueChange={([nextIndex]) =>
+            onChange(MAX_OPTIONS_VALUES[nextIndex] ?? maxOptions)
+          }
+          aria-label="Maximum options"
+          className="cursor-pointer"
+        />
+
+        <div className="flex justify-between text-[11px] text-muted-foreground">
+          <span>Fewer (faster)</span>
+          <span>More (thorough)</span>
+        </div>
       </div>
     </div>
   )
