@@ -39,8 +39,13 @@ export async function searchNearby({ placeTypes, latitude, longitude, radius }: 
     console.log(response.data.places)
 
     return places.map((place) => {
+        const photoNames = (place.photos ?? [])
+            .slice(0, 3)
+            .map((photo) => photo.name)
+            .filter((name): name is string => Boolean(name));
 
-        const photoName = place.photos?.[0]?.name
+        const imageUrls = photoNames.map((name) => `/api/place-photo/${name}`);
+
         return {
             id: place.id,
             name: place.displayName?.text ?? "",
@@ -49,7 +54,7 @@ export async function searchNearby({ placeTypes, latitude, longitude, radius }: 
             latitude: place.location?.latitude ?? 0,
             longitude: place.location?.longitude ?? 0,
             priceLevel: place.priceLevel,
-            imageUrl: photoName ? `https://places.googleapis.com/v1/${photoName}/media?maxHeightPx=800&key=${apiKey}` : undefined,
+            imageUrls,
         }
     });
 

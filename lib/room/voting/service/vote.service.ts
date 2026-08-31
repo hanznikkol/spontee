@@ -20,7 +20,7 @@ export async function getOptions(roomId: string): Promise<RoomOption[]> {
         longitude: option.longitude,
         rating: option.rating,
         totalReviews: option.total_reviews,
-        imageUrl: option.image_url,
+        imageUrls: option.image_urls ?? [],
         priceLevel: option.price_level,
     }));
 }

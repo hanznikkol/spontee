@@ -1,4 +1,3 @@
-import React from "react"
 import { Users, Crown, Sparkles } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -67,12 +66,12 @@ export default function ParticipantList({
               >
                 {/* AVATAR & NAME */}
                 <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                  <div className="h-8 w-8 shrink-0 rounded-full bg-gradient-to-tr from-pink-500/15 via-purple-500/15 to-blue-500/15 text-pink-600 dark:text-pink-400 font-bold text-xs flex items-center justify-center ring-1 ring-pink-500/20 shadow-xs select-none">
+                  <div className="h-8 w-8 shrink-0 rounded-full bg-linear-to-tr from-pink-500/15 via-purple-500/15 to-blue-500/15 text-pink-600 dark:text-pink-400 font-bold text-xs flex items-center justify-center ring-1 ring-pink-500/20 shadow-xs select-none">
                     {initial}
                   </div>
 
                   <div className="flex items-center gap-1.5 min-w-0">
-                    <span className="text-sm font-semibold text-foreground truncate max-w-[130px] xs:max-w-[170px] sm:max-w-[220px]">
+                    <span className="text-sm font-semibold text-foreground truncate max-w-32.5 xs:max-w-[170px] sm:max-w-55">
                       {participant.display_name}
                     </span>
 

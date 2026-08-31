@@ -12,7 +12,7 @@ export type RoomOption = {
   longitude?: number
   rating?: number
   totalReviews?: number
-  imageUrl?: string
+  imageUrls?: string[]
 
   priceLevel?: number
   distanceKm?: number
@@ -27,5 +27,5 @@ export interface PlaceOption {
   latitude:number;
   longitude:number;
   priceLevel?:number;
-  imageUrl?: string;
+  imageUrls?: string[];
 }

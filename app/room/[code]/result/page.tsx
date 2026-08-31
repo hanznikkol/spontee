@@ -25,8 +25,9 @@ const MOCK_OPTION: RoomOption = {
   totalReviews: 1240,
   priceLevel: 2,
   address: '123 Culinary Ave, Food District, Cityville',
-  imageUrl:
+  imageUrls: [
     'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=1200',
+  ],
 }
 
 // Container reveal animations

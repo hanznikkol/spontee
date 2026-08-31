@@ -43,7 +43,7 @@ function convertGooglePlaceToOption(places: GooglePlace[]): PlaceOption[] {
         latitude: place.latitude,
         longitude: place.longitude,
         priceLevel: mapGooglePriceLevel(place.priceLevel),
-        imageUrl: place.imageUrl
+        imageUrls: place.imageUrls,
     }));
 }
 

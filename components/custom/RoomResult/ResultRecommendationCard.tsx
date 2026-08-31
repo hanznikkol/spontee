@@ -23,8 +23,8 @@ export default function ResultRecommendationCard({
       {/* Background Hero Image */}
       <Image
         src={
-          option.imageUrl ??
-          'https://placehold.co/1200x800/1a1a1a/444444?text=No+Photo'
+          option.imageUrls?.[0] ??
+          '/images/placeholder.png'
         }
         alt={option.title}
         fill

@@ -2,7 +2,7 @@
 
 import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion'
 import { Card } from '@/components/ui/card'
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import { SwipeDirection } from '@/lib/room/voting/types/vote.types'
 import CardInfo from './CardInfo'
@@ -25,17 +25,30 @@ export default function SwipeCard({ option, direction, onSwipe }: SwipeCardProps
   const rejectOpacity = useTransform(x, [-140, -40, 0], [1, 0.4, 0])
   const acceptOpacity = useTransform(x, [0, 40, 140], [0, 0.4, 1])
 
+  const [activePhotoIndex, setActivePhotoIndex] = useState(0)
   const hasSwiped = useRef(false)
 
-  useEffect(() => {
-    hasSwiped.current = false
-  }, [option.option_id])
+  const photos =
+    option.imageUrls && option.imageUrls.length > 0
+      ? option.imageUrls
+      : ['/images/placeholder.png']
+
 
   const triggerSwipe = useCallback((dir: SwipeDirection) => {
     if (hasSwiped.current) return
     hasSwiped.current = true
     onSwipe(dir)
-  }, [onSwipe]) 
+  }, [onSwipe])
+
+  const handlePrevPhoto = useCallback(() => {
+    if (Math.abs(x.get()) >= 5) return
+    setActivePhotoIndex((prev) => Math.max(0, prev - 1))
+  }, [x])
+
+  const handleNextPhoto = useCallback(() => {
+    if (Math.abs(x.get()) >= 5) return
+    setActivePhotoIndex((prev) => Math.min(photos.length - 1, prev + 1))
+  }, [x, photos.length])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -69,17 +82,65 @@ export default function SwipeCard({ option, direction, onSwipe }: SwipeCardProps
           exit={{ opacity: 0, x: direction > 0 ? 300 : -300, transition: { duration: 0.25, ease: "easeOut" } }}
           className="absolute inset-0 rounded-2xl sm:rounded-3xl md:rounded-[32px] border-border/80 shadow-2xl cursor-grab active:cursor-grabbing z-10 overflow-hidden bg-card"
         >
-          {/* Background image */}
-          <Image
-            src={option.imageUrl ?? '/public/images/placeholder.png'}
-            alt={option.title}
-            fill
-            priority
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 600px"
-            onError={(e) => { (e.target as HTMLImageElement).src = '/public/images/placeholder.png' }}
-            className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
-            draggable={false}
-          />
+          {/* Top pagination indicators (Tinder/Bumble style for 2-3 photos) */}
+          {photos.length > 1 && (
+            <div className="absolute top-2.5 inset-x-3 sm:top-3.5 sm:inset-x-4 z-30 flex gap-1.5 pointer-events-none">
+              {photos.map((_, idx) => (
+                <div
+                  key={idx}
+                  className={`h-1 flex-1 rounded-full transition-all duration-200 ${
+                    idx === activePhotoIndex
+                      ? 'bg-white shadow-xs'
+                      : 'bg-white/35 backdrop-blur-xs'
+                  }`}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Background images with opacity transition and lazy loading for extra photos */}
+          {photos.map((photoUrl, idx) => (
+            <Image
+              key={photoUrl}
+              src={photoUrl}
+              alt={`${option.title} photo ${idx + 1}`}
+              fill
+              priority={idx === 0}
+              loading={idx === 0 ? undefined : 'lazy'}
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 600px"
+              onError={(e) => { (e.target as HTMLImageElement).src = '/images/placeholder.png' }}
+              className={`absolute inset-0 w-full h-full object-cover pointer-events-none select-none transition-opacity duration-200 ${
+                idx === activePhotoIndex ? 'opacity-100' : 'opacity-0'
+              }`}
+              draggable={false}
+            />
+          ))}
+
+          {/* Tap zones for photo navigation (left & right 35%) */}
+          {photos.length > 1 && (
+            <div className="absolute inset-x-0 top-0 bottom-28 z-15 flex justify-between pointer-events-auto">
+              <button
+                type="button"
+                tabIndex={-1}
+                aria-label="Previous photo"
+                className="w-[35%] h-full opacity-0 cursor-pointer focus:outline-none"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handlePrevPhoto()
+                }}
+              />
+              <button
+                type="button"
+                tabIndex={-1}
+                aria-label="Next photo"
+                className="w-[35%] h-full opacity-0 cursor-pointer focus:outline-none"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleNextPhoto()
+                }}
+              />
+            </div>
+          )}
 
           {/* Dark gradient overlay for text readability */}
           <div className="absolute inset-0 bg-linear-to-t from-black/95 via-black/40 to-transparent pointer-events-none" />

@@ -24,7 +24,6 @@ export interface GooglePlace {
     latitude: number;
     longitude: number;
     priceLevel?: GooglePriceLevel;
-    photo?: string;
-    imageUrl?: string;
+    imageUrls?: string[];
 }
 

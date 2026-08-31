@@ -9,7 +9,7 @@ export default function LobbyHeader({ roomName, isActive }: LobbyHeaderProps) {
   return (
     <div className="space-y-2 text-center md:text-left">
       <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
-        <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-foreground break-words">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-foreground wrap-break-word">
           {roomName || "Spontee Decision Room"}
         </h1>
 

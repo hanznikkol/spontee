@@ -1,4 +1,4 @@
-﻿# Spontee — AI Context & Architecture Reference
+# Spontee — AI Context & Architecture Reference
 
 > **Stop arguing. Start deciding.**  
 > Decision-making application for couples, friends, and groups.
@@ -235,7 +235,7 @@ In-component real-time state (lobby participants, options deck, swipe progress) 
 | `longitude` | DOUBLE PRECISION | Venue longitude |
 | `rating` | NUMERIC | Google rating (e.g. 4.6) |
 | `price_level` | INTEGER | Mapped numeric price level (0–4) |
-| `image_url` | TEXT | Google Places photo media URL |
+| `image_urls` | TEXT[] | Array of server proxy photo URLs (up to 3) |
 
 #### 6. `swipes`
 | Column | Type | Description |
