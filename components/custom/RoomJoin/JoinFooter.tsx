@@ -31,3 +31,4 @@ export function JoinFooter({ onGoToCreate }: JoinFooterProps) {
     </div>
   )
 }
+
