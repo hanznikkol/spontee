@@ -38,9 +38,10 @@ export async function searchNearby({ placeTypes, latitude, longitude, radius }: 
     const places: GooglePlaceResponse[] = response.data.places ?? [];
     console.log(response.data.places)
 
+    //Return 5 photos
     return places.map((place) => {
         const photoNames = (place.photos ?? [])
-            .slice(0, 3)
+            .slice(0, 5)
             .map((photo) => photo.name)
             .filter((name): name is string => Boolean(name));
 

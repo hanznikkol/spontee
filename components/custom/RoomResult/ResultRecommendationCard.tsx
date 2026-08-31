@@ -19,7 +19,7 @@ export default function ResultRecommendationCard({
   type,
 }: ResultRecommendationCardProps) {
   return (
-    <Card className="relative w-full aspect-[16/11] sm:aspect-[16/10] md:aspect-video min-h-[260px] max-h-[420px] rounded-2xl sm:rounded-3xl md:rounded-[32px] overflow-hidden border-border/80 shadow-xl sm:shadow-2xl bg-card">
+    <Card className="relative w-full aspect-16/11 sm:aspect-16/10 md:aspect-video min-h-65 max-h-105 rounded-2xl sm:rounded-3xl md:rounded-[32px] overflow-hidden border-border/80 shadow-xl sm:shadow-2xl bg-card">
       {/* Background Hero Image */}
       <Image
         src={
@@ -78,7 +78,7 @@ export default function ResultRecommendationCard({
         </div>
 
         {/* Place Title */}
-        <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight leading-tight text-white line-clamp-2 break-words">
+        <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight leading-tight text-white line-clamp-2 wrap-break-word">
           {option.title}
         </h2>
 

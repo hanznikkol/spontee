@@ -27,12 +27,12 @@ export default function SwipeCard({ option, direction, onSwipe }: SwipeCardProps
 
   const [activePhotoIndex, setActivePhotoIndex] = useState(0)
   const hasSwiped = useRef(false)
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
 
   const photos =
     option.imageUrls && option.imageUrls.length > 0
       ? option.imageUrls
       : ['/images/placeholder.png']
-
 
   const triggerSwipe = useCallback((dir: SwipeDirection) => {
     if (hasSwiped.current) return
@@ -40,15 +40,39 @@ export default function SwipeCard({ option, direction, onSwipe }: SwipeCardProps
     onSwipe(dir)
   }, [onSwipe])
 
-  const handlePrevPhoto = useCallback(() => {
-    if (Math.abs(x.get()) >= 5) return
-    setActivePhotoIndex((prev) => Math.max(0, prev - 1))
-  }, [x])
+  const advancePhoto = useCallback(() => {
+    if (photos.length <= 1) return
+    setActivePhotoIndex((prev) => (prev + 1) % photos.length)
+  }, [photos.length])
 
-  const handleNextPhoto = useCallback(() => {
-    if (Math.abs(x.get()) >= 5) return
-    setActivePhotoIndex((prev) => Math.min(photos.length - 1, prev + 1))
-  }, [x, photos.length])
+  const startAutoplayTimer = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current)
+      timerRef.current = null
+    }
+    if (photos.length <= 1) return
+
+    timerRef.current = setInterval(() => {
+      advancePhoto()
+    }, 3000)
+  }, [advancePhoto, photos.length])
+
+  useEffect(() => {
+    startAutoplayTimer()
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current)
+        timerRef.current = null
+      }
+    }
+  }, [startAutoplayTimer])
+
+  const handleCardTap = useCallback(() => {
+    if (photos.length <= 1) return
+    if (Math.abs(x.get()) >= 5 || hasSwiped.current) return
+    advancePhoto()
+    startAutoplayTimer()
+  }, [advancePhoto, startAutoplayTimer, photos.length, x])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -78,11 +102,12 @@ export default function SwipeCard({ option, direction, onSwipe }: SwipeCardProps
           dragConstraints={{ left: 0, right: 0 }}
           style={{ x, rotate }}
           onDragEnd={handleDragEnd}
+          onTap={handleCardTap}
           whileDrag={{ scale: 1.02 }}
           exit={{ opacity: 0, x: direction > 0 ? 300 : -300, transition: { duration: 0.25, ease: "easeOut" } }}
           className="absolute inset-0 rounded-2xl sm:rounded-3xl md:rounded-[32px] border-border/80 shadow-2xl cursor-grab active:cursor-grabbing z-10 overflow-hidden bg-card"
         >
-          {/* Top pagination indicators (Tinder/Bumble style for 2-3 photos) */}
+          {/* Top pagination indicators (Tinder/Bumble style for multiple photos) */}
           {photos.length > 1 && (
             <div className="absolute top-2.5 inset-x-3 sm:top-3.5 sm:inset-x-4 z-30 flex gap-1.5 pointer-events-none">
               {photos.map((_, idx) => (
@@ -115,32 +140,6 @@ export default function SwipeCard({ option, direction, onSwipe }: SwipeCardProps
               draggable={false}
             />
           ))}
-
-          {/* Tap zones for photo navigation (left & right 35%) */}
-          {photos.length > 1 && (
-            <div className="absolute inset-x-0 top-0 bottom-28 z-15 flex justify-between pointer-events-auto">
-              <button
-                type="button"
-                tabIndex={-1}
-                aria-label="Previous photo"
-                className="w-[35%] h-full opacity-0 cursor-pointer focus:outline-none"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handlePrevPhoto()
-                }}
-              />
-              <button
-                type="button"
-                tabIndex={-1}
-                aria-label="Next photo"
-                className="w-[35%] h-full opacity-0 cursor-pointer focus:outline-none"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleNextPhoto()
-                }}
-              />
-            </div>
-          )}
 
           {/* Dark gradient overlay for text readability */}
           <div className="absolute inset-0 bg-linear-to-t from-black/95 via-black/40 to-transparent pointer-events-none" />

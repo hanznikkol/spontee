@@ -1,9 +1,6 @@
 ﻿import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(
-  _request: NextRequest,
-  { params }: { params: Promise<{ path: string[] }> }
-) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
   try {
     const { path } = await params;
 
