@@ -1,6 +1,4 @@
 import Link from "next/link"
-import { Users, Sparkles } from "lucide-react"
-
 export function JoinHeader() {
   return (
     <div className="text-center space-y-4">
@@ -12,18 +10,18 @@ export function JoinHeader() {
         >
           <span className="text-xl font-bold tracking-tight">
             Spont
-            <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
               ee
             </span>
           </span>
         </Link>
       </div>
-      
+
       {/* Title & Description */}
       <div className="space-y-1.5">
         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
           Join a host’s{" "}
-          <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
+          <span className="bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
             room
           </span>
         </h1>
