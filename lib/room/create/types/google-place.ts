@@ -20,6 +20,8 @@ export interface GooglePlaceResponse {
     photos?: { name: string }[];
     types?: string[];
     primaryType?: string;
+    description?: string;
+    editorialSummary?: { text: string };
 }
 
 // Normalized
@@ -38,5 +40,6 @@ export interface GooglePlace {
     primaryType?: string;
     distanceMeters?: number;
     searchedCategories?: string[];
+    description?: string;
 }
 

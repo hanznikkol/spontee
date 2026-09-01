@@ -11,9 +11,21 @@ interface CategorySearchResult {
     places: GooglePlace[];
 }
 
+/**
+ * Calculates the internal candidate collection target based on requested maxOptions.
+ * - maxOptions = 5  -> 20 candidates
+ * - maxOptions = 10 -> 20 candidates
+ * - maxOptions = 15 -> 30 candidates
+ * - maxOptions = 20 -> 40 candidates
+ */
+export function getCandidateTarget(maxOptions: number): number {
+    return Math.max(20, maxOptions * 2);
+}
+
 // GENERATE SERVICE
-export async function generate( payload: GenerateOptionsPayload ) {
-    const searchResults = await searchPlaces(payload);
+export async function generate(payload: GenerateOptionsPayload) {
+    const candidateTarget = getCandidateTarget(payload.maxOptions);
+    const searchResults = await collectCandidates(payload, candidateTarget);
     const uniquePlaces = deduplicateAndMergePlaces(searchResults);
     const placesWithDistance = attachDistance(uniquePlaces, payload.latitude, payload.longitude);
 
@@ -27,43 +39,140 @@ export async function generate( payload: GenerateOptionsPayload ) {
     );
     const diversePlaces = selectDiverseOptions(rankedPlaces, payload.categoryNames, payload.maxOptions);
 
+    if (process.env.NODE_ENV === "development") {
+        console.log("[Option Engine] Pipeline Diagnostics:", {
+            requestedMaxOptions: payload.maxOptions,
+            candidateTarget,
+            rawCandidatesCollected: searchResults.reduce((acc, c) => acc + c.places.length, 0),
+            uniquePlacesAfterDedupe: uniquePlaces.length,
+            afterQualityFilter: filteredPlaces.length,
+            afterBudgetFilter: budgetFilteredPlaces.length,
+            finalOptions: diversePlaces.length,
+        });
+    }
+
     return convertGooglePlaceToOption(diversePlaces);
 }
 
 // HELPERS
-async function searchPlaces(payload: GenerateOptionsPayload): Promise<CategorySearchResult[]> {
+async function searchCategory(
+    categoryName: string,
+    placeTypes: readonly string[] | string[],
+    latitude: number,
+    longitude: number,
+    radius: number
+): Promise<GooglePlace[]> {
+    if (!placeTypes.length) return [];
+    try {
+        return await googlePlaceService.searchNearby({
+            placeTypes,
+            latitude,
+            longitude,
+            radius,
+        });
+    } catch (error) {
+        console.warn(`Places search failed for category "${categoryName}":`, error);
+        return [];
+    }
+}
+
+/**
+ * Collects a sufficiently large candidate pool before filtering and ranking.
+ * Uses an adaptive multi-pass strategy:
+ * - Pass 1: Primary search across selected categories at user's selected radius.
+ * - Pass 2: If candidates < candidateTarget, expands via secondary sub-type partitions.
+ * - Pass 3: If still < candidateTarget, expands radius by 1.5x (up to 10km).
+ * - Stops immediately when candidateTarget is reached or all sweet spots are exhausted.
+ */
+export async function collectCandidates(
+    payload: GenerateOptionsPayload,
+    candidateTarget: number
+): Promise<CategorySearchResult[]> {
     if (!payload.categoryNames?.length) {
         return [];
     }
 
-    // Query each selected category concurrently.
-    // Each request passes all Google Place Types for that category in includedTypes.
-    // Promise.allSettled guarantees that a category with 0 results or an isolated error
-    // will not cause other selected categories to fail.
-    const searchPromises = payload.categoryNames.map(async (categoryName) => {
-        const placeTypes = googlePlaceService.getPlaceTypes(categoryName);
-        if (!placeTypes.length) return { category: categoryName, places: [] };
-
-        try {
-            const places = await googlePlaceService.searchNearby({
-                placeTypes,
-                latitude: payload.latitude,
-                longitude: payload.longitude,
-                radius: payload.radius,
-            });
-            return { category: categoryName, places };
-        } catch (error) {
-            console.warn(`Places search failed for category "${categoryName}":`, error);
-            return { category: categoryName, places: [] };
-        }
-    });
-
-    const results = await Promise.allSettled(searchPromises);
     const searchResults: CategorySearchResult[] = [];
 
-    for (const res of results) {
+    // Pass 1: Primary search per category
+    const initialPromises = payload.categoryNames.map(async (categoryName) => {
+        const placeTypes = googlePlaceService.getPlaceTypes(categoryName);
+        const places = await searchCategory(
+            categoryName,
+            placeTypes,
+            payload.latitude,
+            payload.longitude,
+            payload.radius
+        );
+        return { category: categoryName, places };
+    });
+
+    const pass1Results = await Promise.allSettled(initialPromises);
+    for (const res of pass1Results) {
         if (res.status === "fulfilled") {
             searchResults.push(res.value);
+        }
+    }
+
+    // Check candidate sufficiency
+    let uniqueCount = deduplicateAndMergePlaces(searchResults).length;
+    if (uniqueCount >= candidateTarget) {
+        return searchResults;
+    }
+
+    // Pass 2: Adaptive Expansion (Secondary sub-type batches if category has >= 10 types)
+    const expansionPromises: Promise<CategorySearchResult>[] = [];
+
+    for (const categoryName of payload.categoryNames) {
+        const placeTypes = googlePlaceService.getPlaceTypes(categoryName);
+        if (placeTypes.length >= 10) {
+            // Query the second half of place types for diverse sub-genres
+            const secondaryTypes = placeTypes.slice(Math.floor(placeTypes.length / 2));
+            expansionPromises.push(
+                searchCategory(
+                    categoryName,
+                    secondaryTypes,
+                    payload.latitude,
+                    payload.longitude,
+                    payload.radius
+                ).then((places) => ({ category: categoryName, places }))
+            );
+        }
+    }
+
+    if (expansionPromises.length > 0) {
+        const pass2Results = await Promise.allSettled(expansionPromises);
+        for (const res of pass2Results) {
+            if (res.status === "fulfilled") {
+                searchResults.push(res.value);
+            }
+        }
+        uniqueCount = deduplicateAndMergePlaces(searchResults).length;
+        if (uniqueCount >= candidateTarget) {
+            return searchResults;
+        }
+    }
+
+    // Pass 3: Radius Step Expansion (1.5x radius up to 10km) if still below target
+    const expandedRadius = Math.min(10000, Math.round(payload.radius * 1.5));
+    if (expandedRadius > payload.radius) {
+        const radiusPromises = payload.categoryNames.map(async (categoryName) => {
+            const placeTypes = googlePlaceService.getPlaceTypes(categoryName);
+            const places = await searchCategory(
+                categoryName,
+                placeTypes,
+                payload.latitude,
+                payload.longitude,
+                expandedRadius
+            );
+            return { category: categoryName, places };
+        });
+
+        const pass3Results = await Promise.allSettled(radiusPromises);
+        for (const res of pass3Results) {
+            if (res.status === "fulfilled") {
+                searchResults.push(res.value);
+            }
         }
     }
 
@@ -113,6 +222,9 @@ export function deduplicateAndMergePlaces(searchResults: CategorySearchResult[])
                 }
                 if (existing.priceLevel === undefined && place.priceLevel !== undefined) {
                     existing.priceLevel = place.priceLevel;
+                }
+                if (!existing.description && place.description) {
+                    existing.description = place.description;
                 }
             }
         }
@@ -401,5 +513,7 @@ function convertGooglePlaceToOption(places: GooglePlace[]): RoomOptionCandidate[
         priceLevel: mapGooglePriceLevel(place.priceLevel),
         imageUrls: place.imageUrls,
         distanceMeters: place.distanceMeters,
+        description: place.description,
+        totalReviews: place.userRatingCount,
     }));
 }

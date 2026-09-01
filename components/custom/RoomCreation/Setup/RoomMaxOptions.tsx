@@ -74,6 +74,10 @@ export function RoomMaxOptions({ maxOptions, onChange }: RoomMaxOptionsProps) {
           <span>Fewer (faster)</span>
           <span>More (thorough)</span>
         </div>
+
+        <p className="text-center text-[11px] text-muted-foreground pt-1">
+          We&apos;ll show up to this many options, depending on what&apos;s available near your location and preferences.
+        </p>
       </div>
     </div>
   )

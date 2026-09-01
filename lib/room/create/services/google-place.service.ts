@@ -58,7 +58,8 @@ export async function searchNearby({ placeTypes, latitude, longitude, radius }: 
                         "places.businessStatus",
                         "places.photos",
                         "places.types",
-                        "places.primaryType"
+                        "places.primaryType",
+                        "places.editorialSummary"
                     ].join(",")
                 },
             }
@@ -88,6 +89,7 @@ export async function searchNearby({ placeTypes, latitude, longitude, radius }: 
                 imageUrls,
                 types: place.types,
                 primaryType: place.primaryType,
+                description: place.description ?? place.editorialSummary?.text,
             };
         });
 

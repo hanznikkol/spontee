@@ -110,6 +110,8 @@ async function createOptions(roomId: string, options: RoomOptionCandidate[]) {
         price_level: option.priceLevel ?? 1,
         image_urls: option.imageUrls?.length ? option.imageUrls : null,
         distance_meters: option.distanceMeters ?? null,
+        description: option.description ?? null,
+        total_reviews: option.totalReviews ?? null,
     }));
 
     const { error } = await supabase

@@ -29,4 +29,6 @@ export interface RoomOptionCandidate {
   priceLevel?: number;
   imageUrls?: string[];
   distanceMeters?: number;
+  description?: string;
+  totalReviews?: number;
 }
