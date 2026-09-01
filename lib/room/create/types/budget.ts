@@ -1,11 +1,12 @@
   // FOR UI
-  export type PreferenceBudget = "any" | "low" | "medium" | "high"
+  export type PreferenceBudget = "any" | "low" | "medium" | "high" | "very_high"
 
   export const budgetChoices: Array<{ value: PreferenceBudget; label: string }> = [
     { value: "any", label: "Any" },
     { value: "low", label: "₱" },
     { value: "medium", label: "₱₱" },
     { value: "high", label: "₱₱₱" },
+    { value: "very_high", label: "₱₱₱₱" },
   ]
 
   // Google Response
