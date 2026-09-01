@@ -1,34 +1,19 @@
 "use client"
 
-import { useParams } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import { AlertCircle } from 'lucide-react'
 
-import { ResultType } from '@/lib/room/result/result.types'
-import { RoomOption } from '@/lib/room/create/types/option-types'
+import { useResult } from '@/lib/room/result/hooks/useResult'
 
+import { Button } from '@/components/ui/button'
 import ResultHeader from '@/components/custom/RoomResult/ResultHeader'
 import ResultRecommendationCard from '@/components/custom/RoomResult/ResultRecommendationCard'
+import ResultPreferenceSummary from '@/components/custom/RoomResult/ResultPreferenceSummary'
+import ResultVoteBreakdown from '@/components/custom/RoomResult/ResultVoteBreakdown'
 import ResultDetailsGrid from '@/components/custom/RoomResult/ResultDetailsGrid'
 import ResultActions from '@/components/custom/RoomResult/ResultActions'
 import ResultNoMatchCard from '@/components/custom/RoomResult/ResultNoMatchCard'
-
-// Mock Data
-const MOCK_PARTICIPANT_COUNT = 4
-const MOCK_TOTAL_OPTIONS = 12
-
-const MOCK_OPTION: RoomOption = {
-  option_id: 'opt_123',
-  title: 'The Rustic Spoon',
-  category: 'restaurant' as unknown as RoomOption['category'],
-  rating: 4.8,
-  totalReviews: 1240,
-  priceLevel: 2,
-  address: '123 Culinary Ave, Food District, Cityville',
-  imageUrls: [
-    'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=80&w=1200',
-  ],
-}
 
 // Container reveal animations
 const containerVariants = {
@@ -49,17 +34,18 @@ const itemVariants = {
 }
 
 export default function ResultPage() {
-  const params = useParams()
-  const code = (params?.code as string) || 'DEMO'
-
-  const [resultType, setResultType] = useState<ResultType>('consensus')
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    // Simulate brief load for reveal
-    const timer = setTimeout(() => setIsLoading(false), 500)
-    return () => clearTimeout(timer)
-  }, [])
+  const {
+    code,
+    resultType,
+    option,
+    preferences,
+    participantCount,
+    totalOptions,
+    winnerGoCount,
+    tally,
+    isLoading,
+    error,
+  } = useResult()
 
   if (isLoading) {
     return (
@@ -74,6 +60,29 @@ export default function ResultPage() {
     )
   }
 
+  if (error) {
+    return (
+      <div className="min-h-dvh flex flex-col items-center justify-center bg-background p-4">
+        <div className="w-full max-w-md p-6 sm:p-8 rounded-2xl sm:rounded-3xl border border-border/80 bg-card/90 backdrop-blur-xl text-center space-y-4 shadow-xl">
+          <div className="w-12 h-12 rounded-2xl bg-destructive/10 text-destructive flex items-center justify-center mx-auto">
+            <AlertCircle className="w-6 h-6" />
+          </div>
+          <div className="space-y-1.5">
+            <h2 className="text-xl font-bold tracking-tight text-foreground">
+              Unable to Load Results
+            </h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {error}
+            </p>
+          </div>
+          <Button asChild className="w-full mt-2">
+            <Link href="/">Back to Home</Link>
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-dvh bg-background relative overflow-x-hidden flex flex-col justify-start py-5 px-3.5 sm:px-6 sm:py-8 md:py-12">
       {/* Subtle Ambient Background Aura */}
@@ -82,87 +91,63 @@ export default function ResultPage() {
       </div>
 
       <motion.div
-        className="w-full max-w-xl md:max-w-2xl lg:max-w-3xl mx-auto flex flex-col gap-4 sm:gap-6 md:gap-8 z-10 pb-16 sm:pb-8"
+        className="w-full max-w-xl md:max-w-2xl lg:max-w-3xl mx-auto flex flex-col gap-4 sm:gap-6 md:gap-7 z-10 pb-16 sm:pb-8"
         variants={containerVariants}
         initial="hidden"
         animate="show"
       >
-        {resultType === 'no_match' ? (
+        {!resultType || resultType === 'no_match' || !option ? (
           <motion.div variants={itemVariants} className="w-full">
             <ResultNoMatchCard />
           </motion.div>
         ) : (
           <>
+            {/* 1. Result Header */}
             <motion.div variants={itemVariants} className="w-full">
               <ResultHeader
                 type={resultType}
-                participantCount={MOCK_PARTICIPANT_COUNT}
+                participantCount={participantCount}
               />
             </motion.div>
 
-            <motion.div variants={itemVariants} className="w-full">
+            {/* 2. Primary Recommendation Hero & Contextual Preferences */}
+            <motion.div variants={itemVariants} className="w-full flex flex-col gap-2.5 sm:gap-3">
               <ResultRecommendationCard
-                option={MOCK_OPTION}
+                option={option}
                 type={resultType}
               />
+              {preferences && (
+                <ResultPreferenceSummary preferences={preferences} />
+              )}
             </motion.div>
 
+            {/* 3. Group Vote Breakdown */}
+            <motion.div variants={itemVariants} className="w-full">
+              <ResultVoteBreakdown
+                tally={tally}
+                resultType={resultType}
+                participantCount={participantCount}
+                winnerGoCount={winnerGoCount}
+              />
+            </motion.div>
+
+            {/* 4. Streamlined Session Stats & Location */}
             <motion.div variants={itemVariants} className="w-full">
               <ResultDetailsGrid
-                option={MOCK_OPTION}
+                option={option}
                 roomCode={code}
-                participantCount={MOCK_PARTICIPANT_COUNT}
-                totalOptions={MOCK_TOTAL_OPTIONS}
-                type={resultType}
+                participantCount={participantCount}
+                totalOptions={totalOptions}
               />
             </motion.div>
 
+            {/* 5. Primary Action Path */}
             <motion.div variants={itemVariants} className="w-full pt-1 sm:pt-2">
-              <ResultActions option={MOCK_OPTION} />
+              <ResultActions option={option} />
             </motion.div>
           </>
         )}
       </motion.div>
-
-      {/* Dev Toggle (Subtle floating pills for previewing states) */}
-      <div className="fixed bottom-3 right-3 z-50 flex items-center gap-1 bg-background/90 backdrop-blur-md px-2 py-1.5 rounded-full border shadow-md">
-        <span className="text-[10px] text-muted-foreground font-semibold px-1 hidden xs:inline">
-          Demo:
-        </span>
-        <button
-          type="button"
-          onClick={() => setResultType('consensus')}
-          className={`text-[11px] px-2 py-1 rounded-full font-medium transition-colors ${
-            resultType === 'consensus'
-              ? 'bg-primary text-primary-foreground shadow-xs'
-              : 'text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          Consensus
-        </button>
-        <button
-          type="button"
-          onClick={() => setResultType('compromise')}
-          className={`text-[11px] px-2 py-1 rounded-full font-medium transition-colors ${
-            resultType === 'compromise'
-              ? 'bg-primary text-primary-foreground shadow-xs'
-              : 'text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          Compromise
-        </button>
-        <button
-          type="button"
-          onClick={() => setResultType('no_match')}
-          className={`text-[11px] px-2 py-1 rounded-full font-medium transition-colors ${
-            resultType === 'no_match'
-              ? 'bg-primary text-primary-foreground shadow-xs'
-              : 'text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          No Match
-        </button>
-      </div>
     </div>
   )
 }
