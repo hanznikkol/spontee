@@ -1,16 +1,19 @@
 "use client"
 
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { AlertCircle } from 'lucide-react'
 
 import { useResult } from '@/lib/room/result/hooks/useResult'
+import { OptionVoteTally } from '@/lib/room/result/result.types'
 
 import { Button } from '@/components/ui/button'
 import ResultHeader from '@/components/custom/RoomResult/ResultHeader'
 import ResultRecommendationCard from '@/components/custom/RoomResult/ResultRecommendationCard'
 import ResultPreferenceSummary from '@/components/custom/RoomResult/ResultPreferenceSummary'
 import ResultVoteBreakdown from '@/components/custom/RoomResult/ResultVoteBreakdown'
+import ResultBreakdownModal from '@/components/custom/RoomResult/ResultBreakdownModal'
 import ResultDetailsGrid from '@/components/custom/RoomResult/ResultDetailsGrid'
 import ResultActions from '@/components/custom/RoomResult/ResultActions'
 import ResultNoMatchCard from '@/components/custom/RoomResult/ResultNoMatchCard'
@@ -39,6 +42,7 @@ export default function ResultPage() {
     resultType,
     option,
     preferences,
+    explanation,
     participantCount,
     totalOptions,
     winnerGoCount,
@@ -46,6 +50,27 @@ export default function ResultPage() {
     isLoading,
     error,
   } = useResult()
+
+  // Sheet / Modal Progressive Disclosure State
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [modalMode, setModalMode] = useState<'list' | 'detail'>('list')
+  const [selectedAlternative, setSelectedAlternative] = useState<OptionVoteTally | null>(null)
+
+  const handleSelectAlternative = (item: OptionVoteTally) => {
+    setSelectedAlternative(item)
+    setModalMode('detail')
+    setIsModalOpen(true)
+  }
+
+  const handleOpenFullBreakdown = () => {
+    setSelectedAlternative(null)
+    setModalMode('list')
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+  }
 
   if (isLoading) {
     return (
@@ -110,24 +135,29 @@ export default function ResultPage() {
               />
             </motion.div>
 
-            {/* 2. Primary Recommendation Hero & Contextual Preferences */}
-            <motion.div variants={itemVariants} className="w-full flex flex-col gap-2.5 sm:gap-3">
+            {/* 2. Primary Recommendation Hero, Explanation & Contextual Preferences */}
+            <motion.div variants={itemVariants} className="w-full flex flex-col gap-3">
               <ResultRecommendationCard
                 option={option}
                 type={resultType}
               />
-              {preferences && (
-                <ResultPreferenceSummary preferences={preferences} />
+              {(preferences || explanation) && (
+                <ResultPreferenceSummary
+                  preferences={preferences ?? {}}
+                  explanation={explanation}
+                />
               )}
             </motion.div>
 
-            {/* 3. Group Vote Breakdown */}
+            {/* 3. Group Vote Breakdown & Top 2 Alternatives */}
             <motion.div variants={itemVariants} className="w-full">
               <ResultVoteBreakdown
                 tally={tally}
                 resultType={resultType}
                 participantCount={participantCount}
                 winnerGoCount={winnerGoCount}
+                onSelectAlternative={handleSelectAlternative}
+                onOpenFullBreakdown={handleOpenFullBreakdown}
               />
             </motion.div>
 
@@ -148,6 +178,20 @@ export default function ResultPage() {
           </>
         )}
       </motion.div>
+
+      {/* Progressive Disclosure Modal / Bottom Sheet */}
+      {resultType && resultType !== 'no_match' && (
+        <ResultBreakdownModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          tally={tally}
+          resultType={resultType}
+          participantCount={participantCount}
+          winnerGoCount={winnerGoCount}
+          initialSelectedOption={selectedAlternative}
+          initialMode={modalMode}
+        />
+      )}
     </div>
   )
 }

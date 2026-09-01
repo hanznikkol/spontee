@@ -29,4 +29,27 @@ export interface RoomResult {
   winnerGoCount: number
   tally: OptionVoteTally[]
 }
+
+export interface ExplanationContext {
+  recommendation: {
+    name: string
+    goVotes: number
+    passVotes: number
+    rating?: number | null
+    priceLevel?: number | null
+  }
+  room: {
+    participantCount: number
+    preferences?: {
+      category?: string | null
+      budget?: string | null
+      location?: string | null
+    }
+  }
+  alternatives?: Array<{
+    name: string
+    goVotes: number
+  }>
+}
+
 
