@@ -1,196 +1,84 @@
 # 🎲 Spontee
 
-> **Stop arguing. Start deciding.**
-
-Spontee is a real-time collaborative decision-making web application that helps couples, friends, and groups quickly decide where to eat, where to go, or what to do together.
-
-Instead of endlessly asking **"Saan tayo kakain?"** or **"Ano gusto niyo gawin?"**, Spontee lets everyone vote independently through a Tinder-like swipe interface until the group reaches a common match.
+> **Stop arguing. Start deciding.**  
+> The real-time group decision engine that turns individual swipes into one group recommendation everyone agrees on.
 
 ---
 
-## ✨ Features
+## 💡 Why Spontee?
 
-- 🏠 Create private decision rooms
-- 🔗 Share rooms using links or QR Codes
-- 👥 Real-time participants
-- ❤️ Tinder-style swipe voting
-- 📍 Google Places integration
-- 🎯 Personalized room preferences
-- 💰 Budget filtering
-- 📌 Distance filtering
-- 🗺️ Nearby recommendations
-- ⚡ Live synchronization with Supabase Realtime
-- 📱 Responsive UI
+It always starts with an innocent question:  
+> *"Saan tayo kakain?"* or *"Where should we go?"*
 
----
+Thirty minutes later, everyone is starving, frustrated, and stuck in an endless loop:
 
-# Demo
+* **The *"Kahit Saan"* Deflection:** Nobody wants to propose a place because nobody wants to take the blame if it falls short.
+* **The Group Chat Black Hole:** Links get shared, half the group misses them, someone vetoes burgers, and energy drains away.
+* **Loudest Voice Bias:** The most vocal person decides by default, while quieter friends compromise every single weekend.
 
-*(Coming Soon)*
+**Spontee solves group indecision.** Everyone votes privately on their own phone, and Spontee evaluates the ballots to crown a match everyone can agree on.
 
 ---
 
-# Problem Statement
+## ⚡ How It Works
 
-Choosing where to go as a group often leads to:
-
-- Long discussions
-- Decision fatigue
-- Different preferences
-- No clear majority
-- Endless "Ikaw bahala."
-
-Spontee solves this by transforming group decision-making into a fun voting experience.
-
----
-
-# Goals
-
-Spontee aims to:
-
-- Reduce decision fatigue
-- Make voting enjoyable
-- Reach consensus faster
-- Remove unnecessary discussions
-- Encourage spontaneous meetups
-
----
-
-# How It Works
-
-## 1. Create Room
-
-The host creates a room.
-
-They configure:
-
-- Room name
-- Privacy
-- Maximum participants
-- Room preferences
-
----
-
-## 2. Select Preferences
-
-Instead of manually entering options, the host chooses:
-
-- Categories
-- Budget
-- Search radius
-- Location
-
-Example:
-
-```text
-Categories
-✔ Coffee
-✔ Food
-✔ Gaming
-
-Budget
-$$
-
-Radius
-5 km
-
-Location
-Current Location
+```
+ 1. Create a Room      2. Invite Friends      3. Everyone Swipes      4. Get The Match
+   Pick categories,       Share the code        Swipe Right (Go!)       Spontee reveals
+   budget & radius         or scan QR            or Left (Pass!)         the winner!
 ```
 
----
+### 1. 🏠 Create a Room in 10 Seconds
+Choose a room name, set your group size (up to 25 people), and customize your session:
+* **Categories:** Food 🍔, Coffee ☕, Dessert 🍰, Drinks 🍹, Entertainment 🎳, Shopping 🛍️, Parks 🌳, Bars 🍻, Karaoke 🎤, Sports ⚽, Wellness 🧘
+* **Budget:** Any, ₱ (Budget-friendly), ₱₱ (Moderate), ₱₱₱ (Upscale)
+* **Search Radius:** 500 meters to 10 kilometers
 
-## 3. Google Places Search
+### 2. 🔗 Instant Group Invite
+Share the 8-character room code or show the high-contrast QR code.  
+**Zero sign-ups, passwords, or app downloads needed.** Friends jump straight in with just their nickname.
 
-The backend automatically searches Google Places based on the selected preferences.
+### 3. 📱 Private Swipe Voting
+Everyone swipes through curated places on their own device at their own pace:
+* **Swipe Right (Go!):** *"I'm down for this!"*
+* **Swipe Left (Pass!):** *"Not feeling it today."*
 
-Instead of searching:
+Ballots remain private while voting is in progress—**no peer pressure, no judgment, and no bias.**
 
-```text
-Gaming
-```
-
-The backend expands it into multiple search intents:
-
-```text
-Gaming
-    ↓
-Arcade
-    ↓
-Internet Cafe
-    ↓
-VR Center
-    ↓
-Board Game Cafe
-    ↓
-Merge Results
-```
-
-This architecture separates the user-friendly category from the actual search strategy used internally.
+### 4. 🎉 The Winning Group Match
+The moment the last participant finishes voting, Spontee cross-references all ballots and reveals the winning venue:
+* **Unanimous Consensus:** The place everyone agreed on.
+* **Fair Compromise:** The highest-rated top pick when opinions diverge.
+* Complete with real Google star ratings, review counts, photos, price level, and address.
 
 ---
 
-## 4. Generate Options
+## ✨ Product Highlights
 
-The system:
-
-- Removes duplicates
-- Filters by budget
-- Sorts by rating
-- Sorts by distance
-- Converts Google Places results into room options
+* **🎯 Tactile Swipe Interface:** Physics-driven swipe gestures that make voting as effortless as swiping photos.
+* **📍 Real-World Place Data:** Powered by Google Places to discover authentic nearby venues, cafes, bistros, and activities.
+* **👥 Live Real-Time Lobby:** Watch friends join the room and track voting progress live as it happens.
+* **🛡️ Zero-Friction Anonymous Access:** No accounts required—open the link, enter your name, and start deciding.
+* **📱 Mobile-First Design:** Designed for groups on the go—optimized for small phones, tablets, and desktops.
 
 ---
 
-## 5. Lobby
+## 👨‍💻 Created By
 
-Participants join using:
+**Hanz Nikkol B. Maas**  
+*BSIT Graduate · Magna Cum Laude · Frontend Developer*
 
-- Room Link
-- QR Code
-
-The host waits until everyone joins.
-
----
-
-## 6. Start Voting
-
-Every participant starts voting independently.
-
-Users swipe:
-
-- ❤️ Pick
-- ❌ Pass
-
-Votes are synchronized in real time.
+* **Portfolio:** [hanznikkolmaas.vercel.app](https://hanznikkolmaas.vercel.app)
+* **GitHub:** [@hanznikkol](https://github.com/hanznikkol)
 
 ---
 
-## 7. Match Found
+## 📄 License
 
-When everyone likes the same place:
-
-🎉 **Match!**
-
-The application displays the winning location.
+This project is open-source under the [MIT License](LICENSE).
 
 ---
 
-
-# Author
-
-**Hanz Nikkol B. Maas**
-
-- 🎓 BSIT Graduate (Magna Cum Laude)
-- 💻 Frontend Developer
-- 🌐 Portfolio: https://hanznikkolmaas.vercel.app
-
----
-
-# License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
----
-
-> **Spontee — Because great plans shouldn't start with "Ikaw bahala."**
+<div align="center">
+  <sub>Built with ❤️ for spontaneous hangouts. Because great plans shouldn't start with <em>"Ikaw bahala."</em></sub>
+</div>
