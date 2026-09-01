@@ -15,17 +15,18 @@ export type RoomOption = {
   imageUrls?: string[]
 
   priceLevel?: number
-  distanceKm?: number
+  distanceMeters?: number
   isOpen?: boolean
 }
 
-export interface PlaceOption {
-  id:string;
-  name:string;
-  address:string;
-  rating:number;
-  latitude:number;
-  longitude:number;
-  priceLevel?:number;
+export interface RoomOptionCandidate {
+  id: string;
+  name: string;
+  address: string;
+  rating: number;
+  latitude: number;
+  longitude: number;
+  priceLevel?: number;
   imageUrls?: string[];
+  distanceMeters?: number;
 }

@@ -2,7 +2,7 @@ import { supabase } from "@/lib/supabase/client";
 import { CreateRoomPayload } from "../payload/create-room.dto";
 import { generateRoomCode } from "../utils/room-code.utils";
 import { generate } from "./option.service";
-import { PlaceOption } from "../types/option-types";
+import { RoomOptionCandidate } from "../types/option-types";
 import { PARTICIPANT_STATUS } from "../../lobby/types/participants-types";
 
 export async function create(data: CreateRoomPayload) {
@@ -98,7 +98,7 @@ async function createCategories( roomId: string, categoryNames: string[]) {
   if (insertError) throw insertError;
 }
 
-async function createOptions(roomId: string, options: PlaceOption[]) {
+async function createOptions(roomId: string, options: RoomOptionCandidate[]) {
     const records = options.map(option => ({
         room_id: roomId,
         title: option.name,
@@ -109,6 +109,7 @@ async function createOptions(roomId: string, options: PlaceOption[]) {
         rating: option.rating,
         price_level: option.priceLevel ?? 1,
         image_urls: option.imageUrls?.length ? option.imageUrls : null,
+        distance_meters: option.distanceMeters ?? null,
     }));
 
     const { error } = await supabase

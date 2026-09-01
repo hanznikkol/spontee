@@ -3,6 +3,7 @@ import { createJSONStorage, persist } from "zustand/middleware"
 import { RoomOption } from "../types/option-types";
 import { PreferenceBudget } from "../types/budget";
 import { LocationStatus } from "../types/location";
+import { MAX_SELECTED_CATEGORIES } from "../types/categories";
 
 export interface LocationPreferenceData {
   placeId?: string
@@ -94,7 +95,8 @@ export const useCreateRoomStore = create<CreateRoomStore>()(
       setRoomName: (roomName) => set({ roomName }),
       setMaxParticipants: (value)  => set({ maxParticipants: value }),
       setMaxOptions: (value) => set({ maxOptions: value }),
-      setSelectedCategories: (selectedCategoriesbyNames) => set({ selectedCategoriesbyNames }),
+      setSelectedCategories: (selectedCategoriesbyNames) =>
+        set({ selectedCategoriesbyNames: selectedCategoriesbyNames.slice(0, MAX_SELECTED_CATEGORIES) }),
 
       toggleCategory: (categoryName: string) => set((state) => {
         const selected = state.selectedCategoriesbyNames
@@ -109,7 +111,7 @@ export const useCreateRoomStore = create<CreateRoomStore>()(
         }
 
         // Maximum reached
-        if (selected.length >= 3) {
+        if (selected.length >= MAX_SELECTED_CATEGORIES) {
           return {
             selectedCategoriesbyNames: selected
           }

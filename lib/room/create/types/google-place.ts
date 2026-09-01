@@ -18,6 +18,8 @@ export interface GooglePlaceResponse {
     priceLevel?: GooglePriceLevel;
     businessStatus?: BusinessStatus;
     photos?: { name: string }[];
+    types?: string[];
+    primaryType?: string;
 }
 
 // Normalized
@@ -32,5 +34,9 @@ export interface GooglePlace {
     priceLevel?: GooglePriceLevel;
     businessStatus?: BusinessStatus;
     imageUrls?: string[];
+    types?: string[];
+    primaryType?: string;
+    distanceMeters?: number;
+    searchedCategories?: string[];
 }
 

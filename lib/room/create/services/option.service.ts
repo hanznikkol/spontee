@@ -1,38 +1,141 @@
 import { GenerateOptionsPayload } from "../payload/option.dto";
 import { PreferenceBudget } from "../types/budget";
 import { GooglePlace } from "../types/google-place";
-import { PlaceOption } from "../types/option-types";
+import { RoomOptionCandidate } from "../types/option-types";
 import { mapGooglePriceLevel } from "../utils/price-level";
+import { calculateHaversineDistance, calculateDistanceFactor } from "../utils/geo.utils";
 import * as googlePlaceService from "./google-place.service";
+
+interface CategorySearchResult {
+    category: string;
+    places: GooglePlace[];
+}
 
 // GENERATE SERVICE
 export async function generate( payload: GenerateOptionsPayload ) {
-    const places = await searchPlaces(payload);
-    const uniquePlaces = removeDuplicateOptions(places);
+    const searchResults = await searchPlaces(payload);
+    const uniquePlaces = deduplicateAndMergePlaces(searchResults);
+    const placesWithDistance = attachDistance(uniquePlaces, payload.latitude, payload.longitude);
 
-    const filteredPlaces = filterCandidates(uniquePlaces);
+    const filteredPlaces = filterCandidates(placesWithDistance);
     const budgetFilteredPlaces = filterByBudget(filteredPlaces, payload.budget);
-    const rankedPlaces = rankCandidates(budgetFilteredPlaces, payload.budget);
-    const limitedPlaces = limitOptions(rankedPlaces, payload.maxOptions);
+    const rankedPlaces = rankCandidates(
+        budgetFilteredPlaces,
+        payload.budget,
+        payload.categoryNames,
+        payload.radius
+    );
+    const diversePlaces = selectDiverseOptions(rankedPlaces, payload.categoryNames, payload.maxOptions);
 
-    return convertGooglePlaceToOption(limitedPlaces);
+    return convertGooglePlaceToOption(diversePlaces);
 }
 
 // HELPERS
-async function searchPlaces(payload: GenerateOptionsPayload) {
-    const placeTypes = [
-        ...new Set(
-            payload.categoryNames.flatMap(category =>
-                googlePlaceService.getPlaceTypes(category)
-            )
-        )
-    ];
+async function searchPlaces(payload: GenerateOptionsPayload): Promise<CategorySearchResult[]> {
+    if (!payload.categoryNames?.length) {
+        return [];
+    }
 
-    return googlePlaceService.searchNearby({
-        placeTypes,
-        latitude: payload.latitude,
-        longitude: payload.longitude,
-        radius: payload.radius,
+    // Query each selected category concurrently.
+    // Each request passes all Google Place Types for that category in includedTypes.
+    // Promise.allSettled guarantees that a category with 0 results or an isolated error
+    // will not cause other selected categories to fail.
+    const searchPromises = payload.categoryNames.map(async (categoryName) => {
+        const placeTypes = googlePlaceService.getPlaceTypes(categoryName);
+        if (!placeTypes.length) return { category: categoryName, places: [] };
+
+        try {
+            const places = await googlePlaceService.searchNearby({
+                placeTypes,
+                latitude: payload.latitude,
+                longitude: payload.longitude,
+                radius: payload.radius,
+            });
+            return { category: categoryName, places };
+        } catch (error) {
+            console.warn(`Places search failed for category "${categoryName}":`, error);
+            return { category: categoryName, places: [] };
+        }
+    });
+
+    const results = await Promise.allSettled(searchPromises);
+    const searchResults: CategorySearchResult[] = [];
+
+    for (const res of results) {
+        if (res.status === "fulfilled") {
+            searchResults.push(res.value);
+        }
+    }
+
+    return searchResults;
+}
+
+/**
+ * Deduplicates candidates by canonical Google Place ID while preserving and merging
+ * search provenance (searchedCategories), Google place types, and the richest metadata.
+ */
+export function deduplicateAndMergePlaces(searchResults: CategorySearchResult[]): GooglePlace[] {
+    const map = new Map<string, GooglePlace>();
+
+    for (const group of searchResults) {
+        for (const place of group.places) {
+            const existing = map.get(place.id);
+            if (!existing) {
+                map.set(place.id, {
+                    ...place,
+                    searchedCategories: [group.category],
+                    types: place.types ? [...place.types] : []
+                });
+            } else {
+                // Merge searched categories
+                if (!existing.searchedCategories?.includes(group.category)) {
+                    existing.searchedCategories = [...(existing.searchedCategories ?? []), group.category];
+                }
+                // Merge Google types
+                const mergedTypes = new Set([...(existing.types ?? []), ...(place.types ?? [])]);
+                existing.types = Array.from(mergedTypes);
+
+                // Preserve richest fields
+                if (!existing.primaryType && place.primaryType) {
+                    existing.primaryType = place.primaryType;
+                }
+                if ((!existing.imageUrls || existing.imageUrls.length === 0) && place.imageUrls?.length) {
+                    existing.imageUrls = place.imageUrls;
+                }
+                if (!existing.address && place.address) {
+                    existing.address = place.address;
+                }
+                if (existing.rating === undefined && place.rating !== undefined) {
+                    existing.rating = place.rating;
+                }
+                if (existing.userRatingCount === undefined && place.userRatingCount !== undefined) {
+                    existing.userRatingCount = place.userRatingCount;
+                }
+                if (existing.priceLevel === undefined && place.priceLevel !== undefined) {
+                    existing.priceLevel = place.priceLevel;
+                }
+            }
+        }
+    }
+
+    return Array.from(map.values());
+}
+
+/**
+ * Attaches geographic distance (in meters) from search origin to each candidate.
+ */
+export function attachDistance(places: GooglePlace[], originLat: number, originLon: number): GooglePlace[] {
+    return places.map((place) => {
+        const distanceMeters = calculateHaversineDistance(
+            originLat,
+            originLon,
+            place.latitude,
+            place.longitude
+        );
+        return {
+            ...place,
+            distanceMeters,
+        };
     });
 }
 
@@ -127,7 +230,69 @@ function calculateQualityScore(place: GooglePlace): number {
     return rating * Math.log10(userRatingCount);
 }
 
-function rankCandidates(places: GooglePlace[], budget?: PreferenceBudget): GooglePlace[] {
+/**
+ * Determines which of the user's selected categories a place matches,
+ * inspecting search provenance (searchedCategories) and Google types/primaryType.
+ */
+export function getMatchedCategories(place: GooglePlace, selectedCategoryNames: string[] = []): string[] {
+    if (!selectedCategoryNames.length) return [];
+
+    const placeTypes = new Set<string>([
+        ...(place.types ?? []),
+        ...(place.primaryType ? [place.primaryType] : [])
+    ]);
+
+    const matched = new Set<string>();
+
+    // 1. Check if place was discovered via a specific category search
+    for (const searchedCat of place.searchedCategories ?? []) {
+        if (selectedCategoryNames.includes(searchedCat)) {
+            matched.add(searchedCat);
+        }
+    }
+
+    // 2. Check place types against category definitions
+    for (const categoryName of selectedCategoryNames) {
+        const categoryGoogleTypes = googlePlaceService.getPlaceTypes(categoryName);
+        const hasMatch = categoryGoogleTypes.some((type) => placeTypes.has(type));
+        if (hasMatch) {
+            matched.add(categoryName);
+        }
+    }
+
+    const matchedArray = Array.from(matched);
+    return matchedArray.length > 0 ? matchedArray : selectedCategoryNames.slice(0, 1);
+}
+
+/**
+ * Calculates a composite score blending:
+ * 1. Base place quality: rating * log10(userRatingCount)
+ * 2. Multi-category match relevance: 1.0x (1 match), 1.15x (2 matches), 1.30x (3 matches)
+ * 3. Distance attenuation factor: 0.85 to 1.00 (proximity tie-breaker relative to radius)
+ */
+export function calculateCompositeScore(
+    place: GooglePlace,
+    selectedCategoryNames: string[] = [],
+    searchRadiusMeters: number = 0
+): number {
+    const qualityScore = calculateQualityScore(place);
+    if (!selectedCategoryNames.length) return qualityScore;
+
+    const matchedCategories = getMatchedCategories(place, selectedCategoryNames);
+    const matchCount = matchedCategories.length;
+
+    const categoryMultiplier = 1 + (matchCount - 1) * 0.15;
+    const distanceFactor = calculateDistanceFactor(place.distanceMeters ?? 0, searchRadiusMeters);
+
+    return qualityScore * Math.max(1, categoryMultiplier) * distanceFactor;
+}
+
+function rankCandidates(
+    places: GooglePlace[],
+    budget?: PreferenceBudget,
+    selectedCategoryNames: string[] = [],
+    searchRadiusMeters: number = 0
+): GooglePlace[] {
     return [...places].sort((a, b) => {
         // 1. Budget tier priority (Exact = 0, Adjacent = 1, Unknown = 2)
         const budgetTierA = getBudgetTier(a, budget);
@@ -137,13 +302,96 @@ function rankCandidates(places: GooglePlace[], budget?: PreferenceBudget): Googl
             return budgetTierA - budgetTierB;
         }
 
-        // 2. Within the same budget tier, sort by quality score descending
-        return calculateQualityScore(b) - calculateQualityScore(a);
+        // 2. Within the same budget tier, sort by composite score descending
+        return (
+            calculateCompositeScore(b, selectedCategoryNames, searchRadiusMeters) -
+            calculateCompositeScore(a, selectedCategoryNames, searchRadiusMeters)
+        );
     });
 }
 
-function convertGooglePlaceToOption(places: GooglePlace[]): PlaceOption[] {
-    return places.map((place)=>({
+/**
+ * Selects a diverse subset of candidates up to maxOptions:
+ * Pass 1: Balanced multi-category round-robin (fair representation across selected categories).
+ * Pass 2: Google primaryType saturation cap (prevents duplicate sub-types from crowding out the deck).
+ * Pass 3: Graceful backfill from top ranked candidates (guarantees full maxOptions deck without starvation).
+ */
+export function selectDiverseOptions(
+    rankedCandidates: GooglePlace[],
+    selectedCategories: string[],
+    maxOptions: number
+): GooglePlace[] {
+    if (rankedCandidates.length <= maxOptions) {
+        return rankedCandidates;
+    }
+
+    const selected: GooglePlace[] = [];
+    const selectedIds = new Set<string>();
+    const typeCount = new Map<string, number>();
+    const maxPerType = Math.max(2, Math.ceil(maxOptions / 4)); // e.g. Max 2-3 of same exact primaryType
+
+    // Pass 1: Multi-Category Balanced Round-Robin
+    if (selectedCategories.length > 1) {
+        const categoryQueues = new Map<string, GooglePlace[]>();
+        for (const cat of selectedCategories) {
+            categoryQueues.set(
+                cat,
+                rankedCandidates.filter((p) => getMatchedCategories(p, selectedCategories).includes(cat))
+            );
+        }
+
+        let addedInRound = true;
+        while (selected.length < maxOptions && addedInRound) {
+            addedInRound = false;
+            for (const cat of selectedCategories) {
+                if (selected.length >= maxOptions) break;
+                const queue = categoryQueues.get(cat) ?? [];
+                while (queue.length > 0) {
+                    const candidate = queue.shift()!;
+                    if (selectedIds.has(candidate.id)) continue;
+
+                    const pType = candidate.primaryType ?? "general";
+                    const currentTypeCount = typeCount.get(pType) ?? 0;
+                    if (currentTypeCount < maxPerType) {
+                        selected.push(candidate);
+                        selectedIds.add(candidate.id);
+                        typeCount.set(pType, currentTypeCount + 1);
+                        addedInRound = true;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    // Pass 2: Type-Capped Top Candidate Selection
+    for (const candidate of rankedCandidates) {
+        if (selected.length >= maxOptions) break;
+        if (selectedIds.has(candidate.id)) continue;
+
+        const pType = candidate.primaryType ?? "general";
+        const currentTypeCount = typeCount.get(pType) ?? 0;
+        if (currentTypeCount < maxPerType) {
+            selected.push(candidate);
+            selectedIds.add(candidate.id);
+            typeCount.set(pType, currentTypeCount + 1);
+        }
+    }
+
+    // Pass 3: Graceful Backfill (ensures deck always reaches maxOptions)
+    for (const candidate of rankedCandidates) {
+        if (selected.length >= maxOptions) break;
+        if (!selectedIds.has(candidate.id)) {
+            selected.push(candidate);
+            selectedIds.add(candidate.id);
+        }
+    }
+
+    return selected;
+}
+
+function convertGooglePlaceToOption(places: GooglePlace[]): RoomOptionCandidate[] {
+    return places.map((place) => ({
         id: place.id,
         name: place.name,
         address: place.address ?? "",
@@ -152,19 +400,6 @@ function convertGooglePlaceToOption(places: GooglePlace[]): PlaceOption[] {
         longitude: place.longitude,
         priceLevel: mapGooglePriceLevel(place.priceLevel),
         imageUrls: place.imageUrls,
+        distanceMeters: place.distanceMeters,
     }));
-}
-
-function removeDuplicateOptions( places:GooglePlace[] ):GooglePlace[] {
-    const map = new Map<string, GooglePlace>();
-
-    places.forEach(place=>{
-        map.set(place.id, place);
-    });
-
-    return Array.from(map.values());
-}
-
-function limitOptions( places: GooglePlace[], limit: number ): GooglePlace[] {
-    return places.slice(0, limit);
 }

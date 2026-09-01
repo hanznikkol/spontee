@@ -1,8 +1,9 @@
 import Image from 'next/image'
-import { MapPin, Star, Trophy, Sparkles } from 'lucide-react'
+import { MapPin, Navigation, Star, Trophy, Sparkles } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { RoomOption } from '@/lib/room/create/types/option-types'
 import { ResultType } from '@/lib/room/result/result.types'
+import { formatDistance } from '@/lib/room/create/utils/geo.utils'
 
 interface ResultRecommendationCardProps {
   option: RoomOption
@@ -56,7 +57,7 @@ export default function ResultRecommendationCard({
           </div>
         </div>
 
-        {/* Category, Rating, Price Badges */}
+        {/* Category, Rating, Price, Distance Badges */}
         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2.5 text-xs sm:text-sm">
           {option.category && (
             <span className="rounded-full bg-white/20 px-2.5 py-0.5 sm:px-3 sm:py-1 font-medium backdrop-blur-md border border-white/10 text-white capitalize text-[11px] sm:text-xs">
@@ -73,6 +74,12 @@ export default function ResultRecommendationCard({
           {option.priceLevel && (
             <span className="rounded-full bg-white/20 px-2.5 py-0.5 sm:px-3 sm:py-1 font-medium backdrop-blur-md border border-white/10 text-white tracking-widest text-[11px] sm:text-xs">
               {formatPriceLevel(option.priceLevel)}
+            </span>
+          )}
+          {option.distanceMeters != null && (
+            <span className="flex items-center gap-1 rounded-full bg-white/20 px-2.5 py-0.5 sm:px-3 sm:py-1 font-medium backdrop-blur-md border border-white/10 text-white text-[11px] sm:text-xs">
+              <Navigation className="h-3 w-3 text-cyan-300 fill-cyan-300/30" />
+              {formatDistance(option.distanceMeters)}
             </span>
           )}
         </div>

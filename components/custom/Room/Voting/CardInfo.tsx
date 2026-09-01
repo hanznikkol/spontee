@@ -1,12 +1,13 @@
-import { MapPin, Star } from 'lucide-react'
+import { MapPin, Navigation, Star } from 'lucide-react'
 import { RoomOption } from '@/lib/room/create/types/option-types'
+import { formatDistance } from '@/lib/room/create/utils/geo.utils'
 
 type CardInfoProps = {
   option: RoomOption
 }
 
 export default function CardInfo({ option }: CardInfoProps) {
-  const { title, rating, category, address, priceLevel, totalReviews, description } = option
+  const { title, rating, category, address, priceLevel, totalReviews, description, distanceMeters } = option
 
   function formatPriceLevel(level?: number) {
     if (!level) return ''
@@ -15,7 +16,7 @@ export default function CardInfo({ option }: CardInfoProps) {
 
   return (
     <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex flex-col justify-end p-5 sm:p-6 text-white">
-      {/* Category, Rating, Price Badges */}
+      {/* Category, Rating, Price, Distance Badges */}
       <div className="mb-1.5 sm:mb-2 flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
         {category && (
           <span className="rounded-full bg-white/20 px-2.5 py-0.5 font-medium capitalize text-white backdrop-blur-md border border-white/10 text-[11px] sm:text-xs">
@@ -34,6 +35,13 @@ export default function CardInfo({ option }: CardInfoProps) {
         {priceLevel && (
           <span className="rounded-full bg-white/20 px-2.5 py-0.5 font-medium tracking-widest text-white backdrop-blur-md border border-white/10 text-[11px] sm:text-xs">
             {formatPriceLevel(priceLevel)}
+          </span>
+        )}
+
+        {distanceMeters != null && (
+          <span className="flex items-center gap-1 rounded-full bg-white/20 px-2.5 py-0.5 font-medium text-white backdrop-blur-md border border-white/10 text-[11px] sm:text-xs">
+            <Navigation className="h-3 w-3 text-cyan-300 fill-cyan-300/30" />
+            {formatDistance(distanceMeters)}
           </span>
         )}
       </div>

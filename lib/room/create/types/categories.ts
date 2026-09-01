@@ -1,3 +1,6 @@
+// Centralized limit for category selection
+export const MAX_SELECTED_CATEGORIES = 2
+
 // THIS IS FOR UI
 export type PreferenceCategory = {
   name: string

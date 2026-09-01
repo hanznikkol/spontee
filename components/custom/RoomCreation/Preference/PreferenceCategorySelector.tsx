@@ -1,13 +1,63 @@
 "use client"
 
 import React from "react"
-import { Check, Layers } from "lucide-react"
+import { Check, Info, Layers } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { categories } from "@/lib/room/create/types/categories"
+import { categories, MAX_SELECTED_CATEGORIES } from "@/lib/room/create/types/categories"
 
 interface PreferenceCategorySelectorProps {
   value: string[]
   onChange: (categories: string) => void
+}
+
+const singleCategoryNotes: Record<string, string> = {
+  food: "Looking for top-rated restaurants, eateries, and quick bites.",
+  coffee: "Looking for cozy cafes, coffee shops, and tea spots.",
+  dessert: "Looking for sweet treats, bakeries, and dessert spots.",
+  drinks: "Looking for craft beverages, breweries, wine, and cocktail spots.",
+  bars: "Looking for nightlife, pubs, sports bars, and lounges.",
+  entertainment: "Looking for fun activities, games, and entertainment venues.",
+  shopping: "Looking for malls, retail markets, and shopping districts.",
+  parks: "Looking for parks, scenic gardens, and outdoor spaces.",
+  karaoke: "Looking for karaoke lounges and sing-along rooms.",
+  sports: "Looking for athletic clubs, fitness, and sports recreation.",
+  wellness: "Looking for spas, massage centers, and relaxation spots.",
+}
+
+function getCategoryNote(selected: string[]): string {
+  if (selected.length === 0) {
+    return "You can choose up to 2 categories."
+  }
+
+  if (selected.length === 1) {
+    return singleCategoryNotes[selected[0]] ?? "Finding the best nearby options for your choice."
+  }
+
+  const labels = selected.map(
+    (name) => categories.find((c) => c.name === name)?.label ?? name
+  )
+
+  const set = new Set(selected)
+  if (set.has("food") && set.has("coffee")) {
+    return "Great meal + coffee combo — cafe eateries serving both get top priority!"
+  }
+  if (set.has("food") && set.has("dessert")) {
+    return "Savory & sweet mix — dining spots with great dessert menus get top priority!"
+  }
+  if (set.has("food") && set.has("drinks")) {
+    return "Food & drinks pairing — spots with both good food and great drinks prioritized."
+  }
+  if (set.has("food") && set.has("bars")) {
+    return "Dinner & nightlife — spots with great food and drinks prioritized."
+  }
+  if (set.has("entertainment") && set.has("food")) {
+    return "Fun activity + bites — entertainment venues with food options prioritized."
+  }
+  if (set.has("drinks") && set.has("bars")) {
+    return "Full drinks & nightlife mix across cocktail lounges, pubs, and bars."
+  }
+
+  return `Combining ${labels[0]} & ${labels[1]} — versatile spots that offer both get prioritized!`
 }
 
 export function PreferenceCategorySelector({
@@ -28,7 +78,7 @@ export function PreferenceCategorySelector({
             Categories
           </h2>
           <p className="text-xs text-muted-foreground">
-            Select 1 to 3 categories for nearby spots.
+            You can choose up to 2 categories.
           </p>
         </div>
 
@@ -40,7 +90,7 @@ export function PreferenceCategorySelector({
               : "bg-muted text-muted-foreground"
           )}
         >
-          {selectedCount} of 3 selected
+          {selectedCount} of {MAX_SELECTED_CATEGORIES} selected
         </span>
       </div>
 
@@ -76,12 +126,17 @@ export function PreferenceCategorySelector({
 
               {isSelected && (
                 <span className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-xs">
-                  <Check className="h-3 w-3 stroke-[3]" aria-hidden="true" />
+                  <Check className="h-3 w-3 stroke-3" aria-hidden="true" />
                 </span>
               )}
             </button>
           )
         })}
+      </div>
+
+      <div className="flex items-center gap-2 rounded-xl bg-pink-500/5 border border-pink-500/10 px-3 py-2 text-[11px] sm:text-xs text-muted-foreground">
+        <Info className="h-3.5 w-3.5 text-pink-500 shrink-0" />
+        <span>{getCategoryNote(value)}</span>
       </div>
     </section>
   )
