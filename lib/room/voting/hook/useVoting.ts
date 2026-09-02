@@ -5,7 +5,6 @@ import { getOptions, submitVote } from "../service/vote.service";
 import  { useRouter } from "next/navigation";
 import { SwipeDirection, UserVote, Vote } from "../types/vote.types";
 import { useRoomSessionStore } from "../../main/stores/room-session-store.store";
-import { updateParticipantStatus } from "../../lobby/service/participant.service";
 
 export function useVoting() {
     const router = useRouter()
@@ -69,10 +68,8 @@ export function useVoting() {
                 ...prev,
             ])
 
-            // Save votes to db
+            // Save votes to db (submit_vote automatically marks participant finished when done)
             await submitVote(roomId, currentOption.option_id, participantId, vote)
-
-            if(options.length === 1) await updateParticipantStatus(participantId, "finished")
                 
             setTimeout(() => {
                 setOptions(prev => removeCurrentOption(prev));

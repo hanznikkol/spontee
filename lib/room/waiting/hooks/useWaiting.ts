@@ -103,7 +103,7 @@ export function useWaiting() {
 
   const isAllFinished = totalParticipants > 0 && finishedCount === totalParticipants
 
-  // Trigger room status transition to "result" when all participants finish
+  // Best-effort attempt to update room status to "result" when all participants finish
   useEffect(() => {
     if (!isAllFinished || !room || room.status !== 'active') return
 
@@ -112,20 +112,20 @@ export function useWaiting() {
     async function transitionToResult() {
       try {
         await updateRoomStatus(targetRoomId, 'result')
-      } catch (error) {
-        console.error('Failed to update room status to result:', error)
+      } catch {
+        // Safe to ignore if non-host or already transitioned
       }
     }
 
     transitionToResult()
   }, [isAllFinished, room])
 
-  // Automatically navigate all participants to result page when room status is "result"
+  // Automatically navigate all participants (host and guests) to result page when all finished
   useEffect(() => {
-    if (room?.status === 'result' && code) {
+    if ((isAllFinished || room?.status === 'result') && code) {
       router.replace(`/room/${code}/result`)
     }
-  }, [room?.status, code, router])
+  }, [isAllFinished, room?.status, code, router])
 
   return {
     code,

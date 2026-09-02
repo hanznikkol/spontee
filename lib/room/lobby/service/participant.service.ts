@@ -36,11 +36,21 @@ export async function leaveRoom( participantId: string ) {
     .eq("participant_id", participantId)
 }
 
-export async function updateParticipantStatus( participantId: string, status: ParticipantStatus) {
-   return supabase
+export async function startVoting(participantId: string) {
+  return supabase.rpc("start_voting", {
+    p_participant_id: participantId,
+  });
+}
+
+export async function updateParticipantStatus(participantId: string, status: ParticipantStatus) {
+  if (status === "voting") {
+    return startVoting(participantId);
+  }
+
+  return supabase
     .from("participants")
     .update({ status })
-    .eq("participant_id", participantId)
+    .eq("participant_id", participantId);
 }
 
 export function subscribeParticipants( roomId: string, callback: Parameters<RealtimeChannel["on"]>[2] ) {

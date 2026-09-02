@@ -51,9 +51,8 @@ export default function RoomPreferencePage() {
     const state = useCreateRoomStore.getState()
     try {
       setIsCreating(true)
-      const user = await ensureAnonUser()
+      await ensureAnonUser()
       const { room, participant } = await createRoomAction({
-        userId: user.id,
         hostName: state.hostName,
         roomName: state.roomName,
         maxParticipants: state.maxParticipants,

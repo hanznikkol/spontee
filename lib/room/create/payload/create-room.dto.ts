@@ -2,7 +2,6 @@ import { PreferenceBudget } from "../types/budget";
 import { LocationStatus } from "../types/location";
 
 export interface CreateRoomPayload {
-  userId: string;
   hostName: string;
   roomName: string;
   maxParticipants: number;
