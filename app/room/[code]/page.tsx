@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { useParams } from 'next/navigation'
 import { AnimatePresence } from 'framer-motion'
 import SwipeCard from '@/components/custom/Room/Voting/SwipeCards'
@@ -7,12 +8,16 @@ import { useVoting } from '@/lib/room/voting/hook/useVoting'
 import { ProgressBar } from '@/components/custom/ProgressBar'
 import LogoBranding from '@/components/custom/Landing/LogoBranding'
 import { useRoomSessionStore } from '@/lib/room/main/stores/room-session-store.store'
+import { MyVotesTrigger } from '@/components/custom/Room/Voting/MyVotesTrigger'
+import { MyVotesOverlay } from '@/components/custom/Room/Voting/MyVotesOverlay'
 
 export default function VotingPage() {
   const params = useParams()
   const routeCode = params?.code as string
   const sessionRoomCode = useRoomSessionStore((state) => state.roomCode)
   const roomCode = routeCode || sessionRoomCode || 'ROOM'
+
+  const [isVotesOpen, setIsVotesOpen] = useState(false)
 
   const {
     loading,
@@ -21,6 +26,10 @@ export default function VotingPage() {
     handleSwipe,
     progress,
     progressLabel,
+    initialOptionCount,
+    userVotes,
+    goCount,
+    passCount,
   } = useVoting()
 
   return (
@@ -35,17 +44,23 @@ export default function VotingPage() {
 
         <div className="w-full justify-center max-w-sm sm:max-w-md mx-auto flex flex-col flex-1 min-h-0">
           {/* Top Session Information */}
-          <div className="mb-3 sm:mb-4 px-1">
+          <div className="mb-2 sm:mb-3 px-1 flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-2 text-xs font-semibold text-foreground">
+                <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
+                <span>Room: {roomCode}</span>
+              </span>
+
+              <MyVotesTrigger
+                onClick={() => setIsVotesOpen(true)}
+                totalVotes={userVotes.length}
+                goCount={goCount}
+                passCount={passCount}
+              />
+            </div>
+
             <ProgressBar
               value={progress}
-              leftLabel={
-                <span className="flex items-center gap-2">
-                  <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
-                  <span className="font-semibold text-foreground">
-                    Room: {roomCode}
-                  </span>
-                </span>
-              }
               rightLabel={progressLabel}
             />
           </div>
@@ -74,6 +89,15 @@ export default function VotingPage() {
           </div>
         </div>
       </main>
+
+      {/* Personal Vote Review Dialog / Bottom Sheet */}
+      <MyVotesOverlay
+        open={isVotesOpen}
+        onOpenChange={setIsVotesOpen}
+        initialVotes={userVotes}
+        totalOptions={initialOptionCount}
+      />
     </>
   )
 }
+

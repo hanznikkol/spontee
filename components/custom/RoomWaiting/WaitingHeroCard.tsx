@@ -1,13 +1,22 @@
-import { CheckCircle2, Sparkles } from 'lucide-react'
+import { useState } from 'react'
+import { CheckCircle2, Sparkles, Vote as VoteIcon } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { MyVotesOverlay } from '@/components/custom/Room/Voting/MyVotesOverlay'
 
 interface WaitingHeroCardProps {
   isAllFinished?: boolean
+  roomId?: string
+  participantId?: string
 }
 
 export default function WaitingHeroCard({
   isAllFinished,
+  roomId,
+  participantId,
 }: WaitingHeroCardProps) {
+  const [isVotesOpen, setIsVotesOpen] = useState(false)
+
   return (
     <div className="flex-1 flex items-center justify-center">
       <div className="relative w-full max-w-sm">
@@ -39,6 +48,18 @@ export default function WaitingHeroCard({
               </p>
             </div>
 
+            {/* Review My Votes Action */}
+            <Button
+              type="button"
+              variant="outline"
+              size="default"
+              onClick={() => setIsVotesOpen(true)}
+              className="w-full rounded-2xl border-border/80 bg-background/60 hover:bg-background text-foreground font-semibold shadow-xs transition-all flex items-center justify-center gap-2 cursor-pointer h-10"
+            >
+              <VoteIcon className="h-4 w-4 text-primary" />
+              <span>Review My Votes</span>
+            </Button>
+
             {/* Live session reassuring state */}
             <div className="w-full rounded-2xl border bg-muted/40 p-4 space-y-2.5 text-left">
               <div className="flex items-center justify-between">
@@ -68,6 +89,15 @@ export default function WaitingHeroCard({
           </CardContent>
         </Card>
       </div>
+
+      {/* Personal Vote Review Dialog / Bottom Sheet */}
+      <MyVotesOverlay
+        open={isVotesOpen}
+        onOpenChange={setIsVotesOpen}
+        roomId={roomId}
+        participantId={participantId}
+      />
     </div>
   )
 }
+

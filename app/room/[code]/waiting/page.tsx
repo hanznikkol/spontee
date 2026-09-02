@@ -40,6 +40,8 @@ export default function WaitingPage() {
             {/* LEFT: You're All Set & Reassurance Hub */}
             <WaitingHeroCard
               isAllFinished={isAllFinished}
+              roomId={room?.room_id}
+              participantId={currentParticipant?.participant_id}
             />
 
             {/* DIVIDER (Desktop) */}

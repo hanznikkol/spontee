@@ -3,7 +3,7 @@ import { RoomOption } from "../../create/types/option-types";
 import { getCurrentOption, removeCurrentOption } from "../helper/vote.helper";
 import { getOptions, submitVote } from "../service/vote.service";
 import  { useRouter } from "next/navigation";
-import { SwipeDirection, Vote } from "../types/vote.types";
+import { SwipeDirection, UserVote, Vote } from "../types/vote.types";
 import { useRoomSessionStore } from "../../main/stores/room-session-store.store";
 import { updateParticipantStatus } from "../../lobby/service/participant.service";
 
@@ -16,12 +16,16 @@ export function useVoting() {
     const [initialOptionCount, setInitialOptionCount] = useState(0)
     const [loading, setLoading] = useState(true)
     const [exitDirection, setExitDirection] = useState(0)
+    const [userVotes, setUserVotes] = useState<UserVote[]>([])
 
     const currentOption = getCurrentOption(options)
     const remainingOptions = options.length
     const currentCardNum = initialOptionCount > 0 ? initialOptionCount - remainingOptions + (currentOption ? 1 : 0) : 0;
     const progress = initialOptionCount > 0 ? (currentCardNum / initialOptionCount) * 100 : 0;
     const progressLabel = initialOptionCount > 0? `${currentCardNum} / ${initialOptionCount}` : ""
+
+    const goCount = userVotes.filter(v => v.vote === "go").length
+    const passCount = userVotes.filter(v => v.vote === "pass").length
 
     // Fetch Options
     useEffect(() => {
@@ -47,7 +51,24 @@ export function useVoting() {
         try {
             // Vote
             const vote: Vote = direction === "right" ? "go" : "pass"
+            const swipedOption = currentOption
             setExitDirection(direction === "right" ? 1 : -1)
+
+            // Record locally immediately
+            setUserVotes(prev => [
+                {
+                    option_id: swipedOption.option_id,
+                    title: swipedOption.title,
+                    address: swipedOption.address,
+                    rating: swipedOption.rating,
+                    price_level: swipedOption.priceLevel,
+                    image_urls: swipedOption.imageUrls,
+                    vote,
+                    swiped_at: new Date().toISOString(),
+                },
+                ...prev,
+            ])
+
             // Save votes to db
             await submitVote(roomId, currentOption.option_id, participantId, vote)
 
@@ -78,5 +99,9 @@ export function useVoting() {
         currentCardNum,
         progress,
         progressLabel,
+
+        userVotes,
+        goCount,
+        passCount,
     }
-}
+}
