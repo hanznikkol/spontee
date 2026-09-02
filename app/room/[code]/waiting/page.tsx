@@ -11,7 +11,7 @@ export default function WaitingPage() {
   return (
     <>
       <LogoBranding />
-      <main className="min-h-dvh w-full flex items-center justify-center p-4 pt-16 md:pt-6 pb-12 bg-background relative overflow-hidden">
+      <main className="min-h-dvh w-full flex items-center justify-center p-4 pt-14 md:pt-6 pb-8 sm:pb-12 bg-background relative overflow-x-hidden">
         {/* Background ambient orbs matching Lobby */}
         <div className="absolute -top-40 -left-40 w-96 h-96 bg-pink-400/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-blue-400/20 rounded-full blur-3xl pointer-events-none" />

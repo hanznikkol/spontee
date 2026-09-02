@@ -38,9 +38,9 @@ export function MyVotes({
   }
 
   return (
-    <div className="flex flex-col gap-4 w-full">
+    <div className="flex flex-col gap-3 w-full flex-1 min-h-0 overflow-hidden">
       {/* Top summary metrics */}
-      <div className="flex items-center justify-between gap-2 p-3 rounded-2xl bg-muted/50 border border-border/50">
+      <div className="shrink-0 flex items-center justify-between gap-2 p-3 rounded-2xl bg-muted/50 border border-border/50">
         <div className="flex items-center gap-2">
           <span className="flex h-2 w-2 rounded-full bg-primary animate-pulse" />
           <span className="text-xs sm:text-sm font-semibold text-foreground">
@@ -63,7 +63,7 @@ export function MyVotes({
       </div>
 
       {/* Segmented Filter Tabs */}
-      <div className="grid grid-cols-3 p-1 rounded-xl bg-muted/70 text-xs font-semibold gap-1">
+      <div className="shrink-0 grid grid-cols-3 p-1 rounded-xl bg-muted/70 text-xs font-semibold gap-1">
         <button
           type="button"
           onClick={() => onFilterChange('all')}
@@ -110,7 +110,7 @@ export function MyVotes({
       </div>
 
       {/* Content Area */}
-      <div className="relative min-h-[160px] max-h-[52dvh] sm:max-h-[58dvh] overflow-y-auto overscroll-contain pr-0.5 space-y-2.5">
+      <div className="relative flex-1 min-h-0 overflow-y-auto overscroll-contain pr-1 space-y-2.5">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-10 gap-2.5 text-center">
             <div className="h-7 w-7 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />

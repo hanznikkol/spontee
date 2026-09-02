@@ -52,7 +52,7 @@ export function MyVotesOverlay({
         <DialogPrimitive.Content
           aria-describedby="my-votes-description"
           className={cn(
-            'fixed z-50 flex flex-col gap-4 bg-card text-card-foreground border border-border/80 shadow-2xl outline-none duration-200',
+            'fixed z-50 flex flex-col bg-card text-card-foreground border border-border/80 shadow-2xl outline-none duration-200 overflow-hidden',
             // Mobile: Bottom Sheet sliding up
             'bottom-0 inset-x-0 w-full max-h-[85dvh] rounded-t-3xl p-5 pt-3 data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom-6 data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom-6',
             // Tablet & Desktop: Centered Dialog
@@ -60,12 +60,12 @@ export function MyVotesOverlay({
           )}
         >
           {/* Mobile Drag Pill Handle */}
-          <div className="sm:hidden flex justify-center py-1">
+          <div className="shrink-0 sm:hidden flex justify-center py-1">
             <div className="h-1.25 w-10 rounded-full bg-muted-foreground/30" />
           </div>
 
           {/* Header */}
-          <div className="flex items-center justify-between pb-1">
+          <div className="shrink-0 flex items-center justify-between pb-2">
             <div className="flex items-center gap-2.5">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary ring-1 ring-primary/20">
                 <VoteIcon className="h-4.5 w-4.5" />
@@ -91,18 +91,20 @@ export function MyVotesOverlay({
           </div>
 
           {/* Body Content */}
-          <MyVotes
-            votes={votes}
-            filteredVotes={filteredVotes}
-            filter={filter}
-            onFilterChange={setFilter}
-            goCount={goCount}
-            passCount={passCount}
-            totalCount={totalCount}
-            loading={loading}
-            error={error}
-            totalOptions={totalOptions}
-          />
+          <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+            <MyVotes
+              votes={votes}
+              filteredVotes={filteredVotes}
+              filter={filter}
+              onFilterChange={setFilter}
+              goCount={goCount}
+              passCount={passCount}
+              totalCount={totalCount}
+              loading={loading}
+              error={error}
+              totalOptions={totalOptions}
+            />
+          </div>
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>

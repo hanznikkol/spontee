@@ -65,7 +65,7 @@ export default function WaitingProgressCard({
               Participants
             </p>
 
-            <ul className="space-y-2">
+            <ul className="space-y-2 max-h-52 sm:max-h-60 overflow-y-auto overscroll-contain pr-1">
               {participants.map((participant) => {
                 const isMe = currentParticipant?.participant_id === participant.participant_id
 

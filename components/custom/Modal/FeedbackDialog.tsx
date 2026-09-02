@@ -48,8 +48,8 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="max-w-md rounded-3xl p-6 sm:p-7 border border-border/80 bg-background/95 backdrop-blur-xl shadow-2xl">
-        <AlertDialogHeader className="space-y-2 text-left">
+      <AlertDialogContent className="w-[calc(100%-2rem)] max-w-md max-h-[calc(100dvh-2rem)] sm:max-h-[85dvh] flex flex-col rounded-3xl p-5 sm:p-7 border border-border/80 bg-background/95 backdrop-blur-xl shadow-2xl overflow-hidden">
+        <AlertDialogHeader className="shrink-0 space-y-2 text-left">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-pink-500/10 text-pink-500 ring-1 ring-pink-500/20">
             <MessageSquare className="h-5 w-5" />
           </div>
@@ -62,7 +62,7 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
         </AlertDialogHeader>
 
         {submitted ? (
-          <div className="py-6 text-center space-y-3">
+          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain py-6 text-center space-y-3">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500">
               <CheckCircle2 className="h-6 w-6" />
             </div>
@@ -84,8 +84,8 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
             </Button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4 pt-2">
-            <div className="space-y-1.5">
+          <form onSubmit={handleSubmit} className="flex-1 min-h-0 flex flex-col justify-between overflow-hidden pt-2 gap-4">
+            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain pr-1 space-y-1.5">
               <label htmlFor="feedback-input" className="text-xs font-medium text-muted-foreground">
                 Your thoughts or bug report
               </label>
@@ -100,7 +100,7 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
               />
             </div>
 
-            <AlertDialogFooter className="flex flex-row items-center justify-end gap-2 pt-2">
+            <AlertDialogFooter className="shrink-0 flex flex-row items-center justify-end gap-2 pt-2">
               <AlertDialogCancel
                 type="button"
                 onClick={handleClose}

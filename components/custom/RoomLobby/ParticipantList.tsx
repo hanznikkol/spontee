@@ -48,7 +48,7 @@ export default function ParticipantList({
         </div>
 
         {/* PARTICIPANTS LIST */}
-        <ul className="space-y-2" role="list">
+        <ul className="space-y-2 max-h-60 sm:max-h-72 overflow-y-auto overscroll-contain pr-1" role="list">
           {participants.map((participant) => {
             const isMe =
               currentParticipant?.participant_id === participant.participant_id

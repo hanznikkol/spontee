@@ -13,9 +13,10 @@ import {
   BarChart3,
   ChevronRight,
 } from 'lucide-react'
-import { Dialog, DialogPortal, DialogOverlay } from '@/components/ui/dialog'
+import { Dialog as DialogPrimitive } from 'radix-ui'
 import { Button } from '@/components/ui/button'
 import { OptionVoteTally, ResultType } from '@/lib/room/result/result.types'
+import { cn } from '@/lib/utils'
 
 interface ResultBreakdownModalProps {
   isOpen: boolean
@@ -86,20 +87,28 @@ export default function ResultBreakdownModal({
     : ''
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
-      <DialogPortal>
-        <DialogOverlay className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs duration-200" />
+    <DialogPrimitive.Root open={isOpen} onOpenChange={(open) => !open && handleClose()}>
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs duration-200 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=closed]:animate-out data-[state=closed]:fade-out-0" />
         
         {/* Responsive Container: Bottom Sheet on Mobile, Centered Modal on Desktop */}
-        <div className="fixed inset-x-0 bottom-0 sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 z-50 flex flex-col w-full sm:max-w-lg bg-card text-card-foreground rounded-t-3xl sm:rounded-3xl border border-border/80 shadow-2xl overflow-hidden max-h-[88vh] sm:max-h-[85vh] duration-200 animate-in fade-in-0 slide-in-from-bottom-6 sm:slide-in-from-bottom-0 sm:zoom-in-95">
-          
+        <DialogPrimitive.Content
+          aria-describedby="result-breakdown-description"
+          className={cn(
+            'fixed z-50 flex flex-col bg-card text-card-foreground border border-border/80 shadow-2xl outline-none duration-200 overflow-hidden',
+            // Mobile: Bottom Sheet
+            'bottom-0 inset-x-0 w-full max-h-[88dvh] rounded-t-3xl data-[state=open]:animate-in data-[state=open]:slide-in-from-bottom-6 data-[state=closed]:animate-out data-[state=closed]:slide-out-to-bottom-6',
+            // Tablet & Desktop: Centered Dialog
+            'sm:bottom-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-[calc(100%-2rem)] sm:max-w-lg sm:max-h-[85dvh] sm:rounded-3xl sm:data-[state=open]:zoom-in-95 sm:data-[state=closed]:zoom-out-95'
+          )}
+        >
           {/* Mobile Sheet Drag Handle */}
-          <div className="sm:hidden flex items-center justify-center pt-3 pb-1">
+          <div className="shrink-0 sm:hidden flex items-center justify-center pt-3 pb-1">
             <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
           </div>
 
           {/* Modal Header */}
-          <div className="flex items-center justify-between px-5 py-3.5 border-b border-border/60 shrink-0">
+          <div className="shrink-0 flex items-center justify-between px-5 py-3.5 border-b border-border/60">
             <div className="flex items-center gap-2">
               {mode === 'detail' && openedFromList && (
                 <button
@@ -112,7 +121,7 @@ export default function ResultBreakdownModal({
                 </button>
               )}
               <div>
-                <h3 className="text-base sm:text-lg font-bold tracking-tight text-foreground flex items-center gap-1.5">
+                <DialogPrimitive.Title className="text-base sm:text-lg font-bold tracking-tight text-foreground flex items-center gap-1.5">
                   {mode === 'list' ? (
                     <>
                       <BarChart3 className="h-4 w-4 text-primary" />
@@ -124,27 +133,29 @@ export default function ResultBreakdownModal({
                       <span>{selectedOption?.isWinner ? 'Winning Pick' : 'Alternative Pick'}</span>
                     </>
                   )}
-                </h3>
-                <p className="text-[11px] sm:text-xs text-muted-foreground">
+                </DialogPrimitive.Title>
+                <DialogPrimitive.Description
+                  id="result-breakdown-description"
+                  className="text-[11px] sm:text-xs text-muted-foreground"
+                >
                   {mode === 'list'
                     ? `${tally.length} options evaluated by ${participantCount} participant${participantCount === 1 ? '' : 's'}`
                     : `Rank #${selectedRank} in your group session`}
-                </p>
+                </DialogPrimitive.Description>
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={handleClose}
-              className="p-1.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+            <DialogPrimitive.Close
+              className="p-1.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-ring"
               title="Close"
             >
               <X className="h-4 w-4" />
-            </button>
+              <span className="sr-only">Close</span>
+            </DialogPrimitive.Close>
           </div>
 
           {/* Modal Body */}
-          <div className="p-4 sm:p-5 overflow-y-auto overscroll-contain space-y-4">
+          <div className="flex-1 min-h-0 p-4 sm:p-5 overflow-y-auto overscroll-contain space-y-4">
             {mode === 'list' ? (
               /* LIST VIEW: Full Rankings */
               <div className="space-y-3">
@@ -354,8 +365,8 @@ export default function ResultBreakdownModal({
               </div>
             ) : null}
           </div>
-        </div>
-      </DialogPortal>
-    </Dialog>
+        </DialogPrimitive.Content>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   )
 }
