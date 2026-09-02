@@ -10,7 +10,17 @@ import LobbyActions from "@/components/custom/RoomLobby/LobbyActions"
 import InviteCard from "@/components/custom/RoomLobby/InviteCard"
 
 export default function LobbyPage() {
-  const { loading, room, participants, currentParticipant, shareCode, shareUrl, handleOpenRoom, handleStartVoting, } = useLobby()
+  const {
+    loading,
+    room,
+    participants,
+    currentParticipant,
+    shareCode,
+    shareUrl,
+    handleOpenRoom,
+    handleStartVoting,
+    handleRenameParticipant,
+  } = useLobby()
   const { copiedKey, handleCopy } = useClipboard()
 
   const participantCount = participants.length
@@ -74,6 +84,7 @@ export default function LobbyPage() {
               participantCount={participantCount}
               maxParticipants={maxParticipants}
               isRoomFull={isRoomFull}
+              onRenameParticipant={handleRenameParticipant}
             />
 
             <LobbyActions

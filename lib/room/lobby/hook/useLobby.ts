@@ -15,7 +15,7 @@ import { Room } from "../../create/types/room-types"
 import { updateRoom } from "../../create/helpers/room-helper"
 import { PARTICIPANT_STATUS, Participants } from "../types/participants-types"
 import { useRoomSessionStore } from "../../main/stores/room-session-store.store"
-import { getParticipants, subscribeParticipants, updateParticipantStatus } from "../service/participant.service"
+import { getParticipants, subscribeParticipants, updateParticipantStatus, renameParticipant } from "../service/participant.service"
 
 export function useLobby() {
   const params = useParams()
@@ -131,6 +131,48 @@ export function useLobby() {
     }
   }
 
+  // Rename Participant
+  const handleRenameParticipant = async (displayName: string) => {
+    if (!currentParticipant) {
+      throw new Error("No active participant found")
+    }
+
+    const trimmed = displayName.trim()
+    if (!trimmed) {
+      throw new Error("Display name cannot be empty")
+    }
+
+    if (trimmed.length < 2) {
+      throw new Error("Display name must be at least 2 characters")
+    }
+
+    if (trimmed.length > 20) {
+      throw new Error("Display name cannot exceed 20 characters")
+    }
+
+    if (trimmed === currentParticipant.display_name) {
+      return
+    }
+
+    const { error } = await renameParticipant(
+      currentParticipant.participant_id,
+      trimmed
+    )
+
+    if (error) {
+      throw error
+    }
+
+    // Optimistically update local participant state
+    setParticipants(prev =>
+      prev.map(p =>
+        p.participant_id === currentParticipant.participant_id
+          ? { ...p, display_name: trimmed }
+          : p
+      )
+    )
+  }
+
   return { 
     room,   
     participants, 
@@ -140,5 +182,6 @@ export function useLobby() {
     shareUrl: typeof window !== "undefined" ? `${window.location.origin}/join?room=${code}` : "",
     handleOpenRoom,
     handleStartVoting,
+    handleRenameParticipant,
   }
 }
