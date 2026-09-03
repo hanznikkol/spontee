@@ -27,7 +27,15 @@ export async function generate(payload: GenerateOptionsPayload) {
     const candidateTarget = getCandidateTarget(payload.maxOptions);
     const searchResults = await collectCandidates(payload, candidateTarget);
     const uniquePlaces = deduplicateAndMergePlaces(searchResults);
-    const placesWithDistance = attachDistance(uniquePlaces, payload.latitude, payload.longitude);
+
+    // Exclude places previously shown in prior rounds if requested
+    let eligiblePlaces = uniquePlaces;
+    if (payload.excludePlaceIds && payload.excludePlaceIds.length > 0) {
+        const excludeSet = new Set(payload.excludePlaceIds);
+        eligiblePlaces = eligiblePlaces.filter((p) => !excludeSet.has(p.id));
+    }
+
+    const placesWithDistance = attachDistance(eligiblePlaces, payload.latitude, payload.longitude);
 
     const filteredPlaces = filterCandidates(placesWithDistance);
     const budgetFilteredPlaces = filterByBudget(filteredPlaces, payload.budget);
@@ -45,6 +53,7 @@ export async function generate(payload: GenerateOptionsPayload) {
             candidateTarget,
             rawCandidatesCollected: searchResults.reduce((acc, c) => acc + c.places.length, 0),
             uniquePlacesAfterDedupe: uniquePlaces.length,
+            afterRetryExclusion: eligiblePlaces.length,
             afterQualityFilter: filteredPlaces.length,
             afterBudgetFilter: budgetFilteredPlaces.length,
             finalOptions: diversePlaces.length,
@@ -251,14 +260,22 @@ export function attachDistance(places: GooglePlace[], originLat: number, originL
     });
 }
 
-function filterCandidates(places: GooglePlace[]): GooglePlace[] {
+export function filterCandidates(places: GooglePlace[]): GooglePlace[] {
     return places.filter((place) => {
-        // 1. Business status check: exclude closed places
-        if (place.businessStatus === "CLOSED_PERMANENTLY" ||place.businessStatus === "CLOSED_TEMPORARILY") {
+        // 1. Business status check: exclude permanently or temporarily closed places
+        if (
+            place.businessStatus === "CLOSED_PERMANENTLY" ||
+            place.businessStatus === "CLOSED_TEMPORARILY"
+        ) {
             return false;
         }
 
-        // 2. Review confidence check: minimum 20 user ratings
+        // 2. Real-time open check: exclude places that are currently closed
+        if (place.openNow === false) {
+            return false;
+        }
+
+        // 3. Review confidence check: minimum 20 user ratings
         if ((place.userRatingCount ?? 0) < 20) {
             return false;
         }

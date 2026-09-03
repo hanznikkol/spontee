@@ -1,48 +1,128 @@
-import { AlertCircle, RotateCcw, Home } from 'lucide-react'
+"use client"
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { RefreshCw, SlidersHorizontal, Loader2, Compass } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import Link from 'next/link'
+import { retryRoomAction } from '@/lib/room/create/actions/retry-room'
 
-export default function ResultNoMatchCard() {
+interface ResultNoMatchCardProps {
+  roomId?: string | null
+  roomCode?: string
+  isHost?: boolean
+  participantCount?: number
+  onOpenChangePreferences?: () => void
+}
+
+export default function ResultNoMatchCard({
+  roomId,
+  roomCode,
+  isHost = false,
+  participantCount = 2,
+  onOpenChangePreferences,
+}: ResultNoMatchCardProps) {
+  const router = useRouter()
+  const [isRetrying, setIsRetrying] = useState(false)
+  const [retryError, setRetryError] = useState<string | null>(null)
+
+  const handleTryAgain = async () => {
+    if (!roomId || isRetrying) return
+
+    try {
+      setIsRetrying(true)
+      setRetryError(null)
+
+      await retryRoomAction({ roomId })
+
+      if (roomCode) {
+        router.push(`/room/${roomCode}`)
+      }
+    } catch (err) {
+      console.error('Retry failed:', err)
+      setRetryError(
+        err instanceof Error
+          ? err.message
+          : 'Could not generate new options. Please try again.'
+      )
+    } finally {
+      setIsRetrying(false)
+    }
+  }
+
+  const passCopy =
+    participantCount === 2
+      ? 'You both passed on everything this round.'
+      : 'Everyone passed on everything this round.'
+
   return (
     <div className="flex flex-col items-center justify-center py-4 sm:py-8 w-full">
       <Card className="w-full max-w-lg mx-auto rounded-2xl sm:rounded-3xl md:rounded-[32px] border-border/80 bg-linear-to-b from-card/90 to-card/50 backdrop-blur-2xl shadow-xl sm:shadow-2xl p-5 sm:p-8 md:p-10 text-center relative overflow-hidden">
-        {/* Subtle background glow */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 sm:w-64 h-48 sm:h-64 bg-red-500/10 blur-[50px] sm:blur-[64px] rounded-full pointer-events-none" />
+        {/* Ambient glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 sm:w-64 h-48 sm:h-64 bg-purple-500/10 blur-[50px] sm:blur-[64px] rounded-full pointer-events-none" />
 
         <div className="relative flex flex-col items-center">
-          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4 sm:mb-6 text-red-500 shadow-inner">
-            <AlertCircle className="h-7 w-7 sm:h-8 sm:w-8" />
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mb-4 sm:mb-6 text-purple-500 shadow-inner">
+            <Compass className="h-7 w-7 sm:h-8 sm:w-8 text-purple-500" />
           </div>
 
           <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-2 sm:mb-3 text-foreground">
-            No Match Found
+            Nothing clicked?
           </h2>
 
-          <p className="text-xs sm:text-sm md:text-base text-muted-foreground max-w-sm mx-auto mb-6 sm:mb-8 leading-relaxed">
-            We couldn&apos;t find an option that works for everyone. Don&apos;t worry, start fresh with new picks!
-          </p>
+          <div className="space-y-1 mb-6 sm:mb-8 text-muted-foreground">
+            <p className="text-xs sm:text-sm md:text-base leading-relaxed">
+              {passCopy}
+            </p>
+            <p className="text-xs sm:text-sm md:text-base font-medium text-foreground/80 leading-relaxed">
+              Let&apos;s try a fresh set of options.
+            </p>
+          </div>
+
+          {retryError && (
+            <p className="text-xs sm:text-sm text-destructive font-medium mb-4 bg-destructive/10 px-3 py-2 rounded-xl w-full">
+              {retryError}
+            </p>
+          )}
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5 sm:gap-3 w-full">
-            <Button
-              className="w-full sm:w-auto h-12 sm:h-13 px-6 rounded-xl sm:rounded-2xl text-sm sm:text-base font-semibold shadow-md active:scale-[0.98] transition-all"
-              asChild
-            >
-              <Link href="/">
-                <RotateCcw className="mr-2 h-4 w-4" />
-                Start New Session
-              </Link>
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full sm:w-auto h-12 sm:h-13 px-6 rounded-xl sm:rounded-2xl text-sm sm:text-base font-semibold active:scale-[0.98] transition-all"
-              asChild
-            >
-              <Link href="/">
-                <Home className="mr-2 h-4 w-4" />
-                Go Home
-              </Link>
-            </Button>
+            {isHost ? (
+              <>
+                <Button
+                  onClick={handleTryAgain}
+                  disabled={isRetrying}
+                  className="w-full sm:w-auto h-12 sm:h-13 px-6 rounded-xl sm:rounded-2xl text-sm sm:text-base font-semibold shadow-md active:scale-[0.98] transition-all bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-white cursor-pointer"
+                >
+                  {isRetrying ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Finding Fresh Options...
+                    </>
+                  ) : (
+                    <>
+                      <RefreshCw className="mr-2 h-4 w-4" />
+                      Try Again
+                    </>
+                  )}
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onOpenChangePreferences}
+                  disabled={isRetrying}
+                  className="w-full sm:w-auto h-12 sm:h-13 px-6 rounded-xl sm:rounded-2xl text-sm sm:text-base font-semibold active:scale-[0.98] transition-all cursor-pointer"
+                >
+                  <SlidersHorizontal className="mr-2 h-4 w-4" />
+                  Change Preferences
+                </Button>
+              </>
+            ) : (
+              <div className="w-full py-3 px-4 rounded-2xl border border-border/60 bg-muted/40 text-xs sm:text-sm text-muted-foreground flex items-center justify-center gap-2.5 leading-relaxed">
+                <span className="h-2 w-2 rounded-full bg-purple-500 animate-ping shrink-0" />
+                <span>Waiting for the host to decide whether to try again or change the room preferences.</span>
+              </div>
+            )}
           </div>
         </div>
       </Card>

@@ -18,6 +18,7 @@ export interface Room {
   created_at: string
   options: RoomOption[]
   max_participants: number
+  max_options?: number
 }
 
 

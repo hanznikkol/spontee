@@ -23,6 +23,7 @@ export async function getOptions(roomId: string): Promise<RoomOption[]> {
         imageUrls: option.image_urls ?? [],
         priceLevel: option.price_level,
         distanceMeters: option.distance_meters ?? undefined,
+        created_at: option.created_at ?? undefined,
     }));
 }
 

@@ -36,9 +36,16 @@ const itemVariants = {
   },
 }
 
+import { useRouter } from 'next/navigation'
+import { UpdatePreferencesModal } from '@/components/custom/RoomPreferences/UpdatePreferencesModal'
+import { PreferenceBudget } from '@/lib/room/create/types/budget'
+
 export default function ResultPage() {
+  const router = useRouter()
   const {
     code,
+    roomId,
+    isHost,
     resultType,
     option,
     preferences,
@@ -55,6 +62,7 @@ export default function ResultPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalMode, setModalMode] = useState<'list' | 'detail'>('list')
   const [selectedAlternative, setSelectedAlternative] = useState<OptionVoteTally | null>(null)
+  const [isChangePrefOpen, setIsChangePrefOpen] = useState(false)
 
   const handleSelectAlternative = (item: OptionVoteTally) => {
     setSelectedAlternative(item)
@@ -121,9 +129,15 @@ export default function ResultPage() {
         initial="hidden"
         animate="show"
       >
-        {!resultType || resultType === 'no_match' || !option ? (
+        {!resultType || resultType === 'no_match' || resultType === 'retry' || !option ? (
           <motion.div variants={itemVariants} className="w-full">
-            <ResultNoMatchCard />
+            <ResultNoMatchCard
+              roomId={roomId}
+              roomCode={code}
+              isHost={isHost}
+              participantCount={participantCount}
+              onOpenChangePreferences={() => setIsChangePrefOpen(true)}
+            />
           </motion.div>
         ) : (
           <>
@@ -190,6 +204,30 @@ export default function ResultPage() {
           winnerGoCount={winnerGoCount}
           initialSelectedOption={selectedAlternative}
           initialMode={modalMode}
+        />
+      )}
+
+      {/* Host-Only Update Preferences Modal */}
+      {roomId && (
+        <UpdatePreferencesModal
+          open={isChangePrefOpen}
+          onOpenChange={setIsChangePrefOpen}
+          roomId={roomId}
+          source="result"
+          initialPreferences={{
+            categoryNames: preferences?.categoryNames,
+            budget: (preferences?.budget as PreferenceBudget) ?? "any",
+            latitude: preferences?.latitude,
+            longitude: preferences?.longitude,
+            address: preferences?.address,
+            radius: preferences?.radius,
+            maxOptions: totalOptions || 10,
+          }}
+          onSuccess={() => {
+            if (code) {
+              router.push(`/room/${code}`)
+            }
+          }}
         />
       )}
     </div>

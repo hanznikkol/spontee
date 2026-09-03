@@ -1,18 +1,32 @@
-import { supabase } from "@/lib/supabase/client";
+import { SupabaseClient } from "@supabase/supabase-js";
 import { CreateRoomPayload } from "../payload/create-room.dto";
 import { generateRoomCode } from "../utils/room-code.utils";
 import { generate } from "./option.service";
 import { RoomOptionCandidate } from "../types/option-types";
-import { PARTICIPANT_STATUS } from "../../lobby/types/participants-types";
+import { Participants } from "../../lobby/types/participants-types";
+import { Room } from "../types/room-types";
 
-export async function create(data: CreateRoomPayload) {
-  const room = await createRoomRecord(data);
-  //  Create host participant
-  const participant = await createParticipant(room.room_id, data.hostName, data.userId);
-  //  Save preferences
-  await createPreferences(room.room_id, data);
-  //  Attach categories
-  await createCategories(room.room_id, data.selectedCategoriesbyNames);
+export async function create(data: CreateRoomPayload, supabase: SupabaseClient) {
+  const { data: created, error: createError } = await supabase
+    .rpc("create_room_with_host", {
+      p_room_name: data.roomName.trim(),
+      p_max_participants: data.maxParticipants,
+      p_max_options: data.maxOptions,
+      p_room_code: generateRoomCode(),
+      p_host_name: data.hostName.trim(),
+    });
+
+  if (createError || !created) {
+    throw new Error(createError?.message || "Failed to create room and host participant.");
+  }
+
+  const room = (created as { room: Room; participant: Participants }).room;
+  const participant = (created as { room: Room; participant: Participants }).participant;
+
+  // Save preferences
+  await createPreferences(supabase, room.room_id, data);
+  // Attach categories
+  await createCategories(supabase, room.room_id, data.selectedCategoriesbyNames);
   // Generate nearby places
   const options = await generate({
       categoryNames: data.selectedCategoriesbyNames,
@@ -24,46 +38,11 @@ export async function create(data: CreateRoomPayload) {
   });
 
   // Save options
-  await createOptions(room.room_id, options);
-  return {room, participant};
+  await createOptions(supabase, room.room_id, options);
+  return { room, participant };
 }
 
-// CREATE ROOM HELPER
-async function createRoomRecord(data: CreateRoomPayload) {
-    const {data: room, error} = await supabase
-    .from("rooms")
-    .insert({
-        room_name: data.roomName,
-        max_participants: data.maxParticipants,
-        max_options: data.maxOptions,
-        room_code: generateRoomCode()
-    })
-    .select()
-    .single()
-
-    if (error) throw error;
-
-    return room
-}
-
-async function createParticipant( roomId: string, hostName: string, userId: string ) {
-    const { data: participant, error } = await supabase
-    .from("participants")
-    .insert({
-        room_id: roomId,
-        display_name: hostName,
-        user_id: userId,
-        is_host: true,
-        status: PARTICIPANT_STATUS.WAITING
-    })
-    .select()
-    .single()
-    if (error) throw error
-
-    return participant
-}
-
-async function createPreferences( roomId: string, data: CreateRoomPayload ) {
+async function createPreferences(supabase: SupabaseClient, roomId: string, data: CreateRoomPayload) {
     const { error } = await supabase
     .from("room_preferences")
     .insert({
@@ -78,27 +57,27 @@ async function createPreferences( roomId: string, data: CreateRoomPayload ) {
   if (error) throw error;
 }
 
-async function createCategories( roomId: string, categoryNames: string[]) {
+async function createCategories(supabase: SupabaseClient, roomId: string, categoryNames: string[]) {
   const { data: categories, error } = await supabase
     .from("categories")
     .select("category_id, name")
     .in("name", categoryNames);
 
-  if (error) throw error
+  if (error) throw error;
 
-  const roomCategories = categories.map((category) => ({
+  const roomCategories = (categories ?? []).map((category) => ({
     room_id: roomId,
     category_id: category.category_id,
   }));
 
-  const {error: insertError} = await supabase
+  const { error: insertError } = await supabase
   .from("room_categories")
-  .insert(roomCategories)
+  .insert(roomCategories);
 
   if (insertError) throw insertError;
 }
 
-async function createOptions(roomId: string, options: RoomOptionCandidate[]) {
+export async function createOptions(supabase: SupabaseClient, roomId: string, options: RoomOptionCandidate[]) {
     const records = options.map(option => ({
         room_id: roomId,
         title: option.name,

@@ -1,12 +1,13 @@
 "use client"
 
 import { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import {
   ExplanationContext,
   OptionVoteTally,
   ResultType,
   RoomPreferenceContext,
+  WinnerReason,
 } from '../result.types'
 import { RoomOption } from '../../create/types/option-types'
 import {
@@ -20,13 +21,23 @@ import {
   fetchResultExplanation,
   getDeterministicExplanation,
 } from '../service/result-explanation.service'
-import { getRoom } from '../../lobby/service/lobby.service'
+import { getRoom, subscribeRoom } from '../../lobby/service/lobby.service'
+import { updateRoom } from '../../create/helpers/room-helper'
+import { useRoomSessionStore } from '../../main/stores/room-session-store.store'
+import { startVoting } from '../../lobby/service/participant.service'
+import { supabase } from '@/lib/supabase/client'
+import { RealtimeChannel } from '@supabase/supabase-js'
 
 export function useResult() {
   const params = useParams()
+  const router = useRouter()
   const code = typeof params?.code === 'string' ? params.code.toUpperCase() : ''
+  const participantId = useRoomSessionStore((state) => state.participantId)
+  const isHost = useRoomSessionStore((state) => state.isHost)
 
   const [resultType, setResultType] = useState<ResultType | null>(null)
+  const [winnerReason, setWinnerReason] = useState<WinnerReason | undefined>(undefined)
+  const [roomId, setRoomId] = useState<string | null>(null)
   const [option, setOption] = useState<RoomOption | null>(null)
   const [preferences, setPreferences] = useState<RoomPreferenceContext | null>(null)
   const [explanation, setExplanation] = useState<string | null>(null)
@@ -39,6 +50,7 @@ export function useResult() {
 
   useEffect(() => {
     let isCancelled = false
+    let roomChannel: RealtimeChannel | null = null
 
     async function loadResult() {
       if (!code) {
@@ -59,6 +71,24 @@ export function useResult() {
         }
 
         if (isCancelled) return
+        setRoomId(roomData.room_id)
+
+        // Subscribe to room changes (allows participants to automatically re-enter voting when retry happens)
+        roomChannel = subscribeRoom(roomData.room_id, async (payload) => {
+          if (isCancelled) return
+          const updated = updateRoom(payload)
+          if (updated.status === 'active') {
+            if (participantId) {
+              try {
+                await startVoting(participantId)
+              } catch {
+                // Ignore if already active
+              }
+            }
+            router.replace(`/room/${code}`)
+          }
+        })
+        roomChannel.subscribe()
 
         // 2. Calculate the room result
         const result = await calculateRoomResult({
@@ -68,12 +98,13 @@ export function useResult() {
         if (isCancelled) return
 
         setResultType(result.type)
+        setWinnerReason(result.winnerReason)
         setWinnerGoCount(result.winnerGoCount)
         setTally(result.tally)
 
         // 3. Fetch winning option if one exists
         let winningOption: RoomOption | null = null
-        if (result.type === 'no_match' || !result.optionId) {
+        if (result.type === 'no_match' || result.type === 'retry' || !result.optionId) {
           setOption(null)
         } else {
           winningOption = await getOptionById(result.optionId)
@@ -96,7 +127,7 @@ export function useResult() {
         if (isCancelled) return
 
         setParticipantCount(pCount)
-        setTotalOptions(oCount)
+        setTotalOptions(result.tally.length || oCount)
         setPreferences(prefData)
 
         // 5. Generate human-readable explanation
@@ -119,6 +150,7 @@ export function useResult() {
                   : null,
               },
             },
+            winnerReason: result.winnerReason,
             alternatives: result.tally
               ?.filter((item) => !item.isWinner)
               .slice(0, 2)
@@ -132,7 +164,7 @@ export function useResult() {
           const fallbackText = getDeterministicExplanation(explanationContext)
           setExplanation(fallbackText)
 
-          // Progressively refine with Llama/Gamma 8B without blocking UI
+          // Progressively refine with AI without blocking UI
           fetchResultExplanation(explanationContext)
             .then((aiText) => {
               if (!isCancelled && aiText) {
@@ -163,12 +195,18 @@ export function useResult() {
 
     return () => {
       isCancelled = true
+      if (roomChannel) {
+        supabase.removeChannel(roomChannel)
+      }
     }
-  }, [code])
+  }, [code, participantId, router])
 
   return {
     code,
+    roomId,
+    isHost,
     resultType,
+    winnerReason,
     option,
     preferences,
     explanation,

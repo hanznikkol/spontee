@@ -4,26 +4,31 @@ import { ExplanationContext } from '../result.types'
  * Deterministic explanation fallback based strictly on available vote and preference facts.
  */
 export function getDeterministicExplanation(context: ExplanationContext): string {
-  const { recommendation, room } = context
+  const { recommendation, room, winnerReason } = context
   const { goVotes } = recommendation
-  const { participantCount, preferences } = room
+  const { participantCount } = room
 
-  if (participantCount > 0 && goVotes === participantCount) {
-    if (preferences?.category) {
-      return `Everyone in your group agreed on ${recommendation.name}, making it the unanimous choice for ${preferences.category}.`
-    }
-    return `Everyone in your group agreed on ${recommendation.name}, making it the clear unanimous choice.`
+  if (winnerReason === 'highest_rating') {
+    return 'Highest-rated among your top picks.'
   }
 
-  if (goVotes > participantCount / 2) {
-    if (preferences?.category) {
-      return `Most of your group chose ${recommendation.name}, making it the top ${preferences.category} pick.`
+  if (winnerReason === 'most_reviews') {
+    return 'Strongest option among your top picks based on rating and reviews.'
+  }
+
+  if (winnerReason === 'stable_tiebreak') {
+    return 'One of several equally strong matches.'
+  }
+
+  if (winnerReason === 'shared_go' || (participantCount > 0 && goVotes === participantCount)) {
+    if (participantCount === 2) {
+      return 'You both picked this.'
     }
-    return `Most of your group chose ${recommendation.name}, giving it the strongest support in your session.`
+    return `All ${participantCount} participants agreed on this pick!`
   }
 
   if (goVotes > 0) {
-    return `Your group leaned toward ${recommendation.name}, making it the strongest choice from the places you considered.`
+    return 'Top pick with the strongest support from your group.'
   }
 
   return 'This was the strongest choice from your group.'

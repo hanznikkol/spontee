@@ -9,21 +9,55 @@ import { LocationRadius } from "./LocationComponents/LocationRadius"
 import { LocationSearch, SelectedPlace } from "./LocationComponents/LocationSearch"
 import { MapSelector } from "./LocationComponents/MapContainer"
 
+import { LocationStatus } from "@/lib/room/create/types/location"
+
 function formatCoordinates(latitude: number, longitude: number) {
   return `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`
 }
 
-function PreferenceLocationCard() {
-  const latitude = useCreateRoomStore((s) => s.latitude)
-  const longitude = useCreateRoomStore((s) => s.longitude)
+export interface PreferenceLocationCardProps {
+  latitude?: number
+  longitude?: number
+  address?: string
+  radius?: number
+  locationStatus?: LocationStatus
+  onChange?: (data: {
+    latitude: number
+    longitude: number
+    address: string
+    radius: number
+    locationStatus?: LocationStatus
+  }) => void
+}
 
+export function PreferenceLocationCard({
+  latitude: propLatitude,
+  longitude: propLongitude,
+  address: propAddress,
+  radius: propRadius,
+  locationStatus: propLocationStatus,
+  onChange: propOnChange,
+}: PreferenceLocationCardProps = {}) {
+  // Store fallback when not in controlled mode
+  const storeLatitude = useCreateRoomStore((s) => s.latitude)
+  const storeLongitude = useCreateRoomStore((s) => s.longitude)
   const setLocation = useCreateRoomStore((s) => s.setLocation)
   const setCoordinates = useCreateRoomStore((s) => s.setCoordinates)
-
-  const locationStatus = useCreateRoomStore((state) => state.locationStatus)
-  const address = useCreateRoomStore((state) => state.address)
-  const radius = useCreateRoomStore((state) => state.radius)
+  const storeLocationStatus = useCreateRoomStore((state) => state.locationStatus)
+  const storeAddress = useCreateRoomStore((state) => state.address)
+  const storeRadius = useCreateRoomStore((state) => state.radius)
   const setRadius = useCreateRoomStore((state) => state.setRadius)
+
+  const isControlled = Boolean(propOnChange)
+
+  const latitude = isControlled ? propLatitude : storeLatitude
+  const longitude = isControlled ? propLongitude : storeLongitude
+  const address = isControlled ? (propAddress ?? "") : storeAddress
+  const radius = isControlled ? (propRadius ?? 3000) : storeRadius
+  const locationStatus = isControlled
+    ? (propLocationStatus ?? (latitude != null && longitude != null ? "custom" : "required"))
+    : storeLocationStatus
+
   const geocoding = useMapsLibrary("geocoding")
   const [isLocating, setIsLocating] = useState(false)
 
@@ -51,15 +85,25 @@ function PreferenceLocationCard() {
   // Fetch Selected Place from Search
   const handlePlaceSelect = useCallback(
     (place: SelectedPlace) => {
-      setLocation("custom", {
-        placeId: place.placeId,
-        placeName: place.placeName,
-        address: place.address,
-        latitude: place.latitude,
-        longitude: place.longitude,
-      })
+      if (isControlled && propOnChange) {
+        propOnChange({
+          latitude: place.latitude,
+          longitude: place.longitude,
+          address: place.address,
+          radius,
+          locationStatus: "custom",
+        })
+      } else {
+        setLocation("custom", {
+          placeId: place.placeId,
+          placeName: place.placeName,
+          address: place.address,
+          latitude: place.latitude,
+          longitude: place.longitude,
+        })
+      }
     },
-    [setLocation]
+    [isControlled, propOnChange, radius, setLocation]
   )
 
   // Map Selection on Click
@@ -67,14 +111,24 @@ function PreferenceLocationCard() {
     async (lat: number, lng: number) => {
       const selectedAddress = await getAddressFromCoordinates(lat, lng)
 
-      setCoordinates(lat, lng, {
-        status: "custom",
-        placeId: undefined,
-        placeName: undefined,
-        address: selectedAddress,
-      })
+      if (isControlled && propOnChange) {
+        propOnChange({
+          latitude: lat,
+          longitude: lng,
+          address: selectedAddress,
+          radius,
+          locationStatus: "custom",
+        })
+      } else {
+        setCoordinates(lat, lng, {
+          status: "custom",
+          placeId: undefined,
+          placeName: undefined,
+          address: selectedAddress,
+        })
+      }
     },
-    [getAddressFromCoordinates, setCoordinates]
+    [getAddressFromCoordinates, isControlled, propOnChange, radius, setCoordinates]
   )
 
   // Current Location Button
@@ -87,15 +141,24 @@ function PreferenceLocationCard() {
       async (position) => {
         try {
           const { latitude: lat, longitude: lng } = position.coords
-
           const selectedAddress = await getAddressFromCoordinates(lat, lng)
 
-          setCoordinates(lat, lng, {
-            status: "current",
-            placeId: undefined,
-            placeName: undefined,
-            address: selectedAddress,
-          })
+          if (isControlled && propOnChange) {
+            propOnChange({
+              latitude: lat,
+              longitude: lng,
+              address: selectedAddress,
+              radius,
+              locationStatus: "current",
+            })
+          } else {
+            setCoordinates(lat, lng, {
+              status: "current",
+              placeId: undefined,
+              placeName: undefined,
+              address: selectedAddress,
+            })
+          }
         } finally {
           setIsLocating(false)
         }
@@ -104,7 +167,25 @@ function PreferenceLocationCard() {
         setIsLocating(false)
       }
     )
-  }, [getAddressFromCoordinates, setCoordinates])
+  }, [getAddressFromCoordinates, isControlled, propOnChange, radius, setCoordinates])
+
+  // Radius Change Handler
+  const handleRadiusChange = useCallback(
+    (newRadius: number) => {
+      if (isControlled && propOnChange && latitude != null && longitude != null) {
+        propOnChange({
+          latitude,
+          longitude,
+          address,
+          radius: newRadius,
+          locationStatus,
+        })
+      } else {
+        setRadius(newRadius)
+      }
+    },
+    [address, isControlled, latitude, locationStatus, longitude, propOnChange, setRadius]
+  )
 
   // Automatic Current Location initialization
   useEffect(() => {
@@ -151,7 +232,7 @@ function PreferenceLocationCard() {
         <SelectedAddress status={locationStatus} address={address} />
 
         {/* Radius Slider */}
-        <LocationRadius radius={radius} onChange={setRadius} />
+        <LocationRadius radius={radius} onChange={handleRadiusChange} />
       </div>
     </section>
   )

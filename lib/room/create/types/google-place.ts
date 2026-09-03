@@ -7,6 +7,12 @@ export type BusinessStatus =
   | "CLOSED_PERMANENTLY"
   | string;
 
+export interface GoogleOpeningHours {
+    openNow?: boolean;
+    periods?: unknown[];
+    weekdayDescriptions?: string[];
+}
+
 // API Reponse
 export interface GooglePlaceResponse {
     id: string;
@@ -17,6 +23,7 @@ export interface GooglePlaceResponse {
     userRatingCount?: number;
     priceLevel?: GooglePriceLevel;
     businessStatus?: BusinessStatus;
+    currentOpeningHours?: GoogleOpeningHours;
     photos?: { name: string }[];
     types?: string[];
     primaryType?: string;
@@ -35,6 +42,8 @@ export interface GooglePlace {
     longitude: number;
     priceLevel?: GooglePriceLevel;
     businessStatus?: BusinessStatus;
+    currentOpeningHours?: GoogleOpeningHours;
+    openNow?: boolean;
     imageUrls?: string[];
     types?: string[];
     primaryType?: string;

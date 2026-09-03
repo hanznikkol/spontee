@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { useLobby } from "@/lib/room/lobby/hook/useLobby"
@@ -8,10 +9,28 @@ import LobbyHeader from "@/components/custom/RoomLobby/LobbyHeader"
 import ParticipantList from "@/components/custom/RoomLobby/ParticipantList"
 import LobbyActions from "@/components/custom/RoomLobby/LobbyActions"
 import InviteCard from "@/components/custom/RoomLobby/InviteCard"
+import { LobbyPreferencesCard } from "@/components/custom/RoomLobby/LobbyPreferencesCard"
+import { UpdatePreferencesModal } from "@/components/custom/RoomPreferences/UpdatePreferencesModal"
+import { PreferenceBudget } from "@/lib/room/create/types/budget"
 
 export default function LobbyPage() {
-  const { loading, room, participants, currentParticipant, shareCode, shareUrl, handleOpenRoom, handleStartVoting, } = useLobby()
+  const {
+    loading,
+    room,
+    participants,
+    preferences,
+    currentParticipant,
+    shareCode,
+    shareUrl,
+    handleOpenRoom,
+    handleStartVoting,
+    handleRenameParticipant,
+    handleLeaveRoom,
+    handleKickParticipant,
+    reloadPreferences,
+  } = useLobby()
   const { copiedKey, handleCopy } = useClipboard()
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
   const participantCount = participants.length
   const maxParticipants = room?.max_participants ?? 0
@@ -54,9 +73,22 @@ export default function LobbyPage() {
           transition={{ duration: 0.3 }}
           className="grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-6 items-start"
         >
-          {/* LEFT COLUMN: ROOM INFO & INVITE CARD */}
+          {/* LEFT COLUMN: ROOM INFO, PREFERENCES & INVITE CARD */}
           <div className="md:col-span-5 flex flex-col gap-4 sm:gap-5">
-            <LobbyHeader roomName={room?.room_name} isActive={isActive} />
+            <LobbyHeader
+              roomName={room?.room_name}
+              isActive={isActive}
+              isHost={isHost}
+              onLeaveRoom={handleLeaveRoom}
+            />
+
+            <LobbyPreferencesCard
+              preferences={preferences}
+              maxOptions={room?.max_options ?? 10}
+              isHost={isHost}
+              isLobby={isLobby}
+              onEditPreferences={() => setIsEditModalOpen(true)}
+            />
 
             <InviteCard
               shareCode={shareCode}
@@ -74,6 +106,9 @@ export default function LobbyPage() {
               participantCount={participantCount}
               maxParticipants={maxParticipants}
               isRoomFull={isRoomFull}
+              isHost={isHost}
+              onRenameParticipant={handleRenameParticipant}
+              onKickParticipant={handleKickParticipant}
             />
 
             <LobbyActions
@@ -89,6 +124,26 @@ export default function LobbyPage() {
           </div>
         </motion.div>
       </div>
+
+      {/* HOST-ONLY UPDATE PREFERENCES MODAL */}
+      {room && (
+        <UpdatePreferencesModal
+          open={isEditModalOpen}
+          onOpenChange={setIsEditModalOpen}
+          roomId={room.room_id}
+          source="lobby"
+          initialPreferences={{
+            categoryNames: preferences?.categoryNames,
+            budget: (preferences?.budget as PreferenceBudget) ?? "any",
+            latitude: preferences?.latitude,
+            longitude: preferences?.longitude,
+            address: preferences?.address,
+            radius: preferences?.radius,
+            maxOptions: room.max_options,
+          }}
+          onSuccess={reloadPreferences}
+        />
+      )}
     </main>
   )
 }
