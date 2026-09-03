@@ -17,6 +17,7 @@ export type RoomOption = {
   priceLevel?: number
   distanceMeters?: number
   isOpen?: boolean
+  created_at?: string
 }
 
 export interface RoomOptionCandidate {

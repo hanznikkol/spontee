@@ -76,7 +76,7 @@ export function RoomMaxOptions({ maxOptions, onChange }: RoomMaxOptionsProps) {
         </div>
 
         <p className="text-center text-[11px] text-muted-foreground pt-1">
-          We&apos;ll show up to this many options, depending on what&apos;s available near your location and preferences.
+          We&apos;ll show up to this many options, depending on what&apos;s available near your location. Some options may be unavailable if places are already closed at this time.
         </p>
       </div>
     </div>

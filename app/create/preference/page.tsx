@@ -179,11 +179,16 @@ export default function RoomPreferencePage() {
                   )}
                 </Button>
 
-                <p className="text-center text-xs text-muted-foreground">
-                  {canCreate
-                    ? "Places will be discovered with Google Places."
-                    : "Select at least 1 category above to continue."}
-                </p>
+                <div className="space-y-1 text-center">
+                  <p className="text-xs text-muted-foreground">
+                    {canCreate
+                      ? "Places will be discovered with Google Places."
+                      : "Select at least 1 category above to continue."}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground/80">
+                    We filter out places that are currently closed, so fewer options may be available.
+                  </p>
+                </div>
               </div>
             </CardContent>
           </Card>

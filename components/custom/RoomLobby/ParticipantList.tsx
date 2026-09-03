@@ -1,31 +1,46 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { Users, Crown, Sparkles, Pencil, Check, X, Loader2 } from "lucide-react"
+import { Users, Crown, Sparkles, Pencil, Check, X, Loader2, UserX } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Participants } from "@/lib/room/lobby/types/participants-types"
 import { ParticipantStatus } from "./ParticipantStatus"
 
 interface ParticipantRowProps {
   participant: Participants
   isMe: boolean
+  isHostUser?: boolean
   onRename?: (displayName: string) => Promise<void>
+  onKick?: (participantId: string) => Promise<void>
 }
 
-function ParticipantRow({ participant, isMe, onRename }: ParticipantRowProps) {
+function ParticipantRow({
+  participant,
+  isMe,
+  isHostUser = false,
+  onRename,
+  onKick,
+}: ParticipantRowProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editName, setEditName] = useState(participant.display_name || "")
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isKickDialogOpen, setIsKickDialogOpen] = useState(false)
+  const [isKicking, setIsKicking] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  // Keep editName in sync with upstream participant changes when not actively editing
-  useEffect(() => {
-    if (!isEditing) {
-      setEditName(participant.display_name || "")
-    }
-  }, [participant.display_name, isEditing])
 
   // Focus and select text when entering edit mode
   useEffect(() => {
@@ -91,6 +106,18 @@ function ParticipantRow({ participant, isMe, onRename }: ParticipantRowProps) {
       inputRef.current?.focus()
     } finally {
       setIsSaving(false)
+    }
+  }
+
+  const handleConfirmKick = async () => {
+    if (!onKick || isKicking) return
+    try {
+      setIsKicking(true)
+      await onKick(participant.participant_id)
+      setIsKickDialogOpen(false)
+    } catch (err) {
+      console.error("Kick failed:", err)
+      setIsKicking(false)
     }
   }
 
@@ -237,7 +264,7 @@ function ParticipantRow({ participant, isMe, onRename }: ParticipantRowProps) {
         </div>
       </div>
 
-      {/* STATUS & HOST BADGES */}
+      {/* STATUS, HOST BADGES & HOST-ONLY KICK ACTION */}
       <div className="flex items-center gap-1.5 shrink-0">
         {participant.is_host && (
           <Badge
@@ -250,6 +277,59 @@ function ParticipantRow({ participant, isMe, onRename }: ParticipantRowProps) {
         )}
 
         <ParticipantStatus status={participant.status} />
+
+        {/* HOST-ONLY KICK BUTTON & CONFIRMATION DIALOG */}
+        {isHostUser && !participant.is_host && !isMe && onKick && (
+          <AlertDialog open={isKickDialogOpen} onOpenChange={setIsKickDialogOpen}>
+            <AlertDialogTrigger asChild>
+              <button
+                type="button"
+                className="inline-flex items-center justify-center h-6.5 w-6.5 rounded-lg text-muted-foreground/60 hover:text-destructive hover:bg-destructive/10 active:scale-95 transition-all cursor-pointer ml-0.5"
+                title={`Remove ${participant.display_name}`}
+                aria-label={`Remove ${participant.display_name}`}
+              >
+                <UserX className="h-3.5 w-3.5" />
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="rounded-3xl max-w-sm">
+              <AlertDialogHeader>
+                <AlertDialogTitle>Remove Participant?</AlertDialogTitle>
+                <AlertDialogDescription className="text-xs sm:text-sm leading-relaxed">
+                  Are you sure you want to remove{" "}
+                  <span className="font-semibold text-foreground">
+                    {participant.display_name}
+                  </span>{" "}
+                  from this room?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter className="flex-row gap-2 justify-end">
+                <AlertDialogCancel
+                  disabled={isKicking}
+                  className="rounded-xl text-xs sm:text-sm mt-0"
+                >
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={(e) => {
+                    e.preventDefault()
+                    handleConfirmKick()
+                  }}
+                  disabled={isKicking}
+                  className="rounded-xl text-xs sm:text-sm bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  {isKicking ? (
+                    <>
+                      <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                      Removing...
+                    </>
+                  ) : (
+                    "Remove"
+                  )}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
       </div>
     </li>
   )
@@ -261,7 +341,9 @@ interface ParticipantListProps {
   participantCount: number
   maxParticipants: number
   isRoomFull: boolean
+  isHost?: boolean
   onRenameParticipant?: (displayName: string) => Promise<void>
+  onKickParticipant?: (participantId: string) => Promise<void>
 }
 
 export default function ParticipantList({
@@ -270,7 +352,9 @@ export default function ParticipantList({
   participantCount,
   maxParticipants,
   isRoomFull,
+  isHost = false,
   onRenameParticipant,
+  onKickParticipant,
 }: ParticipantListProps) {
   return (
     <Card className="w-full rounded-3xl border border-border/80 bg-card/85 backdrop-blur-xl shadow-xl overflow-hidden transition-all">
@@ -314,7 +398,9 @@ export default function ParticipantList({
                 key={participant.participant_id}
                 participant={participant}
                 isMe={isMe}
+                isHostUser={isHost}
                 onRename={isMe ? onRenameParticipant : undefined}
+                onKick={isHost ? onKickParticipant : undefined}
               />
             )
           })}

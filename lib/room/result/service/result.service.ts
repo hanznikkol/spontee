@@ -1,6 +1,30 @@
 import { supabase } from "@/lib/supabase/client"
-import { CalculateResult, OptionVoteTally, ResultType, RoomResult, RoomPreferenceContext } from "../result.types"
+import { CalculateResult, OptionVoteTally, ResultType, RoomResult, RoomPreferenceContext, WinnerReason } from "../result.types"
 import { RoomOption } from "@/lib/room/create/types/option-types"
+
+/**
+ * Returns options belonging to the most recent batch/round based on created_at.
+ */
+export function getCurrentRoundOptions<T extends { created_at?: string | null }>(
+  options: T[]
+): T[] {
+  if (options.length <= 1) return options
+
+  const timestamps = options
+    .map((o) => (o.created_at ? new Date(o.created_at).getTime() : 0))
+    .filter((t) => t > 0)
+
+  if (timestamps.length === 0) return options
+
+  const latestTime = Math.max(...timestamps)
+  const BATCH_THRESHOLD_MS = 10000
+
+  return options.filter((o) => {
+    if (!o.created_at) return true
+    const t = new Date(o.created_at).getTime()
+    return Math.abs(latestTime - t) <= BATCH_THRESHOLD_MS
+  })
+}
 
 export async function calculateRoomResult({
   roomId,
@@ -30,7 +54,7 @@ export async function calculateRoomResult({
     await supabase
       .from("options")
       .select(
-        "option_id, title, rating, latitude, longitude, image_urls, price_level, address"
+        "option_id, title, rating, total_reviews, latitude, longitude, image_urls, price_level, address, created_at"
       )
       .eq("room_id", roomId)
 
@@ -49,8 +73,11 @@ export async function calculateRoomResult({
     throw swipesError
   }
 
+  // Filter options to the active round
+  const currentOptions = getCurrentRoundOptions(options ?? [])
+
   // 4. Count Go and Pass votes
-  const scoredOptions = options.map((option) => {
+  const scoredOptions = currentOptions.map((option) => {
     const goCount = swipes.filter(
       (swipe) =>
         swipe.option_id === option.option_id &&
@@ -71,21 +98,29 @@ export async function calculateRoomResult({
   })
 
   // 5. Find highest score
-  const highestScore = Math.max(
-    ...scoredOptions.map((option) => option.goCount)
-  )
+  const highestScore = scoredOptions.length > 0
+    ? Math.max(...scoredOptions.map((option) => option.goCount))
+    : 0
 
-  // 6. Nobody wants anything
+  // 6. Nobody selected Go on anything -> RETRY state (Never pick a winner for zero-Go)
   if (highestScore === 0) {
     const tally: OptionVoteTally[] = scoredOptions
       .slice()
-      .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
+      .sort((a, b) => {
+        if (b.goCount !== a.goCount) return b.goCount - a.goCount
+        if ((b.rating ?? 0) !== (a.rating ?? 0)) return (b.rating ?? 0) - (a.rating ?? 0)
+        if ((b.total_reviews ?? 0) !== (a.total_reviews ?? 0)) {
+          return (b.total_reviews ?? 0) - (a.total_reviews ?? 0)
+        }
+        return a.option_id.localeCompare(b.option_id)
+      })
       .map((opt) => ({
         optionId: opt.option_id,
         title: opt.title,
         goCount: opt.goCount,
         passCount: opt.passCount,
         rating: opt.rating,
+        totalReviews: opt.total_reviews,
         priceLevel: opt.price_level,
         imageUrl: opt.image_urls?.[0] ?? null,
         address: opt.address ?? null,
@@ -93,7 +128,7 @@ export async function calculateRoomResult({
       }))
 
     return {
-      type: "no_match",
+      type: "retry",
       optionId: null,
       winnerGoCount: 0,
       tally,
@@ -113,17 +148,21 @@ export async function calculateRoomResult({
       ? "consensus"
       : "compromise"
 
-  // 9. Tie-break
-  const winner = breakTie(candidates)
+  // 9. Deterministic tie-break: Rating -> Review Confidence -> Stable option_id
+  const { winner, reason: winnerReason } = breakTie(candidates)
 
-  // 10. Generate sorted tally (winner first, then sorted by goCount desc, then rating desc)
+  // 10. Generate sorted tally (winner first, then sorted by goCount desc, rating desc, reviews desc, option_id localeCompare)
   const tally: OptionVoteTally[] = scoredOptions
     .slice()
     .sort((a, b) => {
       if (a.option_id === winner.option_id) return -1
       if (b.option_id === winner.option_id) return 1
       if (b.goCount !== a.goCount) return b.goCount - a.goCount
-      return (b.rating ?? 0) - (a.rating ?? 0)
+      if ((b.rating ?? 0) !== (a.rating ?? 0)) return (b.rating ?? 0) - (a.rating ?? 0)
+      if ((b.total_reviews ?? 0) !== (a.total_reviews ?? 0)) {
+        return (b.total_reviews ?? 0) - (a.total_reviews ?? 0)
+      }
+      return a.option_id.localeCompare(b.option_id)
     })
     .map((opt) => ({
       optionId: opt.option_id,
@@ -131,6 +170,7 @@ export async function calculateRoomResult({
       goCount: opt.goCount,
       passCount: opt.passCount,
       rating: opt.rating,
+      totalReviews: opt.total_reviews,
       priceLevel: opt.price_level,
       imageUrl: opt.image_urls?.[0] ?? null,
       address: opt.address ?? null,
@@ -141,24 +181,40 @@ export async function calculateRoomResult({
     type,
     optionId: winner.option_id,
     winnerGoCount: highestScore,
+    winnerReason,
     tally,
   }
 }
 
+export interface CandidateOption {
+  option_id: string
+  rating: number | null
+  total_reviews?: number | null
+  latitude?: number | null
+  longitude?: number | null
+}
 
-function breakTie(
-  candidates: Array<{
-    option_id: string
-    rating: number | null
-    latitude: number | null
-    longitude: number | null
-  }>
-) {
-  if (candidates.length === 1) {
-    return candidates[0]
+/**
+ * Deterministically resolves a tie among candidates with equal Go votes:
+ * 1. Highest Google rating
+ * 2. Highest review count (confidence)
+ * 3. Stable option_id string comparison (guarantees cross-device identity)
+ *
+ * NEVER uses Math.random().
+ */
+export function breakTie(candidates: CandidateOption[]): {
+  winner: CandidateOption
+  reason: WinnerReason
+} {
+  if (candidates.length === 0) {
+    throw new Error("No candidates provided for tie break.")
   }
 
-  // Highest rating
+  if (candidates.length === 1) {
+    return { winner: candidates[0], reason: "shared_go" }
+  }
+
+  // 1. Highest rating
   const highestRating = Math.max(
     ...candidates.map((option) => option.rating ?? 0)
   )
@@ -168,18 +224,28 @@ function breakTie(
   )
 
   if (ratingCandidates.length === 1) {
-    return ratingCandidates[0]
+    return { winner: ratingCandidates[0], reason: "highest_rating" }
   }
 
-  // TODO:
-  // Distance tie-breaker
-
-  // Final fallback
-  const randomIndex = Math.floor(
-    Math.random() * ratingCandidates.length
+  // 2. Highest review count
+  const highestReviews = Math.max(
+    ...ratingCandidates.map((option) => option.total_reviews ?? 0)
   )
 
-  return ratingCandidates[randomIndex]
+  const reviewCandidates = ratingCandidates.filter(
+    (option) => (option.total_reviews ?? 0) === highestReviews
+  )
+
+  if (reviewCandidates.length === 1) {
+    return { winner: reviewCandidates[0], reason: "most_reviews" }
+  }
+
+  // 3. Stable deterministic fallback via option_id
+  const sorted = [...reviewCandidates].sort((a, b) =>
+    a.option_id.localeCompare(b.option_id)
+  )
+
+  return { winner: sorted[0], reason: "stable_tiebreak" }
 }
 
 export async function getOptionById(optionId: string): Promise<RoomOption | null> {
@@ -239,7 +305,7 @@ export async function getRoomPreferences(roomId: string): Promise<RoomPreference
   const [prefRes, catRes] = await Promise.all([
     supabase
       .from("room_preferences")
-      .select("address, budget, radius")
+      .select("address, budget, radius, latitude, longitude")
       .eq("room_id", roomId)
       .maybeSingle(),
     supabase
@@ -273,6 +339,8 @@ export async function getRoomPreferences(roomId: string): Promise<RoomPreference
     address: pref?.address ?? null,
     budget: pref?.budget ?? null,
     radius: pref?.radius ?? null,
+    latitude: pref?.latitude ?? null,
+    longitude: pref?.longitude ?? null,
     categoryNames: catNames,
   }
 }

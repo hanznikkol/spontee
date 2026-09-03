@@ -1,4 +1,10 @@
-export type ResultType = "consensus" | "compromise" | "no_match"
+export type ResultType = "consensus" | "compromise" | "retry" | "no_match"
+
+export type WinnerReason =
+  | "shared_go"
+  | "highest_rating"
+  | "most_reviews"
+  | "stable_tiebreak"
 
 export interface OptionVoteTally {
   optionId: string
@@ -6,6 +12,7 @@ export interface OptionVoteTally {
   goCount: number
   passCount: number
   rating?: number | null
+  totalReviews?: number | null
   priceLevel?: number | null
   imageUrl?: string | null
   address?: string | null
@@ -20,6 +27,8 @@ export interface RoomPreferenceContext {
   address?: string | null
   budget?: string | null
   radius?: number | null
+  latitude?: number | null
+  longitude?: number | null
   categoryNames?: string[]
 }
 
@@ -27,6 +36,7 @@ export interface RoomResult {
   type: ResultType
   optionId: string | null
   winnerGoCount: number
+  winnerReason?: WinnerReason
   tally: OptionVoteTally[]
 }
 
@@ -46,6 +56,7 @@ export interface ExplanationContext {
       location?: string | null
     }
   }
+  winnerReason?: WinnerReason
   alternatives?: Array<{
     name: string
     goVotes: number

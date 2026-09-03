@@ -2,9 +2,17 @@ import { supabase } from "@/lib/supabase/client"
 import { RealtimeChannel } from "@supabase/supabase-js"
 import { RoomStatus } from "../../create/types/room-types"
 
-export function subscribeRoom( roomId: string, callback: Parameters<RealtimeChannel["on"]>[2]) {
+export function subscribeRoom(
+  roomId: string,
+  callback: Parameters<RealtimeChannel["on"]>[2],
+  channelInstanceId?: string
+) {
+  const topic = channelInstanceId
+    ? `room-${roomId}-${channelInstanceId}`
+    : `room-${roomId}`
+
   return supabase
-    .channel(`room-${roomId}`)
+    .channel(topic)
     .on(
       "postgres_changes",
       {

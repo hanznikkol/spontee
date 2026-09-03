@@ -7,4 +7,5 @@ export interface GenerateOptionsPayload {
   longitude: number
   radius: number
   maxOptions: number
+  excludePlaceIds?: string[]
 }

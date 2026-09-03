@@ -77,7 +77,7 @@ async function createCategories(supabase: SupabaseClient, roomId: string, catego
   if (insertError) throw insertError;
 }
 
-async function createOptions(supabase: SupabaseClient, roomId: string, options: RoomOptionCandidate[]) {
+export async function createOptions(supabase: SupabaseClient, roomId: string, options: RoomOptionCandidate[]) {
     const records = options.map(option => ({
         room_id: roomId,
         title: option.name,

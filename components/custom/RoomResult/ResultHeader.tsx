@@ -7,7 +7,9 @@ interface ResultHeaderProps {
 }
 
 export default function ResultHeader({ type, participantCount }: ResultHeaderProps) {
-  if (type === 'no_match') return null
+  if (type === 'no_match' || type === 'retry') return null
+
+  const isTwoParticipants = participantCount === 2
 
   return (
     <div className="text-center space-y-2 sm:space-y-3">
@@ -22,12 +24,12 @@ export default function ResultHeader({ type, participantCount }: ResultHeaderPro
         {type === 'consensus' ? (
           <>
             <Trophy className="h-3.5 w-3.5" />
-            <span>Unanimous Consensus</span>
+            <span>{isTwoParticipants ? 'You both agreed!' : 'Unanimous Consensus'}</span>
           </>
         ) : (
           <>
             <Sparkles className="h-3.5 w-3.5" />
-            <span>Top Group Compromise</span>
+            <span>Best Group Compromise</span>
           </>
         )}
       </div>
@@ -35,7 +37,7 @@ export default function ResultHeader({ type, participantCount }: ResultHeaderPro
       {/* Main Punchy Editorial Headline */}
       <div className="space-y-0.5 sm:space-y-1 max-w-xl mx-auto">
         <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight text-foreground">
-          Everyone decided.
+          {type === 'consensus' ? 'Everyone agreed.' : 'Everyone decided.'}
           <span className="block bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent pb-0.5">
             Here&apos;s where you&apos;re going.
           </span>
@@ -45,8 +47,12 @@ export default function ResultHeader({ type, participantCount }: ResultHeaderPro
       {/* Reassuring Subtitle */}
       <p className="text-xs sm:text-sm md:text-base text-muted-foreground max-w-md mx-auto leading-relaxed">
         {type === 'consensus'
-          ? `All ${participantCount} participants agreed on this pick!`
-          : `Selected as the best match satisfying your group of ${participantCount}.`}
+          ? isTwoParticipants
+            ? 'You both chose Go for this winning option!'
+            : `All ${participantCount} participants chose Go for this winning option!`
+          : isTwoParticipants
+          ? 'You had different favorites, so we picked the strongest option among them.'
+          : `You had different favorites, so we picked the strongest option satisfying your group of ${participantCount}.`}
       </p>
     </div>
   )

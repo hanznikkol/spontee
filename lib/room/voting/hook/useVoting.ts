@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { RoomOption } from "../../create/types/option-types";
 import { getCurrentOption, removeCurrentOption } from "../helper/vote.helper";
-import { getOptions, submitVote } from "../service/vote.service";
+import { getOptions, submitVote, getParticipantVotes } from "../service/vote.service";
 import  { useRouter } from "next/navigation";
 import { SwipeDirection, UserVote, Vote } from "../types/vote.types";
 import { useRoomSessionStore } from "../../main/stores/room-session-store.store";
+import { getCurrentRoundOptions } from "../../result/service/result.service";
 
 export function useVoting() {
     const router = useRouter()
@@ -32,8 +33,27 @@ export function useVoting() {
          if (!roomId) return;
             try {
                 const fetchedOptions = await getOptions(roomId);
-                setOptions(fetchedOptions);
-                setInitialOptionCount(fetchedOptions.length);
+                const currentRound = getCurrentRoundOptions(fetchedOptions);
+
+                // If participantId exists, filter out already swiped cards in this round
+                let unswipedOptions = currentRound;
+                if (participantId) {
+                    try {
+                        const previousSwipes = await getParticipantVotes(roomId, participantId);
+                        const swipedIds = new Set(previousSwipes.map(s => s.option_id));
+                        unswipedOptions = currentRound.filter(o => !swipedIds.has(o.option_id));
+
+                        const currentRoundSwipes = previousSwipes.filter(s =>
+                            currentRound.some(o => o.option_id === s.option_id)
+                        );
+                        setUserVotes(currentRoundSwipes);
+                    } catch {
+                        // Fallback to presenting full current round
+                    }
+                }
+
+                setOptions(unswipedOptions);
+                setInitialOptionCount(currentRound.length);
             } catch (error) {
                 console.error(error);
             } finally {
@@ -42,7 +62,7 @@ export function useVoting() {
         }
 
         loadOptions()
-    }, [roomId])
+    }, [roomId, participantId])
 
     // Handle Votes
     const handleSwipe = useCallback(async (direction: SwipeDirection) => {
