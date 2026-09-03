@@ -66,7 +66,7 @@ The moment the last participant finishes voting, Spontee cross-references all ba
 ## 👨‍💻 Created By
 
 **Hanz Nikkol B. Maas**  
-*BSIT Graduate · Magna Cum Laude · Frontend Developer*
+* Developer *
 
 * **Portfolio:** [hanznikkolmaas.vercel.app](https://hanznikkolmaas.vercel.app)
 * **GitHub:** [@hanznikkol](https://github.com/hanznikkol)
