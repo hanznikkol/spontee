@@ -123,18 +123,28 @@ export async function collectCandidates(
         }
     }
 
-    // Check candidate sufficiency
-    let uniqueCount = deduplicateAndMergePlaces(searchResults).length;
-    if (uniqueCount >= candidateTarget) {
+    const excludeSet = payload.excludePlaceIds && payload.excludePlaceIds.length > 0
+        ? new Set(payload.excludePlaceIds)
+        : null;
+
+    const countUsableCandidates = (results: CategorySearchResult[]): number => {
+        const unique = deduplicateAndMergePlaces(results);
+        if (!excludeSet) return unique.length;
+        return unique.filter((p) => !excludeSet.has(p.id)).length;
+    };
+
+    // Check candidate sufficiency (considering usable non-excluded places)
+    let usableCount = countUsableCandidates(searchResults);
+    if (usableCount >= candidateTarget) {
         return searchResults;
     }
 
-    // Pass 2: Adaptive Expansion (Secondary sub-type batches if category has >= 10 types)
+    // Pass 2: Adaptive Expansion (Secondary sub-type batches if category has >= 6 types)
     const expansionPromises: Promise<CategorySearchResult>[] = [];
 
     for (const categoryName of payload.categoryNames) {
         const placeTypes = googlePlaceService.getPlaceTypes(categoryName);
-        if (placeTypes.length >= 10) {
+        if (placeTypes.length >= 6) {
             // Query the second half of place types for diverse sub-genres
             const secondaryTypes = placeTypes.slice(Math.floor(placeTypes.length / 2));
             expansionPromises.push(
@@ -156,8 +166,8 @@ export async function collectCandidates(
                 searchResults.push(res.value);
             }
         }
-        uniqueCount = deduplicateAndMergePlaces(searchResults).length;
-        if (uniqueCount >= candidateTarget) {
+        usableCount = countUsableCandidates(searchResults);
+        if (usableCount >= candidateTarget) {
             return searchResults;
         }
     }

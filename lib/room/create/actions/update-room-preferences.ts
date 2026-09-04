@@ -5,6 +5,7 @@ import { generate } from "../services/option.service"
 import { createOptions } from "../services/room.service"
 import { PreferenceBudget } from "../types/budget"
 import { MAX_SELECTED_CATEGORIES } from "../types/categories"
+import { MAX_OPTIONS_VALUES } from "../types/constants/max-options-const"
 
 export interface UpdateRoomPreferencesPayload {
   roomId: string
@@ -95,8 +96,13 @@ export async function updateRoomPreferencesAction({
       throw new Error("Radius must be between 500m and 10km.")
     }
 
-    if (!preferences.maxOptions || preferences.maxOptions < 3 || preferences.maxOptions > 20) {
-      throw new Error("Places to vote on must be between 3 and 20.")
+    if (
+      !preferences.maxOptions ||
+      !(MAX_OPTIONS_VALUES as readonly number[]).includes(preferences.maxOptions)
+    ) {
+      throw new Error(
+        `Places to vote on must be one of: ${MAX_OPTIONS_VALUES.join(", ")}.`
+      )
     }
 
     // 5. Update room-level settings (max_options)

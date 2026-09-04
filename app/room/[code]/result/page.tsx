@@ -45,6 +45,7 @@ export default function ResultPage() {
   const {
     code,
     roomId,
+    room,
     isHost,
     resultType,
     option,
@@ -221,7 +222,7 @@ export default function ResultPage() {
             longitude: preferences?.longitude,
             address: preferences?.address,
             radius: preferences?.radius,
-            maxOptions: totalOptions || 10,
+            maxOptions: room?.max_options ?? 10,
           }}
           onSuccess={() => {
             if (code) {

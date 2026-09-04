@@ -10,6 +10,7 @@ import {
   WinnerReason,
 } from '../result.types'
 import { RoomOption } from '../../create/types/option-types'
+import { Room } from '../../create/types/room-types'
 import {
   calculateRoomResult,
   getOptionById,
@@ -38,6 +39,7 @@ export function useResult() {
   const [resultType, setResultType] = useState<ResultType | null>(null)
   const [winnerReason, setWinnerReason] = useState<WinnerReason | undefined>(undefined)
   const [roomId, setRoomId] = useState<string | null>(null)
+  const [room, setRoom] = useState<Room | null>(null)
   const [option, setOption] = useState<RoomOption | null>(null)
   const [preferences, setPreferences] = useState<RoomPreferenceContext | null>(null)
   const [explanation, setExplanation] = useState<string | null>(null)
@@ -72,6 +74,7 @@ export function useResult() {
 
         if (isCancelled) return
         setRoomId(roomData.room_id)
+        setRoom(roomData as unknown as Room)
 
         // Subscribe to room changes (allows participants to automatically re-enter voting when retry happens)
         roomChannel = subscribeRoom(roomData.room_id, async (payload) => {
@@ -204,6 +207,7 @@ export function useResult() {
   return {
     code,
     roomId,
+    room,
     isHost,
     resultType,
     winnerReason,
