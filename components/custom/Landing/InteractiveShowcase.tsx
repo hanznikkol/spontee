@@ -289,7 +289,7 @@ export default function InteractiveShowcase() {
                     {/* IMAGE */}
                     <Image
                       src={currentOption.image}
-                      alt={currentOption.title}
+                      alt={`Interactive voting preview for ${currentOption.title}`}
                       fill
                       sizes="(max-width: 768px) 100vw, 400px"
                       className="pointer-events-none object-cover"

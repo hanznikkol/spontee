@@ -49,12 +49,12 @@ export default function HeroSection() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="inline-flex max-w-full flex-wrap items-center justify-center gap-1.5 sm:gap-2 rounded-full border border-pink-500/20 bg-pink-500/5 px-3.5 sm:px-4 py-1.5 text-[11px] sm:text-xs md:text-sm font-medium text-pink-600 dark:text-pink-400 backdrop-blur-md shadow-xs text-center"
+              className="inline-flex max-w-full items-center justify-center gap-1.5 sm:gap-2 rounded-full border border-pink-500/20 bg-pink-500/5 px-3.5 sm:px-4 py-1.5 text-[11px] sm:text-xs md:text-sm font-medium text-pink-600 dark:text-pink-400 backdrop-blur-md shadow-xs text-center"
             >
-             <MessageCircleOff className="h-3.5 w-3.5 text-pink-500 shrink-0" />
-                <span>Skip the group-chat debate</span>
-                <span className="h-1 w-1 rounded-full bg-pink-500/60 shrink-0" />
-                <span>The Group Decision Engine</span>
+              <MessageCircleOff className="h-3.5 w-3.5 text-pink-500 shrink-0" />
+              <span className="whitespace-nowrap">Skip the group-chat debate</span>
+              <span className="hidden sm:inline-block h-1 w-1 rounded-full bg-pink-500/60 shrink-0" />
+              <span className="hidden sm:inline whitespace-nowrap">The Group Decision Engine</span>
             </motion.div>
 
             {/* HEADLINE */}
@@ -65,6 +65,7 @@ export default function HeroSection() {
               className="space-y-2 max-w-2xl"
             >
               <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.08]">
+                <span className="sr-only">Spontee — </span>
                 Stop arguing.
                 <br />
                 <span className="bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
@@ -172,7 +173,7 @@ export default function HeroSection() {
                 {/* Real place photo */}
                 <Image
                   src="https://images.unsplash.com/photo-1569718212165-3a8278d5f624?q=80&w=800&auto=format&fit=crop"
-                  alt="Mendokoro Ramenba"
+                  alt="Interactive card preview displaying Mendokoro Ramenba for group voting"
                   fill
                   priority
                   sizes="(max-width: 768px) 100vw, 420px"
