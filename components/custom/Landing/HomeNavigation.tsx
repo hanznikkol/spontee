@@ -65,7 +65,7 @@ export function HomeNavigation() {
           </div>
 
           {/* DESKTOP ACTIONS */}
-          <div className="hidden sm:flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-2">
             <Button
               variant="ghost"
               size="sm"
@@ -101,7 +101,7 @@ export function HomeNavigation() {
           </div>
 
           {/* MOBILE MENU TOGGLE */}
-          <div className="flex items-center gap-2 sm:hidden">
+          <div className="flex items-center gap-2 md:hidden">
             <Button
               size="sm"
               asChild
@@ -124,7 +124,7 @@ export function HomeNavigation() {
 
         {/* MOBILE MENU DROPDOWN */}
         {mobileMenuOpen && (
-          <div className="border-b border-border/60 bg-background/95 backdrop-blur-xl px-4 pt-2 pb-6 sm:hidden animate-in slide-in-from-top-2 duration-200">
+          <div className="border-b border-border/60 bg-background/95 backdrop-blur-xl px-4 pt-2 pb-6 md:hidden animate-in slide-in-from-top-2 duration-200">
             <nav className="flex flex-col space-y-2 pb-4">
               {navLinks.map((link) => (
                 <a

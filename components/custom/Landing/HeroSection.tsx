@@ -49,11 +49,11 @@ export default function HeroSection() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="inline-flex items-center gap-2 rounded-full border border-pink-500/20 bg-pink-500/5 px-4 py-1.5 text-xs sm:text-sm font-medium text-pink-600 dark:text-pink-400 backdrop-blur-md shadow-xs"
+              className="inline-flex max-w-full flex-wrap items-center justify-center gap-1.5 sm:gap-2 rounded-full border border-pink-500/20 bg-pink-500/5 px-3.5 sm:px-4 py-1.5 text-[11px] sm:text-xs md:text-sm font-medium text-pink-600 dark:text-pink-400 backdrop-blur-md shadow-xs text-center"
             >
-             <MessageCircleOff className="h-3.5 w-3.5 text-pink-500" />
+             <MessageCircleOff className="h-3.5 w-3.5 text-pink-500 shrink-0" />
                 <span>Skip the group-chat debate</span>
-                <span className="h-1 w-1 rounded-full bg-pink-500/60" />
+                <span className="h-1 w-1 rounded-full bg-pink-500/60 shrink-0" />
                 <span>The Group Decision Engine</span>
             </motion.div>
 
@@ -64,7 +64,7 @@ export default function HeroSection() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="space-y-2 max-w-2xl"
             >
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.08]">
+              <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.08]">
                 Stop arguing.
                 <br />
                 <span className="bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
@@ -121,17 +121,17 @@ export default function HeroSection() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="grid grid-cols-3 gap-3 sm:gap-6 pt-2 border-t border-border/50 w-full max-w-lg text-xs sm:text-sm text-muted-foreground"
+              className="flex flex-wrap items-center justify-center lg:justify-start gap-x-4 gap-y-2 sm:gap-6 pt-2 border-t border-border/50 w-full max-w-lg text-xs sm:text-sm text-muted-foreground"
             >
-              <div className="flex items-center gap-1.5 justify-center lg:justify-start">
+              <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
                 <span>No sign up</span>
               </div>
-              <div className="flex items-center gap-1.5 justify-center lg:justify-start">
+              <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
                 <span>Real nearby spots</span>
               </div>
-              <div className="flex items-center gap-1.5 justify-center lg:justify-start">
+              <div className="flex items-center gap-1.5">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
                 <span>Private ballots</span>
               </div>
@@ -139,10 +139,11 @@ export default function HeroSection() {
           </div>
 
           {/* RIGHT COLUMN: THE SWIPE & CONVERGENCE SHOWCASE */}
-          <div className="lg:col-span-5 flex flex-col items-center justify-center relative">
+          <div className="lg:col-span-5 flex flex-col items-center justify-center relative w-full">
             {/* Visual demo container */}
-            <div className="relative w-full max-w-90 sm:max-w-97.5 aspect-9/12 flex flex-col items-center justify-center">
-              {/* SWIPE AFFORDANCE LABELS */}
+            <div className="relative w-full max-w-90 sm:max-w-97.5 flex flex-col items-center justify-center mx-auto">
+              <div className="relative w-full aspect-9/12 flex flex-col items-center justify-center">
+                {/* SWIPE AFFORDANCE LABELS */}
               <div className="absolute -top-7 left-0 right-0 flex items-center justify-between px-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase pointer-events-none select-none z-20">
                 <span className="flex items-center gap-1 text-red-500/80">
                   <X className="h-3.5 w-3.5" />
@@ -212,7 +213,7 @@ export default function HeroSection() {
                 </div>
 
                 {/* BOTTOM CARD DETAILS */}
-                <div className="absolute bottom-0 inset-x-0 p-5 sm:p-6 text-white pointer-events-none z-20 space-y-2">
+                <div className="absolute bottom-0 inset-x-0 p-4 sm:p-6 text-white pointer-events-none z-20 space-y-1.5 sm:space-y-2">
                   <div className="flex items-center gap-2">
                     <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-medium backdrop-blur-md">
                       🍜 Ramen
@@ -226,7 +227,7 @@ export default function HeroSection() {
                     </span>
                   </div>
 
-                  <h2 className="text-2xl font-bold tracking-tight leading-snug">
+                  <h2 className="text-xl sm:text-2xl font-bold tracking-tight leading-snug">
                     Mendokoro Ramenba
                   </h2>
 
@@ -236,10 +237,11 @@ export default function HeroSection() {
                   </p>
                 </div>
               </motion.div>
+            </div>
 
-              {/* CONVERGING PARTICIPANTS TICKER BELOW CARD */}
-              <div className="w-full mt-4 bg-background/85 backdrop-blur-xl border border-border/70 rounded-2xl p-3 shadow-lg z-20">
-                <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
+            {/* CONVERGING PARTICIPANTS TICKER BELOW CARD */}
+            <div className="w-full mt-4 bg-background/85 backdrop-blur-xl border border-border/70 rounded-2xl p-3 shadow-lg z-20">
+              <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
                 <span className="font-semibold text-foreground flex items-center gap-1.5">
                     <Users className="h-3.5 w-3.5 text-pink-500" />
                     Group Voting
@@ -324,7 +326,7 @@ export default function HeroSection() {
                         exit={{ opacity: 0, height: 0, marginTop: 0 }}
                         className="pt-2 border-t border-border/50 text-center"
                         >
-                        <div className="inline-flex items-center gap-1.5 rounded-lg bg-linear-to-r from-emerald-500/15 via-teal-500/15 to-emerald-500/15 px-2.5 py-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 w-full justify-center">
+                        <div className="inline-flex items-center gap-1.5 rounded-lg bg-linear-to-r from-emerald-500/15 via-teal-500/15 to-emerald-500/15 px-2 py-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 w-full justify-center text-center">
                             <span>🎉 Everyone finished — finding your match...</span>
                         </div>
                         </motion.div>

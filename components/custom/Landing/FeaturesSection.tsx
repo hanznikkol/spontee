@@ -21,7 +21,7 @@ export default function FeaturesSection() {
             Product Capabilities
           </div>
 
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
+          <h2 className="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
             Engineered for fast,
             <br />
             <span className="bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
@@ -38,7 +38,7 @@ export default function FeaturesSection() {
         {/* BENTO GRID (VISUALLY DISTINCT COMPOSITIONS) */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
           {/* 1. TACTILE SWIPE VOTING (WIDE 2-COL) */}
-          <div className="group relative lg:col-span-2 rounded-3xl border border-border/70 bg-card/70 p-7 sm:p-8 backdrop-blur-md transition-all hover:border-pink-500/40 hover:bg-card/95 hover:shadow-xl flex flex-col justify-between overflow-hidden">
+          <div className="group relative md:col-span-2 lg:col-span-2 rounded-3xl border border-border/70 bg-card/70 p-5 sm:p-6 lg:p-8 backdrop-blur-md transition-all hover:border-pink-500/40 hover:bg-card/95 hover:shadow-xl flex flex-col justify-between overflow-hidden">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="rounded-full bg-pink-500/10 text-pink-600 dark:text-pink-400 text-xs font-semibold px-3 py-1 ring-1 ring-pink-500/20">
@@ -60,7 +60,7 @@ export default function FeaturesSection() {
             </div>
 
             {/* VISUAL MICRO-MOCKUP: SWIPE CONTROLS */}
-            <div className="mt-8 pt-6 border-t border-border/40 grid grid-cols-2 gap-3 sm:gap-4">
+            <div className="mt-8 pt-6 border-t border-border/40 grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div className="rounded-2xl border border-red-500/20 bg-red-500/5 p-3.5 flex items-center justify-between">
                 <div className="space-y-0.5">
                   <span className="text-xs font-bold text-red-500">Swipe Left</span>
@@ -84,7 +84,7 @@ export default function FeaturesSection() {
           </div>
 
           {/* 2. CONSENSUS & COMPROMISE (1-COL) */}
-          <div className="group relative lg:col-span-1 rounded-3xl border border-border/70 bg-card/70 p-7 sm:p-8 backdrop-blur-md transition-all hover:border-amber-500/40 hover:bg-card/95 hover:shadow-xl flex flex-col justify-between overflow-hidden">
+          <div className="group relative md:col-span-1 lg:col-span-1 rounded-3xl border border-border/70 bg-card/70 p-5 sm:p-6 lg:p-8 backdrop-blur-md transition-all hover:border-amber-500/40 hover:bg-card/95 hover:shadow-xl flex flex-col justify-between overflow-hidden">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-semibold px-3 py-1 ring-1 ring-amber-500/20">
@@ -118,7 +118,7 @@ export default function FeaturesSection() {
           </div>
 
           {/* 3. PREFERENCE-DRIVEN OPTIONS (1-COL) */}
-          <div className="group relative lg:col-span-1 rounded-3xl border border-border/70 bg-card/70 p-7 sm:p-8 backdrop-blur-md transition-all hover:border-blue-500/40 hover:bg-card/95 hover:shadow-xl flex flex-col justify-between overflow-hidden">
+          <div className="group relative md:col-span-1 lg:col-span-1 rounded-3xl border border-border/70 bg-card/70 p-5 sm:p-6 lg:p-8 backdrop-blur-md transition-all hover:border-blue-500/40 hover:bg-card/95 hover:shadow-xl flex flex-col justify-between overflow-hidden">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-semibold px-3 py-1 ring-1 ring-blue-500/20">
@@ -148,7 +148,7 @@ export default function FeaturesSection() {
           </div>
 
           {/* 4. REALTIME PARTICIPANT PROGRESS (WIDE 2-COL) */}
-          <div className="group relative lg:col-span-2 rounded-3xl border border-border/70 bg-card/70 p-7 sm:p-8 backdrop-blur-md transition-all hover:border-emerald-500/40 hover:bg-card/95 hover:shadow-xl flex flex-col justify-between overflow-hidden">
+          <div className="group relative md:col-span-2 lg:col-span-2 rounded-3xl border border-border/70 bg-card/70 p-5 sm:p-6 lg:p-8 backdrop-blur-md transition-all hover:border-emerald-500/40 hover:bg-card/95 hover:shadow-xl flex flex-col justify-between overflow-hidden">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-semibold px-3 py-1 ring-1 ring-emerald-500/20">
@@ -170,7 +170,7 @@ export default function FeaturesSection() {
             </div>
 
             {/* PARTICIPANT LIVE TRACKER PREVIEW */}
-            <div className="mt-6 pt-4 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <div className="mt-6 pt-4 border-t border-border/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">
                   <div className="h-7 w-7 rounded-full bg-pink-500/20 text-pink-600 font-bold flex items-center justify-center ring-2 ring-background text-[11px]">
@@ -193,7 +193,7 @@ export default function FeaturesSection() {
           </div>
 
           {/* 5. ZERO FRICTION ANONYMOUS AUTH (1-COL) */}
-          <div className="group relative lg:col-span-1 rounded-3xl border border-border/70 bg-card/70 p-7 sm:p-8 backdrop-blur-md transition-all hover:border-purple-500/40 hover:bg-card/95 hover:shadow-xl flex flex-col justify-between overflow-hidden">
+          <div className="group relative md:col-span-1 lg:col-span-1 rounded-3xl border border-border/70 bg-card/70 p-5 sm:p-6 lg:p-8 backdrop-blur-md transition-all hover:border-purple-500/40 hover:bg-card/95 hover:shadow-xl flex flex-col justify-between overflow-hidden">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="rounded-full bg-purple-500/10 text-purple-600 dark:text-purple-400 text-xs font-semibold px-3 py-1 ring-1 ring-purple-500/20">
@@ -220,7 +220,7 @@ export default function FeaturesSection() {
           </div>
 
           {/* 6. SMART LOCAL SESSION RESILIENCE (WIDE 2-COL) */}
-          <div className="group relative lg:col-span-2 rounded-3xl border border-border/70 bg-card/70 p-7 sm:p-8 backdrop-blur-md transition-all hover:border-rose-500/40 hover:bg-card/95 hover:shadow-xl flex flex-col justify-between overflow-hidden">
+          <div className="group relative md:col-span-1 lg:col-span-2 rounded-3xl border border-border/70 bg-card/70 p-5 sm:p-6 lg:p-8 backdrop-blur-md transition-all hover:border-rose-500/40 hover:bg-card/95 hover:shadow-xl flex flex-col justify-between overflow-hidden">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 text-xs font-semibold px-3 py-1 ring-1 ring-rose-500/20">
@@ -241,7 +241,7 @@ export default function FeaturesSection() {
               </div>
             </div>
 
-            <div className="mt-6 pt-4 border-t border-border/40 flex items-center justify-between text-xs text-muted-foreground">
+            <div className="mt-6 pt-4 border-t border-border/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs text-muted-foreground">
               <span>Resilient state management:</span>
               <span className="font-semibold text-foreground">Zustand + Local Persistence</span>
             </div>

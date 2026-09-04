@@ -11,7 +11,7 @@ export default function FinalCtaSection() {
       <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-175 h-90 bg-linear-to-r from-pink-500/20 via-purple-500/15 to-blue-500/20 blur-3xl rounded-full -z-10" />
 
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="relative mx-auto max-w-4xl rounded-[36px] border border-border/80 bg-linear-to-b from-card/80 to-card/40 p-8 sm:p-12 md:p-16 text-center backdrop-blur-2xl shadow-2xl overflow-hidden">
+        <div className="relative mx-auto max-w-4xl rounded-[36px] border border-border/80 bg-linear-to-b from-card/80 to-card/40 p-6 sm:p-12 md:p-16 text-center backdrop-blur-2xl shadow-2xl overflow-hidden">
           {/* Subtle ambient accent ring */}
           <div className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-48 bg-linear-to-r from-pink-500/30 via-purple-500/30 to-blue-500/30 blur-2xl rounded-full" />
 

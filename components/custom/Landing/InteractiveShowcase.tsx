@@ -251,7 +251,7 @@ export default function InteractiveShowcase() {
             </div>
 
             {/* CARD VIEWPORT */}
-            <div className="relative flex aspect-4/5 w-full items-center justify-center overflow-hidden rounded-[24px] bg-muted/40">
+            <div className="relative flex aspect-4/5 min-h-[430px] sm:min-h-[460px] w-full items-center justify-center overflow-hidden rounded-[24px] bg-muted/40">
               <AnimatePresence mode="wait">
                 {!isFinished && currentOption ? (
                   <motion.div
@@ -382,7 +382,7 @@ export default function InteractiveShowcase() {
                     transition={{
                       duration: 0.4,
                     }}
-                    className="absolute inset-0 flex flex-col items-center justify-between rounded-[24px] bg-linear-to-b from-card via-background to-muted/40 p-6 text-center"
+                    className="absolute inset-0 flex flex-col items-center justify-between rounded-[24px] bg-linear-to-b from-card via-background to-muted/40 p-4 sm:p-6 text-center overflow-y-auto custom-scrollbar"
                   >
                     <div className="space-y-3 pt-2">
                       <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-3xl bg-emerald-500/10 text-emerald-500 ring-2 ring-emerald-500/20 shadow-lg">
@@ -476,13 +476,13 @@ export default function InteractiveShowcase() {
             </div>
 
             {/* LIVE PEERS */}
-            <div className="mt-4 flex items-center justify-between rounded-xl bg-muted/60 px-3.5 py-2 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1.5 font-medium text-foreground">
+            <div className="mt-4 flex items-center justify-between gap-2 min-w-0 rounded-xl bg-muted/60 px-3.5 py-2 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1.5 font-medium text-foreground shrink-0">
                 <span className="h-1.5 w-1.5 rounded-full bg-pink-500" />
                 Live Peers:
               </span>
 
-              <span className="max-w-50 truncate font-mono text-[11px]">
+              <span className="truncate font-mono text-[11px] shrink min-w-0 text-right">
                 {activePartnerStatus}
               </span>
             </div>

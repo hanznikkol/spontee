@@ -14,7 +14,7 @@ export default function Footer() {
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid gap-8 md:grid-cols-12 items-center justify-between">
             {/* BRAND COLUMN */}
-            <div className="md:col-span-5 space-y-3">
+            <div className="md:col-span-12 lg:col-span-5 space-y-3">
               <Link href="/" className="inline-flex items-center gap-2">
                 <span className="text-lg font-bold tracking-tight">
                   Spont
@@ -31,7 +31,7 @@ export default function Footer() {
             </div>
 
             {/* QUICK LINKS */}
-            <div className="md:col-span-4 flex flex-wrap items-center gap-4 text-xs font-medium text-muted-foreground">
+            <div className="md:col-span-7 lg:col-span-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-medium text-muted-foreground">
               <a href="#problem" className="hover:text-foreground transition">
                 The Problem
               </a>
@@ -55,7 +55,7 @@ export default function Footer() {
             </div>
 
             {/* ACTION SHORTCUTS */}
-            <div className="md:col-span-3 flex items-center md:justify-end gap-2">
+            <div className="md:col-span-5 lg:col-span-3 flex items-center md:justify-end gap-2 flex-wrap">
               <Link
                 href="/join"
                 className="rounded-xl border border-border/80 px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition"
@@ -72,7 +72,7 @@ export default function Footer() {
           </div>
 
           {/* DEVELOPER ATTRIBUTION — PRESERVED AS REQUIRED */}
-          <div className="mt-8 pt-6 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
+          <div className="mt-8 pt-6 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground text-center sm:text-left">
             <p>
               © {new Date().getFullYear()} Spontee · Developed by{" "}
               <a
