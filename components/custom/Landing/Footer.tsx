@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { MessageSquare, ArrowUpRight } from "lucide-react"
 import { FeedbackDialog } from "@/components/custom/Modal/FeedbackDialog"
+import { ThemeToggle } from "@/components/custom/Theme/ThemeToggle"
 
 export default function Footer() {
   const [feedbackOpen, setFeedbackOpen] = useState(false)
@@ -16,7 +17,7 @@ export default function Footer() {
             {/* BRAND COLUMN */}
             <div className="md:col-span-12 lg:col-span-5 space-y-3">
               <Link href="/" className="inline-flex items-center gap-2">
-                <span className="text-lg font-bold tracking-tight">
+                <span className="text-lg font-bold tracking-tight text-foreground">
                   Spont
                   <span className="bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
                     ee
@@ -56,6 +57,7 @@ export default function Footer() {
 
             {/* ACTION SHORTCUTS */}
             <div className="md:col-span-5 lg:col-span-3 flex items-center md:justify-end gap-2 flex-wrap">
+              <ThemeToggle />
               <Link
                 href="/join"
                 className="rounded-xl border border-border/80 px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition"

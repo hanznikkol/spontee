@@ -5,6 +5,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Users, Plus, MessageSquare, Menu, X, ArrowRight } from "lucide-react"
 import { FeedbackDialog } from "@/components/custom/Modal/FeedbackDialog"
+import { ThemeToggle, ThemeSegmentedControl } from "@/components/custom/Theme/ThemeToggle"
 
 export function HomeNavigation() {
   const [feedbackOpen, setFeedbackOpen] = useState(false)
@@ -42,7 +43,7 @@ export function HomeNavigation() {
               href="/"
               className="group flex items-center gap-2.5 transition-transform active:scale-95"
             >
-              <span className="text-xl font-bold tracking-tight">
+              <span className="text-xl font-bold tracking-tight text-foreground">
                 Spont
                 <span className="bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
                   ee
@@ -66,6 +67,8 @@ export function HomeNavigation() {
 
           {/* DESKTOP ACTIONS */}
           <div className="hidden md:flex items-center gap-2">
+            <ThemeToggle />
+
             <Button
               variant="ghost"
               size="sm"
@@ -101,7 +104,9 @@ export function HomeNavigation() {
           </div>
 
           {/* MOBILE MENU TOGGLE */}
-          <div className="flex items-center gap-2 md:hidden">
+          <div className="flex items-center gap-1.5 md:hidden">
+            <ThemeToggle />
+
             <Button
               size="sm"
               asChild
@@ -138,7 +143,11 @@ export function HomeNavigation() {
               ))}
             </nav>
 
-            <div className="flex flex-col gap-2 pt-2 border-t border-border/40">
+            <div className="flex flex-col gap-3 pt-3 border-t border-border/40">
+              <div className="flex items-center justify-between px-1">
+                <span className="text-xs font-medium text-muted-foreground">Theme</span>
+                <ThemeSegmentedControl className="w-52" />
+              </div>
               <Button
                 variant="outline"
                 asChild

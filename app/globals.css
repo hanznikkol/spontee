@@ -10,6 +10,10 @@ gmp-place-autocomplete {
   color-scheme: light;
 }
 
+.dark gmp-place-autocomplete {
+  color-scheme: dark;
+}
+
 /* Swipe Custom Animate */
 @keyframes swipe {
   0% {

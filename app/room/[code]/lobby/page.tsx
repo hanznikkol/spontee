@@ -57,7 +57,7 @@ export default function LobbyPage() {
             href="/"
             className="group inline-flex items-center gap-2 transition-transform active:scale-95"
           >
-            <span className="text-xl font-bold tracking-tight">
+            <span className="text-xl font-bold tracking-tight text-foreground">
               Spont
               <span className="bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
                 ee
