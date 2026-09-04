@@ -49,7 +49,7 @@ export default function SolutionSection() {
             The Spontee Principle
           </div>
 
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
+          <h2 className="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
             How Spontee replaces
             <br />
             <span className="bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
@@ -69,7 +69,7 @@ export default function SolutionSection() {
             return (
               <div
                 key={idx}
-                className="group relative flex flex-col justify-between rounded-3xl border border-border/70 bg-card/60 p-7 sm:p-8 backdrop-blur-md transition-all duration-300 hover:border-border hover:bg-card/90 hover:shadow-xl"
+                className="group relative flex flex-col justify-between rounded-3xl border border-border/70 bg-card/60 p-5 sm:p-6 lg:p-8 backdrop-blur-md transition-all duration-300 hover:border-border hover:bg-card/90 hover:shadow-xl"
               >
                 {/* Subtle top accent gradient */}
                 <div
@@ -92,7 +92,7 @@ export default function SolutionSection() {
                     <span className="inline-block rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
                       {item.badge}
                     </span>
-                    <h3 className="text-xl font-bold tracking-tight text-foreground">
+                    <h3 className="text-lg sm:text-xl font-bold tracking-tight text-foreground">
                       {item.title}
                     </h3>
                     <p className="text-xs font-semibold text-pink-500 dark:text-pink-400">

@@ -18,7 +18,7 @@ export default function ProblemSection() {
             The Anatomy of Group Indecision
           </div>
 
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
+          <h2 className="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
             Everyone has an opinion.
             <br />
             <span className="bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
@@ -37,11 +37,11 @@ export default function ProblemSection() {
         <div className="grid gap-8 lg:grid-cols-12 items-center max-w-6xl mx-auto">
           {/* LEFT: REALISTIC GROUP CHAT DIALOGUE MOCKUP */}
           <div className="lg:col-span-5 flex flex-col justify-center">
-            <div className="rounded-3xl border border-border/80 bg-background/90 p-5 sm:p-6 shadow-xl backdrop-blur-xl space-y-3.5 relative">
+            <div className="rounded-3xl border border-border/80 bg-background/90 p-4 sm:p-6 shadow-xl backdrop-blur-xl space-y-3.5 relative">
               {/* CHAT HEADER */}
-              <div className="flex items-center justify-between pb-3 border-b border-border/60">
-                <div className="flex items-center gap-2.5">
-                  <div className="flex -space-x-2">
+              <div className="flex items-center justify-between pb-3 border-b border-border/60 gap-2">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="flex -space-x-2 shrink-0">
                     <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-pink-500/20 text-pink-600 text-xs font-bold ring-2 ring-background">
                       M
                     </span>
@@ -52,12 +52,12 @@ export default function ProblemSection() {
                       C
                     </span>
                   </div>
-                  <div>
-                    <h3 className="text-xs font-semibold text-foreground">Barkada Weekend Hangout</h3>
-                    <p className="text-[10px] text-muted-foreground">4 members · Active now</p>
+                  <div className="min-w-0">
+                    <h3 className="text-xs font-semibold text-foreground truncate">Barkada Weekend Hangout</h3>
+                    <p className="text-[10px] text-muted-foreground truncate">4 members · Active now</p>
                   </div>
                 </div>
-                <span className="rounded-full bg-red-500/10 text-red-500 px-2 py-0.5 text-[10px] font-semibold flex items-center gap-1">
+                <span className="rounded-full bg-red-500/10 text-red-500 px-2 py-0.5 text-[10px] font-semibold flex items-center gap-1 shrink-0">
                   <Clock className="h-3 w-3" /> 26 mins wasted
                 </span>
               </div>
@@ -97,7 +97,7 @@ export default function ProblemSection() {
 
           {/* RIGHT: THE 3 CORE PITFALLS */}
           <div className="lg:col-span-7 flex flex-col gap-4">
-            <div className="group rounded-3xl border border-border/70 bg-card/60 p-5 sm:p-6 backdrop-blur-md transition hover:border-pink-500/40 hover:bg-card/90 shadow-sm">
+            <div className="group rounded-3xl border border-border/70 bg-card/60 p-4 sm:p-6 backdrop-blur-md transition hover:border-pink-500/40 hover:bg-card/90 shadow-sm">
               <div className="flex items-start gap-4">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-pink-500/10 text-pink-500 ring-1 ring-pink-500/20">
                   <HelpCircle className="h-5 w-5" />
@@ -115,7 +115,7 @@ export default function ProblemSection() {
               </div>
             </div>
 
-            <div className="group rounded-3xl border border-border/70 bg-card/60 p-5 sm:p-6 backdrop-blur-md transition hover:border-purple-500/40 hover:bg-card/90 shadow-sm">
+            <div className="group rounded-3xl border border-border/70 bg-card/60 p-4 sm:p-6 backdrop-blur-md transition hover:border-purple-500/40 hover:bg-card/90 shadow-sm">
               <div className="flex items-start gap-4">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-purple-500/10 text-purple-500 ring-1 ring-purple-500/20">
                   <Clock className="h-5 w-5" />
@@ -133,7 +133,7 @@ export default function ProblemSection() {
               </div>
             </div>
 
-            <div className="group rounded-3xl border border-border/70 bg-card/60 p-5 sm:p-6 backdrop-blur-md transition hover:border-blue-500/40 hover:bg-card/90 shadow-sm">
+            <div className="group rounded-3xl border border-border/70 bg-card/60 p-4 sm:p-6 backdrop-blur-md transition hover:border-blue-500/40 hover:bg-card/90 shadow-sm">
               <div className="flex items-start gap-4">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-blue-500/10 text-blue-500 ring-1 ring-blue-500/20">
                   <Volume2 className="h-5 w-5" />
