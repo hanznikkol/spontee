@@ -18,6 +18,7 @@ import { RoomMaxOptions } from "../RoomCreation/Setup/RoomMaxOptions"
 import { PreferenceBudget } from "@/lib/room/create/types/budget"
 import { updateRoomPreferencesAction } from "@/lib/room/create/actions/update-room-preferences"
 import { MAX_SELECTED_CATEGORIES } from "@/lib/room/create/types/categories"
+import { MAX_OPTIONS_VALUES } from "@/lib/room/create/types/constants/max-options-const"
 
 export interface UpdatePreferencesModalProps {
   open: boolean
@@ -71,9 +72,13 @@ function UpdatePreferencesForm({
   const [radius, setRadius] = useState<number>(
     () => initialPreferences?.radius ?? 3000
   )
-  const [maxOptions, setMaxOptions] = useState<number>(
-    () => initialPreferences?.maxOptions ?? 10
-  )
+  const [maxOptions, setMaxOptions] = useState<number>(() => {
+    const init = initialPreferences?.maxOptions
+    if (init && (MAX_OPTIONS_VALUES as readonly number[]).includes(init)) {
+      return init
+    }
+    return 10
+  })
 
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)

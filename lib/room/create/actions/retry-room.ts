@@ -114,7 +114,7 @@ export async function retryRoomAction({ roomId }: RetryRoomPayload) {
 
     if (!freshCandidates || freshCandidates.length === 0) {
       throw new Error(
-        "No more open venues available nearby for your preferences. Try changing preferences."
+        "No more matching venues are available nearby. Try changing your preferences."
       )
     }
 

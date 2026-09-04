@@ -13,7 +13,12 @@ interface RoomMaxOptionsProps {
 }
 
 export function RoomMaxOptions({ maxOptions, onChange }: RoomMaxOptionsProps) {
-  const selectedIndex = MAX_OPTIONS_VALUES.indexOf(maxOptions)
+  // Ensure value is strictly one of the supported values in MAX_OPTIONS_VALUES
+  const safeMaxOptions = (MAX_OPTIONS_VALUES as readonly number[]).includes(maxOptions)
+    ? maxOptions
+    : (MAX_OPTIONS_VALUES.find((val) => val >= maxOptions) ?? 10)
+
+  const selectedIndex = (MAX_OPTIONS_VALUES as readonly number[]).indexOf(safeMaxOptions)
 
   return (
     <div className="space-y-3.5 rounded-2xl border border-border/70 bg-background/50 p-4 transition-all">
@@ -29,14 +34,14 @@ export function RoomMaxOptions({ maxOptions, onChange }: RoomMaxOptionsProps) {
         </div>
 
         <span className="inline-flex items-center rounded-full bg-purple-500/10 px-2.5 py-0.5 text-xs font-bold text-purple-600 dark:text-purple-400">
-          {maxOptions} places
+          {safeMaxOptions} places
         </span>
       </div>
 
       {/* QUICK PRESET BUTTONS */}
       <div className="grid grid-cols-4 gap-2 pt-1">
         {MAX_OPTIONS_VALUES.map((val) => {
-          const isSelected = val === maxOptions
+          const isSelected = val === safeMaxOptions
           return (
             <button
               key={val}
@@ -64,9 +69,9 @@ export function RoomMaxOptions({ maxOptions, onChange }: RoomMaxOptionsProps) {
           max={MAX_OPTIONS_VALUES.length - 1}
           step={1}
           onValueChange={([nextIndex]) =>
-            onChange(MAX_OPTIONS_VALUES[nextIndex] ?? maxOptions)
+            onChange(MAX_OPTIONS_VALUES[nextIndex] ?? safeMaxOptions)
           }
-          aria-label="Maximum options"
+          aria-label="Places to vote on"
           className="cursor-pointer"
         />
 
