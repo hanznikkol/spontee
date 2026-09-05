@@ -19,6 +19,7 @@ export function useVoting() {
     const [userVotes, setUserVotes] = useState<UserVote[]>([])
 
     const currentOption = getCurrentOption(options)
+    const nextOption = options.length > 1 ? options[1] : null
     const remainingOptions = options.length
     const currentCardNum = initialOptionCount > 0 ? initialOptionCount - remainingOptions + (currentOption ? 1 : 0) : 0;
     const progress = initialOptionCount > 0 ? (currentCardNum / initialOptionCount) * 100 : 0;
@@ -65,7 +66,7 @@ export function useVoting() {
     }, [roomId, participantId])
 
     // Handle Votes
-    const handleSwipe = useCallback(async (direction: SwipeDirection) => {
+    const handleSwipe = useCallback((direction: SwipeDirection) => {
         if (!roomId || !currentOption || !participantId) return
         try {
             // Vote
@@ -88,17 +89,19 @@ export function useVoting() {
                 ...prev,
             ])
 
-            // Save votes to db (submit_vote automatically marks participant finished when done)
-            await submitVote(roomId, currentOption.option_id, participantId, vote)
-                
-            setTimeout(() => {
-                setOptions(prev => removeCurrentOption(prev));
-            }, 150);
+            // Save votes to db in background (optimistic / non-blocking)
+            // submit_vote automatically marks participant finished when done
+            submitVote(roomId, swipedOption.option_id, participantId, vote).catch((err) => {
+                console.error("Failed to submit vote:", err)
+            })
+
+            // Advance immediately so UI transitions at 60 FPS without network latency
+            setOptions(prev => removeCurrentOption(prev))
 
         } catch (error) {
             console.error(error)
         }
-    }, [roomId, participantId, options, currentOption])
+    }, [roomId, participantId, currentOption])
 
     useEffect(() => {
         if (!loading && !currentOption) {
@@ -109,6 +112,7 @@ export function useVoting() {
     return {
         loading,
         currentOption,
+        nextOption,
         exitDirection,
         handleSwipe,
 
