@@ -17,16 +17,16 @@ function CardInfoComponent({ option }: CardInfoProps) {
 
   return (
     <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex flex-col justify-end p-5 sm:p-6 text-white">
-      {/* Category, Rating, Price, Distance Badges */}
+      {/* Category, Rating, Price, Distance Badges (Glassmorphic with GPU layer promotion) */}
       <div className="mb-1.5 sm:mb-2 flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
         {category && (
-          <span className="rounded-full bg-black/50 px-2.5 py-0.5 font-medium capitalize text-white border border-white/15 text-[11px] sm:text-xs">
+          <span className="rounded-full bg-white/20 px-2.5 py-0.5 font-medium capitalize text-white backdrop-blur-md border border-white/10 text-[11px] sm:text-xs transform-gpu">
             {String(category).replace('_', ' ')}
           </span>
         )}
 
         {rating && (
-          <span className="flex items-center gap-1 rounded-full bg-amber-950/60 px-2.5 py-0.5 font-semibold text-amber-300 border border-amber-400/30 text-[11px] sm:text-xs">
+          <span className="flex items-center gap-1 rounded-full bg-amber-400/20 px-2.5 py-0.5 font-semibold text-amber-300 backdrop-blur-md border border-amber-400/20 text-[11px] sm:text-xs transform-gpu">
             <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
             {rating}
             {totalReviews ? ` (${totalReviews})` : ''}
@@ -34,13 +34,13 @@ function CardInfoComponent({ option }: CardInfoProps) {
         )}
 
         {priceLevel && (
-          <span className="rounded-full bg-black/50 px-2.5 py-0.5 font-medium tracking-widest text-white border border-white/15 text-[11px] sm:text-xs">
+          <span className="rounded-full bg-white/20 px-2.5 py-0.5 font-medium tracking-widest text-white backdrop-blur-md border border-white/10 text-[11px] sm:text-xs transform-gpu">
             {formatPriceLevel(priceLevel)}
           </span>
         )}
 
         {distanceMeters != null && (
-          <span className="flex items-center gap-1 rounded-full bg-black/50 px-2.5 py-0.5 font-medium text-white border border-white/15 text-[11px] sm:text-xs">
+          <span className="flex items-center gap-1 rounded-full bg-white/20 px-2.5 py-0.5 font-medium text-white backdrop-blur-md border border-white/10 text-[11px] sm:text-xs transform-gpu">
             <Navigation className="h-3 w-3 text-cyan-300 fill-cyan-300/30" />
             {formatDistance(distanceMeters)}
           </span>

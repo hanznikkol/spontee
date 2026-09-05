@@ -220,7 +220,7 @@ function SwipeCardComponent({
                 className={`h-1 flex-1 rounded-full transition-all duration-200 ${
                   idx === activePhotoIndex
                     ? 'bg-white shadow-xs'
-                    : 'bg-white/40'
+                    : 'bg-white/35 backdrop-blur-xs'
                 }`}
               />
             ))}
@@ -244,22 +244,22 @@ function SwipeCardComponent({
         {/* Dark gradient overlay for text readability */}
         <div className="absolute inset-0 bg-linear-to-t from-black/95 via-black/40 to-transparent pointer-events-none" />
 
-        {/* NOPE stamp */}
+        {/* NOPE stamp (Glassmorphic with GPU layer promotion) */}
         <motion.div
           style={{ opacity: rejectOpacity }}
-          className="pointer-events-none absolute right-4 top-5 sm:right-6 sm:top-6 z-20"
+          className="pointer-events-none absolute right-4 top-5 sm:right-6 sm:top-6 z-20 transform-gpu"
         >
-          <span className="inline-block rotate-12 rounded-xl border-[3px] border-red-500 bg-black/70 px-3 sm:px-4 py-1 text-2xl sm:text-3xl font-black uppercase tracking-widest text-red-500 shadow-md">
+          <span className="inline-block rotate-12 rounded-xl border-[3px] border-red-500 bg-black/40 px-3 sm:px-4 py-1 text-2xl sm:text-3xl font-black uppercase tracking-widest text-red-500 backdrop-blur-xs shadow-md">
             Pass!
           </span>
         </motion.div>
 
-        {/* LIKE stamp */}
+        {/* LIKE stamp (Glassmorphic with GPU layer promotion) */}
         <motion.div
           style={{ opacity: acceptOpacity }}
-          className="pointer-events-none absolute left-4 top-5 sm:left-6 sm:top-6 z-20"
+          className="pointer-events-none absolute left-4 top-5 sm:left-6 sm:top-6 z-20 transform-gpu"
         >
-          <span className="inline-block -rotate-12 rounded-xl border-[3px] border-emerald-400 bg-black/70 px-3 sm:px-4 py-1 text-2xl sm:text-3xl font-black uppercase tracking-widest text-emerald-400 shadow-md">
+          <span className="inline-block -rotate-12 rounded-xl border-[3px] border-emerald-400 bg-black/40 px-3 sm:px-4 py-1 text-2xl sm:text-3xl font-black uppercase tracking-widest text-emerald-400 backdrop-blur-xs shadow-md">
             Go!
           </span>
         </motion.div>

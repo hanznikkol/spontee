@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion"
@@ -23,22 +23,12 @@ export default function HeroSection() {
   const opacityPass = useTransform(x, [-120, -40, 0], [1, 0.4, 0])
   const opacityGo = useTransform(x, [0, 40, 120], [0, 0.4, 1])
 
-  // Automated convergence cycle simulation
-  const [convergeStep, setConvergeStep] = useState(0)
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setConvergeStep((prev) => (prev + 1) % 4)
-    }, 2400)
-    return () => clearInterval(interval)
-  }, [])
-
   return (
     <section className="relative pt-8 pb-16 md:pt-14 md:pb-24 lg:pt-16 lg:pb-28 overflow-hidden">
-      {/* Soft ambient background glows */}
-      <div className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-150 h-87.5 bg-linear-to-tr from-pink-500/20 via-purple-500/15 to-blue-500/20 blur-3xl rounded-full -z-10 opacity-70" />
-      <div className="pointer-events-none absolute top-1/2 -right-48 w-96 h-96 bg-blue-500/10 blur-3xl rounded-full -z-10" />
-      <div className="pointer-events-none absolute bottom-0 -left-48 w-96 h-96 bg-pink-500/10 blur-3xl rounded-full -z-10" />
+      {/* Soft ambient background glows (GPU-isolated and paint-contained) */}
+      <div className="pointer-events-none absolute -top-24 left-1/2 -translate-x-1/2 w-150 h-87.5 bg-linear-to-tr from-pink-500/20 via-purple-500/15 to-blue-500/20 blur-3xl rounded-full -z-10 opacity-70 transform-gpu contain-paint" />
+      <div className="pointer-events-none absolute top-1/2 -right-48 w-96 h-96 bg-blue-500/10 blur-3xl rounded-full -z-10 transform-gpu contain-paint" />
+      <div className="pointer-events-none absolute bottom-0 -left-48 w-96 h-96 bg-pink-500/10 blur-3xl rounded-full -z-10 transform-gpu contain-paint" />
 
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid gap-12 lg:grid-cols-12 lg:gap-8 items-center">
@@ -162,13 +152,13 @@ export default function HeroSection() {
 
               {/* MAIN INTERACTIVE SWIPE CARD */}
               <motion.div
-                style={{ x, rotate }}
+                style={{ x, rotate, willChange: "transform" }}
                 drag="x"
                 dragConstraints={{ left: 0, right: 0 }}
                 dragElastic={0.6}
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ cursor: "grabbing" }}
-                className="relative w-full h-full rounded-[28px] overflow-hidden border border-white/20 shadow-2xl bg-card cursor-grab select-none z-10"
+                className="relative w-full h-full rounded-[28px] overflow-hidden border border-white/20 shadow-2xl bg-card cursor-grab select-none z-10 transform-gpu"
               >
                 {/* Real place photo */}
                 <Image
@@ -186,7 +176,7 @@ export default function HeroSection() {
                 {/* PASS! STAMP OVERLAY */}
                 <motion.div
                   style={{ opacity: opacityPass }}
-                  className="absolute top-6 right-6 pointer-events-none z-30"
+                  className="absolute top-6 right-6 pointer-events-none z-30 transform-gpu"
                 >
                   <span className="text-red-500 font-black text-2xl tracking-widest border-[3px] border-red-500 px-3 py-1 rounded-xl rotate-12 inline-block uppercase bg-black/40 backdrop-blur-xs">
                     Pass!
@@ -196,7 +186,7 @@ export default function HeroSection() {
                 {/* GO! STAMP OVERLAY */}
                 <motion.div
                   style={{ opacity: opacityGo }}
-                  className="absolute top-6 left-6 pointer-events-none z-30"
+                  className="absolute top-6 left-6 pointer-events-none z-30 transform-gpu"
                 >
                   <span className="text-emerald-400 font-black text-2xl tracking-widest border-[3px] border-emerald-400 px-3 py-1 rounded-xl -rotate-12 inline-block uppercase bg-black/40 backdrop-blur-xs">
                     Go!
@@ -205,10 +195,10 @@ export default function HeroSection() {
 
                 {/* TOP HEADER: ROOM CODE PILL */}
                 <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none z-20">
-                  <span className="rounded-full bg-black/50 px-3 py-1 text-xs font-semibold text-white/90 backdrop-blur-md border border-white/10">
+                  <span className="rounded-full bg-black/50 px-3 py-1 text-xs font-semibold text-white/90 backdrop-blur-md border border-white/10 transform-gpu">
                     Room: <strong>SPON-4820</strong>
                   </span>
-                  <span className="rounded-full bg-pink-500/80 px-2.5 py-0.5 text-xs font-semibold text-white backdrop-blur-md">
+                  <span className="rounded-full bg-pink-500/80 px-2.5 py-0.5 text-xs font-semibold text-white backdrop-blur-md transform-gpu">
                     Option 1 of 5
                   </span>
                 </div>
@@ -216,13 +206,13 @@ export default function HeroSection() {
                 {/* BOTTOM CARD DETAILS */}
                 <div className="absolute bottom-0 inset-x-0 p-4 sm:p-6 text-white pointer-events-none z-20 space-y-1.5 sm:space-y-2">
                   <div className="flex items-center gap-2">
-                    <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-medium backdrop-blur-md">
+                    <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-medium backdrop-blur-md transform-gpu">
                       🍜 Ramen
                     </span>
-                    <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-medium backdrop-blur-md">
+                    <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-medium backdrop-blur-md transform-gpu">
                       ₱₱₱
                     </span>
-                    <span className="rounded-full bg-amber-400/20 text-amber-300 px-2.5 py-0.5 text-xs font-semibold backdrop-blur-md flex items-center gap-1">
+                    <span className="rounded-full bg-amber-400/20 text-amber-300 px-2.5 py-0.5 text-xs font-semibold backdrop-blur-md flex items-center gap-1 transform-gpu">
                       <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
                       4.9 (1.4k)
                     </span>
@@ -240,104 +230,142 @@ export default function HeroSection() {
               </motion.div>
             </div>
 
-            {/* CONVERGING PARTICIPANTS TICKER BELOW CARD */}
-            <div className="w-full mt-4 bg-background/85 backdrop-blur-xl border border-border/70 rounded-2xl p-3 shadow-lg z-20">
-              <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
-                <span className="font-semibold text-foreground flex items-center gap-1.5">
-                    <Users className="h-3.5 w-3.5 text-pink-500" />
-                    Group Voting
-                </span>
-
-                <span className="text-[11px] font-mono font-medium text-pink-500">
-                    {convergeStep >= 2
-                    ? "Everyone finished!"
-                    : "Voting in progress..."}
-                </span>
-                </div>
-
-                {/* VOTING STATUS */}
-                <div className="space-y-1.5">
-                    <div className="flex items-center justify-between text-xs py-0.5">
-                        <div className="flex items-center gap-2">
-                        <div className="h-5 w-5 rounded-full bg-pink-500/20 text-pink-600 dark:text-pink-300 font-bold flex items-center justify-center text-[10px]">
-                            M
-                        </div>
-                        <span className="font-medium text-foreground">
-                            Maya (Host)
-                        </span>
-                        </div>
-
-                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">
-                        <Check className="h-3 w-3" />
-                        Finished
-                        </span>
-                    </div>
-
-                    <div className="flex items-center justify-between text-xs py-0.5">
-                        <div className="flex items-center gap-2">
-                        <div className="h-5 w-5 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-300 font-bold flex items-center justify-center text-[10px]">
-                            L
-                        </div>
-                        <span className="font-medium text-foreground">
-                            Liam
-                        </span>
-                        </div>
-
-                        {convergeStep >= 1 ? (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full animate-in fade-in zoom-in duration-200">
-                            <Check className="h-3 w-3" />
-                            Finished
-                        </span>
-                        ) : (
-                        <span className="text-[11px] text-muted-foreground italic">
-                            Voting...
-                        </span>
-                        )}
-                    </div>
-
-                    <div className="flex items-center justify-between text-xs py-0.5">
-                        <div className="flex items-center gap-2">
-                        <div className="h-5 w-5 rounded-full bg-purple-500/20 text-purple-600 dark:text-purple-300 font-bold flex items-center justify-center text-[10px]">
-                            Y
-                        </div>
-                        <span className="font-medium text-foreground">
-                            You
-                        </span>
-                        </div>
-
-                        {convergeStep >= 2 ? (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full animate-in fade-in zoom-in duration-200">
-                            <Check className="h-3 w-3" />
-                            Finished
-                        </span>
-                        ) : (
-                        <span className="text-[11px] text-muted-foreground italic">
-                            Voting...
-                        </span>
-                        )}
-                    </div>
-                </div>
-
-                {/* FINAL RESULT BANNER */}
-                <AnimatePresence>
-                    {convergeStep >= 2 && (
-                        <motion.div
-                        initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                        animate={{ opacity: 1, height: "auto", marginTop: 8 }}
-                        exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                        className="pt-2 border-t border-border/50 text-center"
-                        >
-                        <div className="inline-flex items-center gap-1.5 rounded-lg bg-linear-to-r from-emerald-500/15 via-teal-500/15 to-emerald-500/15 px-2 py-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 w-full justify-center text-center">
-                            <span>🎉 Everyone finished — finding your match...</span>
-                        </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-              </div>
-            </div>
+            {/* CONVERGING PARTICIPANTS TICKER (ISOLATED SUBCOMPONENT) */}
+            <ConvergingParticipantsTicker />
           </div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
+)
+}
+
+/**
+ * Isolated live ticker for convergence simulation.
+ * Uses IntersectionObserver to pause the 2.4s interval when scrolled off-screen,
+ * and isolates state updates so HeroSection never re-renders on the timer.
+ */
+function ConvergingParticipantsTicker() {
+  const [convergeStep, setConvergeStep] = useState(0)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [isInView, setIsInView] = useState(true)
+
+  useEffect(() => {
+    if (!containerRef.current || typeof IntersectionObserver === "undefined") return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsInView(entry.isIntersecting)
+      },
+      { threshold: 0.1 }
+    )
+    observer.observe(containerRef.current)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (!isInView) return
+    const interval = setInterval(() => {
+      setConvergeStep((prev) => (prev + 1) % 4)
+    }, 2400)
+    return () => clearInterval(interval)
+  }, [isInView])
+
+  return (
+    <div
+      ref={containerRef}
+      className="w-full mt-4 bg-background/85 backdrop-blur-xl border border-border/70 rounded-2xl p-3 shadow-lg z-20 transform-gpu"
+    >
+      <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
+        <span className="font-semibold text-foreground flex items-center gap-1.5">
+          <Users className="h-3.5 w-3.5 text-pink-500" />
+          Group Voting
+        </span>
+
+        <span className="text-[11px] font-mono font-medium text-pink-500">
+          {convergeStep >= 2
+            ? "Everyone finished!"
+            : "Voting in progress..."}
+        </span>
+      </div>
+
+      {/* VOTING STATUS */}
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between text-xs py-0.5">
+          <div className="flex items-center gap-2">
+            <div className="h-5 w-5 rounded-full bg-pink-500/20 text-pink-600 dark:text-pink-300 font-bold flex items-center justify-center text-[10px]">
+              M
+            </div>
+            <span className="font-medium text-foreground">
+              Maya (Host)
+            </span>
+          </div>
+
+          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+            <Check className="h-3 w-3" />
+            Finished
+          </span>
+        </div>
+
+        <div className="flex items-center justify-between text-xs py-0.5">
+          <div className="flex items-center gap-2">
+            <div className="h-5 w-5 rounded-full bg-blue-500/20 text-blue-600 dark:text-blue-300 font-bold flex items-center justify-center text-[10px]">
+              L
+            </div>
+            <span className="font-medium text-foreground">
+              Liam
+            </span>
+          </div>
+
+          {convergeStep >= 1 ? (
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full animate-in fade-in zoom-in duration-200">
+              <Check className="h-3 w-3" />
+              Finished
+            </span>
+          ) : (
+            <span className="text-[11px] text-muted-foreground italic">
+              Voting...
+            </span>
+          )}
+        </div>
+
+        <div className="flex items-center justify-between text-xs py-0.5">
+          <div className="flex items-center gap-2">
+            <div className="h-5 w-5 rounded-full bg-purple-500/20 text-purple-600 dark:text-purple-300 font-bold flex items-center justify-center text-[10px]">
+              Y
+            </div>
+            <span className="font-medium text-foreground">
+              You
+            </span>
+          </div>
+
+          {convergeStep >= 2 ? (
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full animate-in fade-in zoom-in duration-200">
+              <Check className="h-3 w-3" />
+              Finished
+            </span>
+          ) : (
+            <span className="text-[11px] text-muted-foreground italic">
+              Voting...
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* FINAL RESULT BANNER */}
+      <AnimatePresence>
+        {convergeStep >= 2 && (
+          <motion.div
+            initial={{ opacity: 0, height: 0, marginTop: 0 }}
+            animate={{ opacity: 1, height: "auto", marginTop: 8 }}
+            exit={{ opacity: 0, height: 0, marginTop: 0 }}
+            className="pt-2 border-t border-border/50 text-center"
+          >
+            <div className="inline-flex items-center gap-1.5 rounded-lg bg-linear-to-r from-emerald-500/15 via-teal-500/15 to-emerald-500/15 px-2 py-1 text-[11px] font-bold text-emerald-600 dark:text-emerald-400 w-full justify-center text-center">
+              <span>🎉 Everyone finished — finding your match...</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   )
 }

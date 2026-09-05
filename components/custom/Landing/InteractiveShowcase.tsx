@@ -178,7 +178,7 @@ export default function InteractiveShowcase() {
       className="relative overflow-hidden border-y border-border/40 bg-muted/30 py-20 sm:py-28"
     >
       {/* Background glow */}
-      <div className="pointer-events-none absolute -top-40 left-1/2 h-87.5 w-175 -translate-x-1/2 rounded-full bg-linear-to-r from-pink-500/10 via-purple-500/10 to-blue-500/10 blur-3xl" />
+      <div className="pointer-events-none absolute -top-40 left-1/2 h-87.5 w-175 -translate-x-1/2 rounded-full bg-linear-to-r from-pink-500/10 via-purple-500/10 to-blue-500/10 blur-3xl transform-gpu contain-paint" />
 
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* SECTION HEADER */}
@@ -259,6 +259,7 @@ export default function InteractiveShowcase() {
                     style={{
                       x,
                       rotate,
+                      willChange: "transform",
                     }}
                     drag={isAnimating ? false : "x"}
                     dragConstraints={{
@@ -284,7 +285,7 @@ export default function InteractiveShowcase() {
                     whileTap={{
                       cursor: "grabbing",
                     }}
-                    className="absolute inset-0 cursor-grab select-none overflow-hidden rounded-[24px] border border-white/20 shadow-xl"
+                    className="absolute inset-0 cursor-grab select-none overflow-hidden rounded-[24px] border border-white/20 shadow-xl transform-gpu"
                   >
                     {/* IMAGE */}
                     <Image
@@ -303,7 +304,7 @@ export default function InteractiveShowcase() {
                       style={{
                         opacity: opacityPass,
                       }}
-                      className="pointer-events-none absolute right-4 top-5 z-20 sm:right-5 sm:top-5"
+                      className="pointer-events-none absolute right-4 top-5 z-20 sm:right-5 sm:top-5 transform-gpu"
                     >
                       <span className="inline-block rotate-12 rounded-xl border-[3px] border-red-500 bg-black/40 px-3 py-1 text-xl font-black uppercase tracking-widest text-red-500 backdrop-blur-xs sm:text-2xl">
                         Pass!
@@ -315,7 +316,7 @@ export default function InteractiveShowcase() {
                       style={{
                         opacity: opacityGo,
                       }}
-                      className="pointer-events-none absolute left-4 top-5 z-20 sm:left-5 sm:top-5"
+                      className="pointer-events-none absolute left-4 top-5 z-20 sm:left-5 sm:top-5 transform-gpu"
                     >
                       <span className="inline-block -rotate-12 rounded-xl border-[3px] border-emerald-400 bg-black/40 px-3 py-1 text-xl font-black uppercase tracking-widest text-emerald-400 backdrop-blur-xs sm:text-2xl">
                         Go!
