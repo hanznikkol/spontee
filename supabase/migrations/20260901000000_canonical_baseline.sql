@@ -9,7 +9,7 @@
 -- - Realtime Publication: options, participants, rooms, swipes
 -- - Replica Identity: participants REPLICA IDENTITY FULL
 -- - Unique Constraints & Foreign Keys with ON DELETE CASCADE
--- - 9 Functions / RPCs: rls_auto_enable, is_room_member, is_room_host,
+-- - 8 Functions / RPCs: is_room_member, is_room_host,
 --                       create_room_with_host, join_room, leave_room,
 --                       kick_participant, start_voting, submit_vote
 -- - Minimum Role Privileges: anon read-only on categories; authenticated operational
@@ -19,47 +19,7 @@
 SET check_function_bodies = off;
 
 -- ----------------------------------------------------------------------------
--- 1. HELPER / EVENT TRIGGER: rls_auto_enable()
--- ----------------------------------------------------------------------------
-
-CREATE OR REPLACE FUNCTION public.rls_auto_enable()
-RETURNS event_trigger
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path TO 'pg_catalog'
-AS $function$
-DECLARE
-  cmd record;
-BEGIN
-  FOR cmd IN
-    SELECT *
-    FROM pg_event_trigger_ddl_commands()
-    WHERE command_tag IN ('CREATE TABLE', 'CREATE TABLE AS', 'SELECT INTO')
-      AND object_type IN ('table','partitioned table')
-  LOOP
-     IF cmd.schema_name IS NOT NULL AND cmd.schema_name IN ('public') AND cmd.schema_name NOT IN ('pg_catalog','information_schema') AND cmd.schema_name NOT LIKE 'pg_toast%' AND cmd.schema_name NOT LIKE 'pg_temp%' THEN
-      BEGIN
-        EXECUTE format('alter table if exists %s enable row level security', cmd.object_identity);
-        RAISE LOG 'rls_auto_enable: enabled RLS on %', cmd.object_identity;
-      EXCEPTION
-        WHEN OTHERS THEN
-          RAISE LOG 'rls_auto_enable: failed to enable RLS on %', cmd.object_identity;
-      END;
-     ELSE
-        RAISE LOG 'rls_auto_enable: skip % (either system schema or not in enforced list: %.)', cmd.object_identity, cmd.schema_name;
-     END IF;
-  END LOOP;
-END;
-$function$;
-
-CREATE EVENT TRIGGER "ensure_rls"
-  ON ddl_command_end
-  WHEN TAG IN ('CREATE TABLE', 'CREATE TABLE AS', 'SELECT INTO')
-  EXECUTE FUNCTION public.rls_auto_enable();
-
-
--- ----------------------------------------------------------------------------
--- 2. TABLES & BASE CONSTRAINTS
+-- 1. TABLES & BASE CONSTRAINTS
 -- ----------------------------------------------------------------------------
 
 -- categories
@@ -202,7 +162,7 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.swipes;
 
 
 -- ----------------------------------------------------------------------------
--- 3. FUNCTIONS & RPCs
+-- 2. FUNCTIONS & RPCs
 -- ----------------------------------------------------------------------------
 
 -- is_room_member
@@ -711,7 +671,7 @@ GRANT EXECUTE ON FUNCTION public.submit_vote(uuid, uuid, uuid, text) TO authenti
 
 
 -- ----------------------------------------------------------------------------
--- 4. PRIVILEGES & TABLE GRANTS
+-- 3. PRIVILEGES & TABLE GRANTS
 -- ----------------------------------------------------------------------------
 
 -- Revoke all table-level access from untrusted roles
@@ -748,7 +708,7 @@ GRANT SELECT, INSERT, DELETE ON TABLE public.room_categories TO authenticated;
 
 
 -- ----------------------------------------------------------------------------
--- 5. ROW LEVEL SECURITY (RLS) POLICIES — EXACTLY 15 POLICIES
+-- 4. ROW LEVEL SECURITY (RLS) POLICIES — EXACTLY 15 POLICIES
 -- ----------------------------------------------------------------------------
 
 -- categories (1 policy)
