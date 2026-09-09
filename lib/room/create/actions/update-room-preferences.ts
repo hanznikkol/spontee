@@ -160,7 +160,7 @@ export async function updateRoomPreferencesAction({
       }))
       const { error: catInsertError } = await supabase
         .from("room_categories")
-        .upsert(roomCategories, { onConflict: "room_id,category_id" })
+        .insert(roomCategories)
 
       if (catInsertError) {
         console.error("Failed to insert room categories:", catInsertError)
@@ -228,11 +228,10 @@ export async function updateRoomPreferencesAction({
         throw new Error("Failed to activate room for voting.")
       }
 
-      // Reset host participant status to "voting"
-      await supabase
-        .from("participants")
-        .update({ status: "voting" })
-        .eq("participant_id", participant.participant_id)
+      // Reset host participant status to "voting" via secure RPC
+      await supabase.rpc("start_voting", {
+        p_participant_id: participant.participant_id,
+      })
     }
     // Note: If source === "lobby", room status remains "lobby" so host can review before starting
 

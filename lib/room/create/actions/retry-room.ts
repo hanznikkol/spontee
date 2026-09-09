@@ -134,11 +134,10 @@ export async function retryRoomAction({ roomId }: RetryRoomPayload) {
       throw new Error("Failed to activate room for retry.")
     }
 
-    // 8. Update the host participant's status to "voting"
-    await supabase
-      .from("participants")
-      .update({ status: "voting" })
-      .eq("participant_id", participant.participant_id)
+    // 8. Update the host participant's status to "voting" via secure RPC
+    await supabase.rpc("start_voting", {
+      p_participant_id: participant.participant_id,
+    })
 
     return {
       success: true,
