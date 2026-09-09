@@ -15,7 +15,6 @@ export function useVoting() {
     const [options, setOptions] = useState<RoomOption[]>([])
     const [initialOptionCount, setInitialOptionCount] = useState(0)
     const [loading, setLoading] = useState(true)
-    const [exitDirection, setExitDirection] = useState(0)
     const [userVotes, setUserVotes] = useState<UserVote[]>([])
 
     const currentOption = getCurrentOption(options)
@@ -72,7 +71,6 @@ export function useVoting() {
             // Vote
             const vote: Vote = direction === "right" ? "go" : "pass"
             const swipedOption = currentOption
-            setExitDirection(direction === "right" ? 1 : -1)
 
             // Record locally immediately
             setUserVotes(prev => [
@@ -113,7 +111,6 @@ export function useVoting() {
         loading,
         currentOption,
         nextOption,
-        exitDirection,
         handleSwipe,
 
         initialOptionCount,

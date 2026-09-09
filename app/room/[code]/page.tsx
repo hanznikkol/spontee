@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { AnimatePresence } from 'framer-motion'
-import SwipeCard, { BackgroundCard, SwipeActionButtons } from '@/components/custom/Room/Voting/SwipeCards'
+import SwipeCard, { BackgroundCard, SwipeActionButtons, SwipeCardRef } from '@/components/custom/Room/Voting/SwipeCards'
 import { useVoting } from '@/lib/room/voting/hook/useVoting'
 import { ProgressBar } from '@/components/custom/ProgressBar'
 import LogoBranding from '@/components/custom/Landing/LogoBranding'
@@ -18,12 +18,12 @@ export default function VotingPage() {
   const roomCode = routeCode || sessionRoomCode || 'ROOM'
 
   const [isVotesOpen, setIsVotesOpen] = useState(false)
+  const activeCardRef = useRef<SwipeCardRef>(null)
 
   const {
     loading,
     currentOption,
     nextOption,
-    exitDirection,
     handleSwipe,
     progress,
     progressLabel,
@@ -84,9 +84,9 @@ export default function VotingPage() {
                   <AnimatePresence initial={false}>
                     {currentOption && (
                       <SwipeCard
+                        ref={activeCardRef}
                         key={currentOption.option_id}
                         option={currentOption}
-                        direction={exitDirection}
                         onSwipe={handleSwipe}
                       />
                     )}
@@ -95,8 +95,20 @@ export default function VotingPage() {
 
                 {/* Stable Action Buttons */}
                 <SwipeActionButtons
-                  onPass={() => handleSwipe('left')}
-                  onGo={() => handleSwipe('right')}
+                  onPass={() => {
+                    if (activeCardRef.current) {
+                      activeCardRef.current.swipe('left')
+                    } else {
+                      handleSwipe('left')
+                    }
+                  }}
+                  onGo={() => {
+                    if (activeCardRef.current) {
+                      activeCardRef.current.swipe('right')
+                    } else {
+                      handleSwipe('right')
+                    }
+                  }}
                   disabled={!currentOption}
                 />
               </>
