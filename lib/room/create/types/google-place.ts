@@ -50,5 +50,7 @@ export interface GooglePlace {
     distanceMeters?: number;
     searchedCategories?: string[];
     description?: string;
+    /** Conservative normalized brand/chain key for diversity scoring. Populated during ranking. */
+    normalizedBrand?: string;
 }
 
