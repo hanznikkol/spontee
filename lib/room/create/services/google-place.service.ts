@@ -7,6 +7,8 @@ interface SearchNearbyParams {
     latitude: number;
     longitude: number;
     radius: number;
+    /** Maximum number of results to return (1–20, Google API cap). Defaults to 20. */
+    maxResultCount?: number;
 }
 
 /**
@@ -26,8 +28,11 @@ export function validateGooglePlaceTypes(placeTypes: readonly string[] | string[
 }
 
 // Google Maps API
-export async function searchNearby({ placeTypes, latitude, longitude, radius }: SearchNearbyParams): Promise<GooglePlace[]> {
+export async function searchNearby({ placeTypes, latitude, longitude, radius, maxResultCount = 20 }: SearchNearbyParams): Promise<GooglePlace[]> {
     validateGooglePlaceTypes(placeTypes);
+
+    // Google Places Nearby Search API hard cap is 20.
+    const clampedMaxResults = Math.min(20, Math.max(1, maxResultCount));
 
     try {
         const apiKey = process.env.GOOGLE_MAPS_API_KEY;
@@ -37,7 +42,7 @@ export async function searchNearby({ placeTypes, latitude, longitude, radius }: 
             "https://places.googleapis.com/v1/places:searchNearby",
             {
                 includedTypes: placeTypes,
-                maxResultCount: 20,
+                maxResultCount: clampedMaxResults,
                 locationRestriction: {
                     circle: { center: { latitude, longitude }, radius }
                 }
