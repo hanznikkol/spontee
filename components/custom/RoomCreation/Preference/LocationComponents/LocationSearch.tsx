@@ -1,7 +1,7 @@
 "use client"
 
 import { useMapsLibrary } from "@vis.gl/react-google-maps"
-import { Search } from "lucide-react"
+import { LocateFixed, Search } from "lucide-react"
 import { useEffect, useRef } from "react"
 
 export interface SelectedPlace {
@@ -65,14 +65,22 @@ export function LocationSearch({ onSelect }: LocationSearchProps) {
 
 
   return (
-    <div className="relative">
+    <div className="space-y-1.5">
+      <div className="relative">
+        <Search
+          className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+        />
 
-      <Search
-        className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-      />
+        <div ref={containerRef} />
+      </div>
 
-      <div ref={containerRef} />
-
+      <p className="text-xs text-muted-foreground px-1 leading-relaxed">
+        Tap the{" "}
+        <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-secondary border border-border/80 shadow-2xs align-middle -mt-0.5 mx-0.5">
+          <LocateFixed className="h-2.5 w-2.5 text-foreground" aria-hidden="true" />
+        </span>{" "}
+        button on the map to use your current location.
+      </p>
     </div>
   )
 }

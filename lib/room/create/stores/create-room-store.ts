@@ -75,7 +75,7 @@ const initialState: CreateRoomState = {
   hostName: "",
   roomName: "",
   maxParticipants: 2,
-  maxOptions: 10,
+  maxOptions: 15,
   selectedCategoriesbyNames: [],
   options: [],
   budget: "any",
