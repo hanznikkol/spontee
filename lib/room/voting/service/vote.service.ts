@@ -27,7 +27,18 @@ export async function getOptions(roomId: string): Promise<RoomOption[]> {
     }));
 }
 
-export async function submitVote(roomId: string, optionId: string, participantId:string, vote: Vote) {
+export interface SubmitVoteResult {
+    finished: boolean;
+    vote_count: number;
+    option_count: number;
+}
+
+export async function submitVote(
+    roomId: string,
+    optionId: string,
+    participantId: string,
+    vote: Vote
+): Promise<SubmitVoteResult> {
     const { data, error } = await supabase.rpc("submit_vote", {
         p_room_id: roomId,
         p_option_id: optionId,
@@ -35,8 +46,29 @@ export async function submitVote(roomId: string, optionId: string, participantId
         p_vote: vote,
     });
     
-    if(error) throw error
-    return data
+    if (error) throw error;
+    return data as SubmitVoteResult;
+}
+
+export async function submitVoteWithRetry(
+    roomId: string,
+    optionId: string,
+    participantId: string,
+    vote: Vote,
+    maxRetries = 2
+): Promise<SubmitVoteResult> {
+    let attempt = 0;
+    while (true) {
+        try {
+            return await submitVote(roomId, optionId, participantId, vote);
+        } catch (err) {
+            attempt++;
+            if (attempt > maxRetries) {
+                throw err;
+            }
+            await new Promise((resolve) => setTimeout(resolve, attempt * 250));
+        }
+    }
 }
 
 interface SwipeWithOptionRow {

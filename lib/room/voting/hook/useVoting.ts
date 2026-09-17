@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { RoomOption } from "../../create/types/option-types";
 import { getCurrentOption, removeCurrentOption } from "../helper/vote.helper";
-import { getOptions, submitVote, getParticipantVotes } from "../service/vote.service";
+import { getOptions, submitVoteWithRetry, getParticipantVotes, SubmitVoteResult } from "../service/vote.service";
 import  { useRouter } from "next/navigation";
 import { SwipeDirection, UserVote, Vote } from "../types/vote.types";
 import { useRoomSessionStore } from "../../main/stores/room-session-store.store";
@@ -16,6 +16,12 @@ export function useVoting() {
     const [initialOptionCount, setInitialOptionCount] = useState(0)
     const [loading, setLoading] = useState(true)
     const [userVotes, setUserVotes] = useState<UserVote[]>([])
+    const [isFlushing, setIsFlushing] = useState(false)
+    const [flushError, setFlushError] = useState<string | null>(null)
+
+    const userVotesRef = useRef<UserVote[]>([])
+    const pendingVotesRef = useRef<Map<string, { promise: Promise<SubmitVoteResult>; optionId: string; vote: Vote }>>(new Map())
+    const failedVotesRef = useRef<Map<string, Vote>>(new Map())
 
     const currentOption = getCurrentOption(options)
     const nextOption = options.length > 1 ? options[1] : null
@@ -46,10 +52,16 @@ export function useVoting() {
                         const currentRoundSwipes = previousSwipes.filter(s =>
                             currentRound.some(o => o.option_id === s.option_id)
                         );
+                        userVotesRef.current = currentRoundSwipes;
                         setUserVotes(currentRoundSwipes);
                     } catch {
                         // Fallback to presenting full current round
                     }
+                }
+
+                if (unswipedOptions.length === 0 && currentRound.length > 0 && roomCode) {
+                    router.replace(`/room/${roomCode}/waiting`);
+                    return;
                 }
 
                 setOptions(unswipedOptions);
@@ -62,35 +74,50 @@ export function useVoting() {
         }
 
         loadOptions()
-    }, [roomId, participantId])
+    }, [roomId, participantId, roomCode, router])
 
     // Handle Votes
     const handleSwipe = useCallback((direction: SwipeDirection) => {
-        if (!roomId || !currentOption || !participantId) return
+        if (!roomId || !currentOption || !participantId || isFlushing) return
         try {
             // Vote
             const vote: Vote = direction === "right" ? "go" : "pass"
             const swipedOption = currentOption
 
-            // Record locally immediately
-            setUserVotes(prev => [
-                {
-                    option_id: swipedOption.option_id,
-                    title: swipedOption.title,
-                    address: swipedOption.address,
-                    rating: swipedOption.rating,
-                    price_level: swipedOption.priceLevel,
-                    image_urls: swipedOption.imageUrls,
-                    vote,
-                    swiped_at: new Date().toISOString(),
-                },
-                ...prev,
-            ])
+            const newVoteRecord: UserVote = {
+                option_id: swipedOption.option_id,
+                title: swipedOption.title,
+                address: swipedOption.address,
+                rating: swipedOption.rating,
+                price_level: swipedOption.priceLevel,
+                image_urls: swipedOption.imageUrls,
+                vote,
+                swiped_at: new Date().toISOString(),
+            }
 
-            // Save votes to db in background (optimistic / non-blocking)
-            // submit_vote automatically marks participant finished when done
-            submitVote(roomId, swipedOption.option_id, participantId, vote).catch((err) => {
-                console.error("Failed to submit vote:", err)
+            // Record locally immediately
+            userVotesRef.current = [newVoteRecord, ...userVotesRef.current]
+            setUserVotes(prev => [newVoteRecord, ...prev])
+
+            // Kick off submission immediately in background, tracked in pendingVotesRef
+            const optionId = swipedOption.option_id
+            const submissionPromise = submitVoteWithRetry(roomId, optionId, participantId, vote)
+                .then((result) => {
+                    pendingVotesRef.current.delete(optionId)
+                    failedVotesRef.current.delete(optionId)
+                    return result
+                })
+                .catch((err) => {
+                    console.error(`Vote submission failed for option ${optionId}:`, err)
+                    pendingVotesRef.current.delete(optionId)
+                    failedVotesRef.current.set(optionId, vote)
+                    throw err
+                })
+
+            pendingVotesRef.current.set(optionId, {
+                promise: submissionPromise,
+                optionId,
+                vote,
             })
 
             // Advance immediately so UI transitions at 60 FPS without network latency
@@ -99,13 +126,74 @@ export function useVoting() {
         } catch (error) {
             console.error(error)
         }
-    }, [roomId, participantId, currentOption])
+    }, [roomId, participantId, currentOption, isFlushing])
 
-    useEffect(() => {
-        if (!loading && !currentOption) {
+    // Flush pending votes and navigate safely only when confirmed
+    const flushAndNavigate = useCallback(async () => {
+        if (!roomId || !participantId || !roomCode) return
+        setIsFlushing(true)
+        setFlushError(null)
+
+        try {
+            // 1. Await all pending in-flight submissions to settle
+            while (pendingVotesRef.current.size > 0) {
+                const currentPromises = Array.from(pendingVotesRef.current.values()).map(entry =>
+                    entry.promise.catch(() => null)
+                )
+                await Promise.all(currentPromises)
+            }
+
+            // 2. Retry any submissions that previously failed
+            if (failedVotesRef.current.size > 0) {
+                const retryEntries = Array.from(failedVotesRef.current.entries())
+                for (const [failedOptionId, failedVote] of retryEntries) {
+                    try {
+                        await submitVoteWithRetry(roomId, failedOptionId, participantId, failedVote, 2)
+                        failedVotesRef.current.delete(failedOptionId)
+                    } catch (err) {
+                        console.error(`Retry failed for option ${failedOptionId}:`, err)
+                    }
+                }
+            }
+
+            // 3. If any failed votes could not be resolved, halt and prompt retry
+            if (failedVotesRef.current.size > 0) {
+                setFlushError("Some votes could not be saved. Please check your connection and tap retry.")
+                setIsFlushing(false)
+                return
+            }
+
+            // 4. Double check database persistence to confirm all votes are recorded
+            const persistedVotes = await getParticipantVotes(roomId, participantId)
+            const persistedIds = new Set(persistedVotes.map(v => v.option_id))
+            const missingVotes = userVotesRef.current.filter(uv => !persistedIds.has(uv.option_id))
+
+            if (missingVotes.length > 0) {
+                for (const missing of missingVotes) {
+                    await submitVoteWithRetry(roomId, missing.option_id, participantId, missing.vote, 2)
+                }
+            }
+
+            // 5. All votes confirmed in Supabase! Safe to navigate to waiting room
             router.replace(`/room/${roomCode}/waiting`)
+        } catch (err) {
+            console.error("Error confirming final votes:", err)
+            setFlushError("Failed to confirm all votes with the server. Tap retry to finish.")
+            setIsFlushing(false)
         }
-    }, [loading, currentOption, roomId, router, roomCode])
+    }, [roomId, participantId, roomCode, router])
+
+    // Trigger flush when all cards have been swiped
+    useEffect(() => {
+        if (!loading && !currentOption && initialOptionCount > 0 && !isFlushing && !flushError) {
+            flushAndNavigate()
+        }
+    }, [loading, currentOption, initialOptionCount, isFlushing, flushError, flushAndNavigate])
+
+    const retryFlush = useCallback(() => {
+        setFlushError(null)
+        flushAndNavigate()
+    }, [flushAndNavigate])
 
     return {
         loading,
@@ -121,5 +209,9 @@ export function useVoting() {
         userVotes,
         goCount,
         passCount,
+
+        isFlushing,
+        flushError,
+        retryFlush,
     }
 }

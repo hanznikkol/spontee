@@ -10,6 +10,7 @@ import LogoBranding from '@/components/custom/Landing/LogoBranding'
 import { useRoomSessionStore } from '@/lib/room/main/stores/room-session-store.store'
 import { MyVotesTrigger } from '@/components/custom/Room/Voting/MyVotesTrigger'
 import { MyVotesOverlay } from '@/components/custom/Room/Voting/MyVotesOverlay'
+import { AlertCircle } from 'lucide-react'
 
 export default function VotingPage() {
   const params = useParams()
@@ -31,6 +32,9 @@ export default function VotingPage() {
     userVotes,
     goCount,
     passCount,
+    isFlushing,
+    flushError,
+    retryFlush,
   } = useVoting()
 
   return (
@@ -75,6 +79,37 @@ export default function VotingPage() {
                   Loading voting deck...
                 </p>
               </div>
+            ) : isFlushing ? (
+              <div className="flex flex-col items-center justify-center h-full gap-3 p-6 text-center flex-1 animate-in fade-in duration-200">
+                <div className="h-9 w-9 animate-spin rounded-full border-3 border-primary/20 border-t-primary" />
+                <p className="text-sm font-semibold text-foreground animate-pulse">
+                  Finishing up your votes...
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Confirming all votes before proceeding
+                </p>
+              </div>
+            ) : flushError ? (
+              <div className="flex flex-col items-center justify-center h-full gap-4 p-6 text-center flex-1">
+                <div className="rounded-full bg-destructive/10 p-3 text-destructive">
+                  <AlertCircle className="h-6 w-6" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm font-semibold text-foreground">
+                    Unable to save all votes
+                  </p>
+                  <p className="text-xs text-muted-foreground max-w-xs">
+                    {flushError}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={retryFlush}
+                  className="px-4 py-2 text-xs font-semibold rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer active:scale-95 shadow-xs"
+                >
+                  Retry Submitting
+                </button>
+              </div>
             ) : (
               <>
                 {/* 2-Card Stack: Background preview + active interactive card */}
@@ -109,7 +144,7 @@ export default function VotingPage() {
                       handleSwipe('right')
                     }
                   }}
-                  disabled={!currentOption}
+                  disabled={!currentOption || isFlushing}
                 />
               </>
             )}
