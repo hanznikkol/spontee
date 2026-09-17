@@ -1,4 +1,3 @@
-import axios from "axios";
 import { CATEGORY_PLACE_TYPES } from "../types/constants/category-const";
 import { GooglePlace, GooglePlaceResponse } from "../types/google-place";
 
@@ -38,17 +37,11 @@ export async function searchNearby({ placeTypes, latitude, longitude, radius, ma
         const apiKey = process.env.GOOGLE_MAPS_API_KEY;
         if (!apiKey) throw new Error("GOOGLE_MAPS_API_KEY is missing.");
 
-        const response = await axios.post(
+        const response = await fetch(
             "https://places.googleapis.com/v1/places:searchNearby",
             {
-                includedTypes: placeTypes,
-                maxResultCount: clampedMaxResults,
-                locationRestriction: {
-                    circle: { center: { latitude, longitude }, radius }
-                }
-            },
-            {
-                timeout: 10000,
+                method: "POST",
+                signal: AbortSignal.timeout(10000),
                 headers: {
                     "Content-Type": "application/json",
                     "X-Goog-Api-Key": apiKey,
@@ -68,10 +61,35 @@ export async function searchNearby({ placeTypes, latitude, longitude, radius, ma
                         "places.editorialSummary"
                     ].join(",")
                 },
+                body: JSON.stringify({
+                    includedTypes: placeTypes,
+                    maxResultCount: clampedMaxResults,
+                    locationRestriction: {
+                        circle: { center: { latitude, longitude }, radius }
+                    }
+                }),
             }
         );
 
-        const places: GooglePlaceResponse[] = response.data.places ?? [];
+        if (!response.ok) {
+            const errorText = await response.text();
+            let errorJson: unknown;
+            try {
+                errorJson = JSON.parse(errorText);
+            } catch {
+                errorJson = errorText;
+            }
+            console.error(
+                "Google Places API Error:",
+                JSON.stringify(errorJson, null, 2)
+            );
+            throw new Error(
+                `Google Places API Error (${response.status}): ${typeof errorJson === "object" ? JSON.stringify(errorJson) : errorJson}`
+            );
+        }
+
+        const data = (await response.json()) as { places?: GooglePlaceResponse[] };
+        const places: GooglePlaceResponse[] = data.places ?? [];
 
         // Return up to 5 photos per place
         return places.map((place) => {
@@ -102,14 +120,7 @@ export async function searchNearby({ placeTypes, latitude, longitude, radius, ma
         });
 
     } catch (error) {
-        if (axios.isAxiosError(error)) {
-            console.error(
-                "Google Places API Error:",
-                JSON.stringify(error.response?.data ?? error.message, null, 2)
-            );
-        } else {
-            console.error("Google Places API Error:", error);
-        }
+        console.error("Google Places API Error:", error);
         throw error;
     }
 }
