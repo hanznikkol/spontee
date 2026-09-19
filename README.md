@@ -1,4 +1,4 @@
-# 🎲 Spontee
+# Spontee
 
 > **Stop arguing. Start deciding.**  
 > The real-time group decision engine that turns individual swipes into one group recommendation everyone agrees on.
