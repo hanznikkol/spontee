@@ -3,31 +3,29 @@
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { ArrowLeft, ArrowRight, Sparkles } from "lucide-react"
+import { ArrowLeft, ArrowRight } from "lucide-react"
 import RoomSetupHeader from "@/components/custom/RoomCreation/Setup/RoomSetupHeader"
 import { useCreateRoomStore } from "@/lib/room/create/stores/create-room-store"
-import RoomMaxParticipants from "@/components/custom/RoomCreation/Setup/RoomMaxParticipants"
 import { SetupProgress } from "@/components/custom/RoomCreation/Setup/SetupProgress"
 import { RoomMaxOptions } from "@/components/custom/RoomCreation/Setup/RoomMaxOptions"
+import { PreferenceCategorySelector } from "@/components/custom/RoomCreation/Preference/PreferenceCategorySelector"
+import { PreferenceBudgetSelector } from "@/components/custom/RoomCreation/Preference/PreferenceBudgetSelector"
 
 export default function RoomSetup() {
   const router = useRouter()
 
   // Zustand Store
-  const setRoomName = useCreateRoomStore((state) => state.setRoomName)
-  const setMaxParticipants = useCreateRoomStore(
-    (state) => state.setMaxParticipants
+  const selectedCategories = useCreateRoomStore(
+    (state) => state.selectedCategoriesbyNames
   )
+  const toggleCategory = useCreateRoomStore((state) => state.toggleCategory)
+  const selectedBudget = useCreateRoomStore((state) => state.budget)
+  const setSelectedBudget = useCreateRoomStore((state) => state.setBudget)
+  const maxOptions = useCreateRoomStore((state) => state.maxOptions)
   const setMaxOptions = useCreateRoomStore((state) => state.setMaxOptions)
 
-  const maxParticipants = useCreateRoomStore((state) => state.maxParticipants)
-  const maxOptions = useCreateRoomStore((state) => state.maxOptions)
-  const roomName = useCreateRoomStore((state) => state.roomName)
-
-  const canContinue = !!roomName.trim()
+  const canContinue = selectedCategories.length > 0
 
   const handleNext = () => {
     if (!canContinue) return
@@ -40,7 +38,7 @@ export default function RoomSetup() {
 
   return (
     <div className="flex min-h-dvh flex-col justify-between px-3.5 sm:px-6 md:px-8 py-6 sm:py-10">
-      <div className="mx-auto w-full max-w-md space-y-4 sm:space-y-5">
+      <div className="mx-auto w-full max-w-md sm:max-w-lg space-y-4 sm:space-y-5">
         {/* BRAND WORDMARK */}
         <div className="flex justify-center">
           <Link
@@ -65,7 +63,7 @@ export default function RoomSetup() {
             className="rounded-xl px-2 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors -ml-1 h-8"
           >
             <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
-            Back to Host Name
+            Back to Room Setup
           </Button>
 
           <SetupProgress step={2} total={3} />
@@ -76,42 +74,20 @@ export default function RoomSetup() {
           <CardContent className="p-5 sm:p-7 md:p-8 space-y-5 sm:space-y-6">
             <RoomSetupHeader />
 
-            <div className="space-y-4 sm:space-y-5">
-              {/* ROOM NAME */}
-              <div className="space-y-1.5">
-                <Label
-                  htmlFor="room-name"
-                  className="text-sm font-semibold flex items-center gap-1.5"
-                >
-                  <Sparkles className="h-4 w-4 text-pink-500" />
-                  Room Name
-                </Label>
-                <Input
-                  id="room-name"
-                  placeholder="e.g. Date Night, Friday Hangout, Team Lunch"
-                  value={roomName}
-                  maxLength={40}
-                  autoFocus
-                  onChange={(e) => setRoomName(e.target.value)}
-                  onKeyDown={(e) =>
-                    e.key === "Enter" && canContinue && handleNext()
-                  }
-                  className="h-10 sm:h-11 rounded-2xl border-border/80 text-sm px-3.5"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Give your session a memorable title.
-                </p>
-              </div>
-
-              {/* PARTICIPANT LIMIT */}
-              <RoomMaxParticipants
-                value={maxParticipants}
-                onChange={setMaxParticipants}
-                min={2}
-                max={25}
+            <div className="space-y-5 sm:space-y-6">
+              {/* CATEGORY SELECTOR */}
+              <PreferenceCategorySelector
+                value={selectedCategories}
+                onChange={toggleCategory}
               />
 
-              {/* OPTIONS COUNT */}
+              {/* BUDGET SELECTOR */}
+              <PreferenceBudgetSelector
+                value={selectedBudget}
+                onChange={setSelectedBudget}
+              />
+
+              {/* PLACES TO SWIPE */}
               <RoomMaxOptions
                 maxOptions={maxOptions}
                 onChange={setMaxOptions}
@@ -126,12 +102,14 @@ export default function RoomSetup() {
                 onClick={handleNext}
                 disabled={!canContinue}
               >
-                Continue to Preferences
+                Continue to Location
                 <ArrowRight className="h-4 w-4" />
               </Button>
 
               <p className="text-center text-xs text-muted-foreground">
-                You&apos;ll get an invite link & QR code after creating.
+                {canContinue
+                  ? "Next: Set your search area and location."
+                  : "Select at least 1 category above to continue."}
               </p>
             </div>
           </CardContent>

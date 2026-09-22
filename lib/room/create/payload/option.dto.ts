@@ -8,4 +8,5 @@ export interface GenerateOptionsPayload {
   radius: number
   maxOptions: number
   excludePlaceIds?: string[]
+  openNowOnly?: boolean
 }

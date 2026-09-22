@@ -3,22 +3,35 @@
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
-import { ArrowRight, ArrowLeft } from "lucide-react"
+import { ArrowRight, ArrowLeft, Sparkles } from "lucide-react"
 import HostHeader from "@/components/custom/RoomCreation/Host/HostHeader"
 import { useCreateRoomStore } from "@/lib/room/create/stores/create-room-store"
 import NameInput from "@/components/custom/Room/NameInput"
 import { SetupProgress } from "@/components/custom/RoomCreation/Setup/SetupProgress"
+import RoomMaxParticipants from "@/components/custom/RoomCreation/Setup/RoomMaxParticipants"
 
 export default function HostPage() {
   const router = useRouter()
   const hostName = useCreateRoomStore((state) => state.hostName)
   const setHostName = useCreateRoomStore((state) => state.setHostName)
+  const roomName = useCreateRoomStore((state) => state.roomName)
+  const setRoomName = useCreateRoomStore((state) => state.setRoomName)
+  const maxParticipants = useCreateRoomStore((state) => state.maxParticipants)
+  const setMaxParticipants = useCreateRoomStore(
+    (state) => state.setMaxParticipants
+  )
 
   const isValidName = hostName.trim().length >= 2
 
   const handleContinue = () => {
-    if (!hostName.trim()) return
+    const trimmedHost = hostName.trim()
+    if (trimmedHost.length < 2) return
+    if (!roomName.trim()) {
+      setRoomName(`${trimmedHost}'s Room`)
+    }
     router.replace(`/create/room`)
   }
 
@@ -48,21 +61,63 @@ export default function HostPage() {
           <CardContent className="p-5 sm:p-7 md:p-8 space-y-5 sm:space-y-6">
             <HostHeader />
 
-            <div className="space-y-3">
-              <NameInput
-                title="Host Name"
-                placeholder="e.g. Maya, Alex, The Host"
-                value={hostName}
-                required
-                onChange={(e) => setHostName(e.target.value.slice(0, 20))}
-                onKeyDown={(e) =>
-                  e.key === "Enter" && isValidName && handleContinue()
-                }
-              />
+            <div className="space-y-4 sm:space-y-5">
+              {/* HOST DISPLAY NAME */}
+              <div className="space-y-1.5">
+                <NameInput
+                  title="Your Name"
+                  placeholder="e.g. Maya, Alex"
+                  value={hostName}
+                  required
+                  onChange={(e) => setHostName(e.target.value.slice(0, 20))}
+                  onKeyDown={(e) =>
+                    e.key === "Enter" && isValidName && handleContinue()
+                  }
+                />
+                <p className="text-xs text-muted-foreground">
+                  Minimum 2 characters. Your friends will see this in the lobby.
+                </p>
+              </div>
 
-              <p className="text-xs text-muted-foreground">
-                Minimum 2 characters. You can invite your group after setup.
-              </p>
+              {/* ROOM NAME (OPTIONAL WITH AUTO-DEFAULT) */}
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="room-name"
+                  className="text-sm font-semibold flex items-center justify-between"
+                >
+                  <span className="flex items-center gap-1.5">
+                    <Sparkles className="h-4 w-4 text-pink-500" />
+                    Room Name
+                  </span>
+                  <span className="text-xs font-normal text-muted-foreground">
+                    Optional
+                  </span>
+                </Label>
+                <Input
+                  id="room-name"
+                  placeholder="e.g. Friday Hangout, Dinner with Friends"
+                  value={roomName}
+                  maxLength={40}
+                  onChange={(e) => setRoomName(e.target.value)}
+                  onKeyDown={(e) =>
+                    e.key === "Enter" && isValidName && handleContinue()
+                  }
+                  className="h-10 sm:h-11 rounded-2xl border-border/80 text-sm px-3.5"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Leave blank to use &quot;
+                  {hostName.trim() ? `${hostName.trim()}'s Room` : "Your Name's Room"}
+                  &quot;.
+                </p>
+              </div>
+
+              {/* GROUP SIZE LIMIT */}
+              <RoomMaxParticipants
+                value={maxParticipants}
+                onChange={setMaxParticipants}
+                min={2}
+                max={25}
+              />
             </div>
 
             <Button
@@ -71,7 +126,7 @@ export default function HostPage() {
               disabled={!isValidName}
               onClick={handleContinue}
             >
-              Continue to Room Setup
+              Continue to Preferences
               <ArrowRight className="h-4 w-4" />
             </Button>
           </CardContent>

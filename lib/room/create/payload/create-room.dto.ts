@@ -15,4 +15,5 @@ export interface CreateRoomPayload {
   latitude: number;
   longitude: number;
   radius: number;
+  openNowOnly?: boolean;
 }

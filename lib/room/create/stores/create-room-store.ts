@@ -38,6 +38,7 @@ export interface CreateRoomState {
     latitude?: number
     longitude?: number
     radius: number
+    openNowOnly: boolean
 }
 
 // Actions
@@ -68,6 +69,7 @@ interface CreateRoomStore extends CreateRoomState {
     ) => void
     clearLocation: () => void
     setRadius: (radius: number) => void
+    setOpenNowOnly: (openNowOnly: boolean) => void
 }
 
 // Initial Data State
@@ -84,6 +86,7 @@ const initialState: CreateRoomState = {
   locationStatus: "required",
   address: "",
   radius: 1000,
+  openNowOnly: true,
 }
 
 // Store
@@ -167,6 +170,7 @@ export const useCreateRoomStore = create<CreateRoomStore>()(
           ...(data && "address" in data ? { address: data.address } : {}),
         }),
       setRadius: (radius) => set({ radius }),
+      setOpenNowOnly: (openNowOnly) => set({ openNowOnly }),
     }),
     {
       name: "spontee-create-room",

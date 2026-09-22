@@ -1,7 +1,6 @@
 "use client"
 
 import React from "react"
-import { Slider } from "@/components/ui/slider"
 import { Label } from "@/components/ui/label"
 import { Layers } from "lucide-react"
 import { MAX_OPTIONS_VALUES } from "@/lib/room/create/types/constants/max-options-const"
@@ -18,15 +17,13 @@ export function RoomMaxOptions({ maxOptions, onChange }: RoomMaxOptionsProps) {
     ? maxOptions
     : (MAX_OPTIONS_VALUES.find((val) => val >= maxOptions) ?? 10)
 
-  const selectedIndex = (MAX_OPTIONS_VALUES as readonly number[]).indexOf(safeMaxOptions)
-
   return (
     <div className="space-y-3.5 rounded-2xl border border-border/70 bg-background/50 p-4 transition-all">
       <div className="flex items-center justify-between">
         <div className="space-y-0.5">
           <Label className="text-sm font-semibold flex items-center gap-1.5">
             <Layers className="h-4 w-4 text-purple-500" />
-            Places to Vote On
+            Places to Swipe
           </Label>
           <p className="text-xs text-muted-foreground">
             How many options should we discover?
@@ -61,29 +58,10 @@ export function RoomMaxOptions({ maxOptions, onChange }: RoomMaxOptionsProps) {
         })}
       </div>
 
-      {/* SLIDER FOR ACCESSIBILITY & CONTINUOUS ADJUSTMENT */}
-      <div className="pt-1 space-y-1.5">
-        <Slider
-          value={[selectedIndex === -1 ? 1 : selectedIndex]}
-          min={0}
-          max={MAX_OPTIONS_VALUES.length - 1}
-          step={1}
-          onValueChange={([nextIndex]) =>
-            onChange(MAX_OPTIONS_VALUES[nextIndex] ?? safeMaxOptions)
-          }
-          aria-label="Places to vote on"
-          className="cursor-pointer"
-        />
-
-        <div className="flex justify-between text-[11px] text-muted-foreground">
-          <span>Fewer (faster)</span>
-          <span>More (thorough)</span>
-        </div>
-
-        <p className="text-center text-[11px] text-muted-foreground pt-1">
-          We&apos;ll show up to this many options, depending on what&apos;s available near your location. Some options may be unavailable if places are already closed at this time.
-        </p>
-      </div>
+      {/* HELPER SUBTEXT */}
+      <p className="text-center text-[11px] text-muted-foreground pt-1">
+        We&apos;ll show up to this many options to swipe on, depending on what&apos;s available near your location.
+      </p>
     </div>
   )
 }

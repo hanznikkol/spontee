@@ -7,8 +7,6 @@ import { ArrowLeft, Sparkles, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { RoomPreferenceHeader } from "@/components/custom/RoomCreation/Preference/RoomPreferenceHeader"
-import { PreferenceCategorySelector } from "@/components/custom/RoomCreation/Preference/PreferenceCategorySelector"
-import { PreferenceBudgetSelector } from "@/components/custom/RoomCreation/Preference/PreferenceBudgetSelector"
 import PreferenceLocationCard from "@/components/custom/RoomCreation/Preference/PreferenceLocationCard"
 import { SetupProgress } from "@/components/custom/RoomCreation/Setup/SetupProgress"
 import { ErrorDialog } from "@/components/custom/Modal/ErrorLogDialog"
@@ -33,17 +31,18 @@ export default function RoomPreferencePage() {
   const [errorMessage, setErrorMessage] = useState("")
 
   // Zustand Store
-  const selectedBudget = useCreateRoomStore((state) => state.budget)
-  const setSelectedBudget = useCreateRoomStore((state) => state.setBudget)
+  const latitude = useCreateRoomStore((state) => state.latitude)
+  const longitude = useCreateRoomStore((state) => state.longitude)
   const selectedCategories = useCreateRoomStore(
     (state) => state.selectedCategoriesbyNames
   )
-  const toggleCategory = useCreateRoomStore((state) => state.toggleCategory)
 
   // Session Store
   const setSession = useRoomSessionStore((state) => state.setSession)
 
-  const canCreate = selectedCategories.length > 0
+  const hasLocation = latitude != null && longitude != null
+  const hasCategories = selectedCategories.length > 0
+  const canCreate = hasLocation && hasCategories && !isCreating
 
   const handleCreateRoom = async () => {
     if (!canCreate || isCreating) return
@@ -64,6 +63,7 @@ export default function RoomPreferencePage() {
         latitude: state.latitude!,
         longitude: state.longitude!,
         radius: state.radius,
+        openNowOnly: state.openNowOnly,
       })
 
       setSession({
@@ -129,7 +129,7 @@ export default function RoomPreferencePage() {
               className="rounded-xl px-2 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors -ml-1 h-8"
             >
               <ArrowLeft className="mr-1.5 h-3.5 w-3.5" aria-hidden="true" />
-              Back to Room Setup
+              Back to Preferences
             </Button>
 
             <SetupProgress step={3} total={3} />
@@ -141,19 +141,7 @@ export default function RoomPreferencePage() {
               <RoomPreferenceHeader />
 
               <div className="space-y-5 sm:space-y-6">
-                {/* Category Selection */}
-                <PreferenceCategorySelector
-                  value={selectedCategories}
-                  onChange={toggleCategory}
-                />
-
-                {/* Budget Preference */}
-                <PreferenceBudgetSelector
-                  value={selectedBudget}
-                  onChange={setSelectedBudget}
-                />
-
-                {/* Location Radius */}
+                {/* Location & Radius Card (with Open Now Only toggle) */}
                 <PreferenceLocationCard />
               </div>
 
@@ -181,12 +169,11 @@ export default function RoomPreferencePage() {
 
                 <div className="space-y-1 text-center">
                   <p className="text-xs text-muted-foreground">
-                    {canCreate
-                      ? "Places will be discovered with Google Places."
-                      : "Select at least 1 category above to continue."}
-                  </p>
-                  <p className="text-[11px] text-muted-foreground/80">
-                    We filter out places that are currently closed, so fewer options may be available.
+                    {!hasLocation
+                      ? "Choose or search a location above to create your room."
+                      : !hasCategories
+                        ? "Please go back and select at least 1 category."
+                        : "Places will be discovered with Google Places."}
                   </p>
                 </div>
               </div>

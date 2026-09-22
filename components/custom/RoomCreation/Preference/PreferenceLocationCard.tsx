@@ -2,12 +2,13 @@
 
 import React, { useCallback, useEffect, useState } from "react"
 import { useMapsLibrary } from "@vis.gl/react-google-maps"
-import { MapPin } from "lucide-react"
+import { MapPin, Clock } from "lucide-react"
 import { useCreateRoomStore } from "@/lib/room/create/stores/create-room-store"
 import { SelectedAddress } from "./LocationComponents/SelectedAddress"
 import { LocationRadius } from "./LocationComponents/LocationRadius"
 import { LocationSearch, SelectedPlace } from "./LocationComponents/LocationSearch"
 import { MapSelector } from "./LocationComponents/MapContainer"
+import { cn } from "@/lib/utils"
 
 import { LocationStatus } from "@/lib/room/create/types/location"
 
@@ -21,6 +22,8 @@ export interface PreferenceLocationCardProps {
   address?: string
   radius?: number
   locationStatus?: LocationStatus
+  openNowOnly?: boolean
+  onOpenNowOnlyChange?: (openNowOnly: boolean) => void
   onChange?: (data: {
     latitude: number
     longitude: number
@@ -36,6 +39,8 @@ export function PreferenceLocationCard({
   address: propAddress,
   radius: propRadius,
   locationStatus: propLocationStatus,
+  openNowOnly: propOpenNowOnly,
+  onOpenNowOnlyChange: propOnOpenNowOnlyChange,
   onChange: propOnChange,
 }: PreferenceLocationCardProps = {}) {
   // Store fallback when not in controlled mode
@@ -47,6 +52,8 @@ export function PreferenceLocationCard({
   const storeAddress = useCreateRoomStore((state) => state.address)
   const storeRadius = useCreateRoomStore((state) => state.radius)
   const setRadius = useCreateRoomStore((state) => state.setRadius)
+  const storeOpenNowOnly = useCreateRoomStore((state) => state.openNowOnly)
+  const setOpenNowOnly = useCreateRoomStore((state) => state.setOpenNowOnly)
 
   const isControlled = Boolean(propOnChange)
 
@@ -57,6 +64,17 @@ export function PreferenceLocationCard({
   const locationStatus = isControlled
     ? (propLocationStatus ?? (latitude != null && longitude != null ? "custom" : "required"))
     : storeLocationStatus
+
+  const openNowOnly = propOpenNowOnly !== undefined ? propOpenNowOnly : storeOpenNowOnly
+
+  const handleToggleOpenNowOnly = useCallback(() => {
+    const next = !openNowOnly
+    if (propOnOpenNowOnlyChange) {
+      propOnOpenNowOnlyChange(next)
+    } else {
+      setOpenNowOnly(next)
+    }
+  }, [openNowOnly, propOnOpenNowOnlyChange, setOpenNowOnly])
 
   const geocoding = useMapsLibrary("geocoding")
   const [isLocating, setIsLocating] = useState(false)
@@ -231,8 +249,45 @@ export function PreferenceLocationCard({
         {/* Selected Address Display */}
         <SelectedAddress status={locationStatus} address={address} />
 
-        {/* Radius Slider */}
+        {/* Radius Chips */}
         <LocationRadius radius={radius} onChange={handleRadiusChange} />
+
+        {/* Open Now Only Toggle */}
+        <div className="flex items-center justify-between rounded-2xl border border-border/70 bg-background/50 p-3.5 sm:p-4 transition-all gap-3">
+          <div className="space-y-0.5 min-w-0 flex-1">
+            <div className="flex items-center gap-1.5">
+              <Clock className="h-4 w-4 text-pink-500 shrink-0" />
+              <span className="text-sm font-semibold text-foreground">Open Now Only</span>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              {openNowOnly
+                ? "Only discover places currently open for business."
+                : "Include places that may be closed right now (great for planning ahead)."}
+            </p>
+            <p className="text-[11px] text-muted-foreground/75 pt-0.5">
+              Permanently or temporarily closed places are always excluded.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            role="switch"
+            aria-checked={openNowOnly}
+            aria-label="Open now only"
+            onClick={handleToggleOpenNowOnly}
+            className={cn(
+              "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-pink-500 focus-visible:ring-offset-2",
+              openNowOnly ? "bg-gradient-to-r from-pink-500 to-purple-500" : "bg-muted"
+            )}
+          >
+            <span
+              className={cn(
+                "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out",
+                openNowOnly ? "translate-x-5" : "translate-x-0"
+              )}
+            />
+          </button>
+        </div>
       </div>
     </section>
   )

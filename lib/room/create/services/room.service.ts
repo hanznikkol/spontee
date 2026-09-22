@@ -34,7 +34,8 @@ export async function create(data: CreateRoomPayload, supabase: SupabaseClient) 
       longitude: data.longitude,
       radius: data.radius,
       budget: data.budget,
-      maxOptions: data.maxOptions
+      maxOptions: data.maxOptions,
+      openNowOnly: data.openNowOnly,
   });
 
   // Save options

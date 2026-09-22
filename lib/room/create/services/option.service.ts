@@ -124,9 +124,9 @@ export async function generate(payload: GenerateOptionsPayload) {
         (p) => (p.distanceMeters ?? Infinity) <= fallbackRadius
     );
 
-    // --- Filter (hard gates only — permanently/temporarily closed) ---
+    // --- Filter (hard gates only — permanently/temporarily closed, and currently closed when openNowOnly) ---
     const preFilterCount = radiusScopedPlaces.length;
-    const filteredPlaces = filterCandidates(radiusScopedPlaces);
+    const filteredPlaces = filterCandidates(radiusScopedPlaces, payload.openNowOnly ?? true);
     const removedByClosedStatus = preFilterCount - filteredPlaces.length;
 
     // --- Budget filter ---
@@ -555,22 +555,28 @@ export function attachDistance(places: GooglePlace[], originLat: number, originL
 // ---------------------------------------------------------------------------
 
 /**
- * Hard-excludes only genuinely invalid venues:
- * - Permanently closed businesses
- * - Temporarily closed businesses (not expected to reopen)
+ * Hard-excludes invalid venues:
+ * - Permanently closed businesses (always)
+ * - Temporarily closed businesses (always)
+ * - Currently closed businesses (when openNowOnly is true)
  *
- * openNow === false: NOT excluded here. A place closed at 2pm may still be
- * an excellent dinner recommendation. Handled as a soft ranking penalty instead.
- *
- * Low review count: NOT excluded here. Legitimate local businesses in smaller
- * cities may have fewer reviews. Handled as a review-confidence factor in ranking.
+ * When openNowOnly is false: places currently closed are allowed into the candidate
+ * pool, and receive a soft ranking penalty via calculateOpenStatusFactor (0.85).
  */
-export function filterCandidates(places: GooglePlace[]): GooglePlace[] {
+export function filterCandidates(places: GooglePlace[], openNowOnly: boolean = true): GooglePlace[] {
     return places.filter((place) => {
-        return (
-            place.businessStatus !== "CLOSED_PERMANENTLY" &&
-            place.businessStatus !== "CLOSED_TEMPORARILY"
-        );
+        if (
+            place.businessStatus === "CLOSED_PERMANENTLY" ||
+            place.businessStatus === "CLOSED_TEMPORARILY"
+        ) {
+            return false;
+        }
+
+        if (openNowOnly && place.openNow === false) {
+            return false;
+        }
+
+        return true;
     });
 }
 
