@@ -5,7 +5,7 @@ import { PROBLEM_QUOTES } from "@/lib/landing/text-metadata"
 
 export default function ProblemSection() {
   return (
-    <section id="problem" className="relative py-20 sm:py-28 overflow-hidden bg-muted/20 border-y border-border/40">
+    <section id="problem" className="relative py-20 sm:py-28 overflow-hidden bg-muted/20 border-y border-border/40 scroll-mt-16">
       {/* Background ambient lighting */}
       <div className="pointer-events-none absolute top-1/2 left-0 -translate-y-1/2 w-80 h-80 bg-pink-500/5 blur-3xl rounded-full" />
       <div className="pointer-events-none absolute bottom-0 right-10 w-80 h-80 bg-blue-500/5 blur-3xl rounded-full" />

@@ -16,21 +16,59 @@ export function HomeNavigation() {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20)
     }
+    handleScroll()
     window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
   const navLinks = [
     { label: "The Problem", href: "#problem" },
-    { label: "How It Works", href: "#how-it-works" },
     { label: "Live Demo", href: "#demo" },
+    { label: "How It Works", href: "#how-it-works" },
     { label: "Features", href: "#features" },
   ]
+
+  const handleNavClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string
+  ) => {
+    if (href.startsWith("#")) {
+      e.preventDefault()
+      const targetId = href.replace("#", "")
+      const element = document.getElementById(targetId)
+
+      if (element) {
+        const headerOffset = 72
+        const elementPosition = element.getBoundingClientRect().top
+        const offsetPosition =
+          elementPosition + window.pageYOffset - headerOffset
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth",
+        })
+
+        window.history.pushState(null, "", href)
+      }
+
+      if (mobileMenuOpen) {
+        setMobileMenuOpen(false)
+      }
+    }
+  }
+
+  const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (typeof window !== "undefined" && window.location.pathname === "/") {
+      e.preventDefault()
+      window.scrollTo({ top: 0, behavior: "smooth" })
+      if (mobileMenuOpen) setMobileMenuOpen(false)
+    }
+  }
 
   return (
     <>
       <header
-        className={`sticky top-0 z-50 w-full transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300 ${
           scrolled
             ? "border-b border-border/50 bg-background/80 backdrop-blur-xl shadow-xs"
             : "border-b border-transparent bg-background/40 backdrop-blur-md"
@@ -41,6 +79,7 @@ export function HomeNavigation() {
           <div className="flex items-center gap-6">
             <Link
               href="/"
+              onClick={handleLogoClick}
               className="group flex items-center gap-2.5 transition-transform active:scale-95"
             >
               <span className="text-xl font-bold tracking-tight text-foreground">
@@ -57,6 +96,7 @@ export function HomeNavigation() {
                 <a
                   key={link.href}
                   href={link.href}
+                  onClick={(e) => handleNavClick(e, link.href)}
                   className="rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground transition hover:text-foreground hover:bg-muted/50"
                 >
                   {link.label}
@@ -129,13 +169,13 @@ export function HomeNavigation() {
 
         {/* MOBILE MENU DROPDOWN */}
         {mobileMenuOpen && (
-          <div className="border-b border-border/60 bg-background/95 backdrop-blur-xl px-4 pt-2 pb-6 md:hidden animate-in slide-in-from-top-2 duration-200">
+          <div className="border-b border-border/60 bg-background/95 backdrop-blur-xl px-4 pt-2 pb-6 md:hidden animate-in slide-in-from-top-2 duration-200 max-h-[calc(100dvh-4rem)] overflow-y-auto custom-scrollbar">
             <nav className="flex flex-col space-y-2 pb-4">
               {navLinks.map((link) => (
                 <a
                   key={link.href}
                   href={link.href}
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={(e) => handleNavClick(e, link.href)}
                   className="rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/60 hover:text-foreground"
                 >
                   {link.label}

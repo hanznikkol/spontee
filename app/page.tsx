@@ -18,6 +18,7 @@ export default function HomePage() {
 
       {/* 1. Navigation */}
       <HomeNavigation />
+      <div className="h-16 w-full shrink-0" aria-hidden="true" />
 
       {/* 2. Hero Section with Swipe & Live Convergence Demonstration */}
       <HeroSection />

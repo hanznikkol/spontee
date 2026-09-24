@@ -189,5 +189,6 @@ gmp-place-autocomplete {
   }
   html {
     @apply font-sans;
+    scroll-behavior: smooth;
   }
 }

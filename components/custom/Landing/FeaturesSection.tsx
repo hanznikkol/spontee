@@ -12,7 +12,7 @@ import {
 
 export default function FeaturesSection() {
   return (
-    <section id="features" className="relative py-20 sm:py-28 overflow-hidden bg-muted/20 border-t border-border/40">
+    <section id="features" className="relative py-20 sm:py-28 overflow-hidden bg-muted/20 border-t border-border/40 scroll-mt-16">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* SECTION HEADER */}
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">

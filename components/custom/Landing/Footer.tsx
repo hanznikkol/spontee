@@ -9,6 +9,38 @@ import { ThemeToggle } from "@/components/custom/Theme/ThemeToggle"
 export default function Footer() {
   const [feedbackOpen, setFeedbackOpen] = useState(false)
 
+  const handleScrollTo = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string
+  ) => {
+    if (href.startsWith("#")) {
+      e.preventDefault()
+      const targetId = href.replace("#", "")
+      const element = document.getElementById(targetId)
+
+      if (element) {
+        const headerOffset = 72
+        const elementPosition = element.getBoundingClientRect().top
+        const offsetPosition =
+          elementPosition + window.pageYOffset - headerOffset
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth",
+        })
+
+        window.history.pushState(null, "", href)
+      }
+    }
+  }
+
+  const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (typeof window !== "undefined" && window.location.pathname === "/") {
+      e.preventDefault()
+      window.scrollTo({ top: 0, behavior: "smooth" })
+    }
+  }
+
   return (
     <>
       <footer className="relative z-10 border-t border-border/60 bg-background/60 backdrop-blur-xl">
@@ -16,7 +48,11 @@ export default function Footer() {
           <div className="grid gap-8 md:grid-cols-12 items-center justify-between">
             {/* BRAND COLUMN */}
             <div className="md:col-span-12 lg:col-span-5 space-y-3">
-              <Link href="/" className="inline-flex items-center gap-2">
+              <Link
+                href="/"
+                onClick={handleLogoClick}
+                className="inline-flex items-center gap-2"
+              >
                 <span className="text-lg font-bold tracking-tight text-foreground">
                   Spont
                   <span className="bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
@@ -33,16 +69,32 @@ export default function Footer() {
 
             {/* QUICK LINKS */}
             <div className="md:col-span-7 lg:col-span-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-medium text-muted-foreground">
-              <a href="#problem" className="hover:text-foreground transition">
+              <a
+                href="#problem"
+                onClick={(e) => handleScrollTo(e, "#problem")}
+                className="hover:text-foreground transition"
+              >
                 The Problem
               </a>
-              <a href="#how-it-works" className="hover:text-foreground transition">
+              <a
+                href="#demo"
+                onClick={(e) => handleScrollTo(e, "#demo")}
+                className="hover:text-foreground transition"
+              >
+                Live Demo
+              </a>
+              <a
+                href="#how-it-works"
+                onClick={(e) => handleScrollTo(e, "#how-it-works")}
+                className="hover:text-foreground transition"
+              >
                 How It Works
               </a>
-              <a href="#demo" className="hover:text-foreground transition">
-                Interactive Demo
-              </a>
-              <a href="#features" className="hover:text-foreground transition">
+              <a
+                href="#features"
+                onClick={(e) => handleScrollTo(e, "#features")}
+                className="hover:text-foreground transition"
+              >
                 Features
               </a>
               <button

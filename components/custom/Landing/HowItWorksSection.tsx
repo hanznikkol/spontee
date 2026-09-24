@@ -7,7 +7,7 @@ export default function HowItWorksSection() {
   const stepIcons = [Users, SlidersHorizontal, Layers, Trophy]
 
   return (
-    <section id="how-it-works" className="relative py-20 sm:py-28 overflow-hidden">
+    <section id="how-it-works" className="relative py-20 sm:py-28 overflow-hidden scroll-mt-16">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* SECTION HEADER */}
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">

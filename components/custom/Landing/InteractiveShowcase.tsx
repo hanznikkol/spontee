@@ -175,7 +175,7 @@ export default function InteractiveShowcase() {
   return (
     <section
       id="demo"
-      className="relative overflow-hidden border-y border-border/40 bg-muted/30 py-20 sm:py-28"
+      className="relative overflow-hidden border-y border-border/40 bg-muted/30 py-20 sm:py-28 scroll-mt-16"
     >
       {/* Background glow */}
       <div className="pointer-events-none absolute -top-40 left-1/2 h-87.5 w-175 -translate-x-1/2 rounded-full bg-linear-to-r from-pink-500/10 via-purple-500/10 to-blue-500/10 blur-3xl transform-gpu contain-paint" />

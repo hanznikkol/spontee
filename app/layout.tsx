@@ -90,7 +90,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html suppressHydrationWarning lang="en" className={`${jakarta.variable} h-full antialiased`}>
+    <html suppressHydrationWarning lang="en" className={`${jakarta.variable} h-full antialiased scroll-smooth`}>
       <body className=" min-h-full flex flex-col">
         <Providers>
           {children}
