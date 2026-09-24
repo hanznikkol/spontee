@@ -117,7 +117,7 @@ export default function Footer() {
                 Join Room
               </Link>
               <Link
-                href="/create/host"
+                href="/create/room"
                 className="rounded-xl bg-linear-to-r from-pink-500 to-blue-500 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs hover:opacity-95 transition"
               >
                 Create Room

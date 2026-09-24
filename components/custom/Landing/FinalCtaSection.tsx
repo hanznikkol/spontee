@@ -41,7 +41,7 @@ export default function FinalCtaSection() {
                 size="lg"
                 className="w-full sm:w-auto h-13 px-8 rounded-2xl bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 text-base font-semibold text-white shadow-xl shadow-pink-500/25 hover:shadow-pink-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
               >
-                <Link href="/create/host">
+                <Link href="/create/room">
                   <Zap className="mr-2 h-5 w-5 fill-white" />
                   Create a Room
                   <ArrowRight className="ml-2 h-5 w-5" />

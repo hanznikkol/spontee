@@ -18,7 +18,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
-      url: `${siteUrl}/create/host`,
+      url: `${siteUrl}/create/room`,
       lastModified,
       changeFrequency: "monthly",
       priority: 0.8,

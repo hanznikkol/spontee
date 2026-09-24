@@ -3,9 +3,12 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Users, Plus, MessageSquare, Menu, X, ArrowRight } from "lucide-react"
+import { Users, Plus, MessageSquare, Menu, X, ArrowRight, Coffee } from "lucide-react"
 import { FeedbackDialog } from "@/components/custom/Modal/FeedbackDialog"
 import { ThemeToggle, ThemeSegmentedControl } from "@/components/custom/Theme/ThemeToggle"
+
+const BUY_ME_A_COFFEE_URL =
+  process.env.NEXT_PUBLIC_SUPPORT_URL || "https://buymeacoffee.com/hanznikkolk"
 
 export function HomeNavigation() {
   const [feedbackOpen, setFeedbackOpen] = useState(false)
@@ -112,6 +115,23 @@ export function HomeNavigation() {
             <Button
               variant="ghost"
               size="sm"
+              asChild
+              className="rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/60 text-xs font-medium"
+            >
+              <a
+                href={BUY_ME_A_COFFEE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Buy me a coffee"
+              >
+                <Coffee className="h-3.5 w-3.5 text-amber-500 lg:mr-1.5" />
+                <span className="hidden lg:inline">Buy me a coffee</span>
+              </a>
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => setFeedbackOpen(true)}
               className="rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/60 text-xs font-medium"
             >
@@ -136,7 +156,7 @@ export function HomeNavigation() {
               asChild
               className="group rounded-xl bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 px-4 text-sm font-semibold text-white shadow-md shadow-pink-500/25 transition-all hover:scale-[1.02] hover:shadow-pink-500/40 active:scale-[0.98]"
             >
-              <Link href="/create/host">
+              <Link href="/create/room">
                 Create Room
                 <ArrowRight className="ml-1 h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
               </Link>
@@ -152,7 +172,7 @@ export function HomeNavigation() {
               asChild
               className="rounded-xl bg-linear-to-r from-pink-500 to-blue-500 px-3 text-xs font-semibold text-white shadow-xs"
             >
-              <Link href="/create/host">Create</Link>
+              <Link href="/create/room">Create</Link>
             </Button>
 
             <Button
@@ -203,10 +223,27 @@ export function HomeNavigation() {
                 asChild
                 className="w-full justify-center rounded-xl bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 py-2.5 text-sm font-semibold text-white shadow-md shadow-pink-500/25"
               >
-                <Link href="/create/host" onClick={() => setMobileMenuOpen(false)}>
+                <Link href="/create/room" onClick={() => setMobileMenuOpen(false)}>
                   <Plus className="mr-1.5 h-4 w-4" />
                   Create a New Room
                 </Link>
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                asChild
+                className="w-full justify-center rounded-xl text-xs text-muted-foreground hover:text-foreground"
+              >
+                <a
+                  href={BUY_ME_A_COFFEE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Coffee className="mr-1.5 h-3.5 w-3.5 text-amber-500" />
+                  Buy me a coffee
+                </a>
               </Button>
 
               <Button

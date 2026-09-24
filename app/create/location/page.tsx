@@ -6,9 +6,9 @@ import Link from "next/link"
 import { ArrowLeft, Sparkles, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { RoomPreferenceHeader } from "@/components/custom/RoomCreation/Preference/RoomPreferenceHeader"
-import PreferenceLocationCard from "@/components/custom/RoomCreation/Preference/PreferenceLocationCard"
-import { SetupProgress } from "@/components/custom/RoomCreation/Setup/SetupProgress"
+import { LocationHeader } from "@/components/custom/RoomCreation/Location/LocationHeader"
+import PreferenceLocationCard from "@/components/custom/RoomCreation/Location/PreferenceLocationCard"
+import { SetupProgress } from "@/components/custom/RoomCreation/Preferences/SetupProgress"
 import { ErrorDialog } from "@/components/custom/Modal/ErrorLogDialog"
 import { useCreateRoomStore } from "@/lib/room/create/stores/create-room-store"
 import { useRoomSessionStore } from "@/lib/room/main/stores/room-session-store.store"
@@ -23,7 +23,7 @@ const loadingMessages = [
   "Almost ready...",
 ]
 
-export default function RoomPreferencePage() {
+export default function LocationPage() {
   const router = useRouter()
   const [isCreating, setIsCreating] = useState(false)
   const [loadingMessage, setLoadingMessage] = useState(loadingMessages[0])
@@ -124,7 +124,7 @@ export default function RoomPreferencePage() {
               variant="ghost"
               size="sm"
               type="button"
-              onClick={() => router.replace("/create/room")}
+              onClick={() => router.replace("/create/preferences")}
               disabled={isCreating}
               className="rounded-xl px-2 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors -ml-1 h-8"
             >
@@ -138,7 +138,7 @@ export default function RoomPreferencePage() {
           {/* MAIN FORM CARD */}
           <Card className="rounded-3xl border border-border/80 bg-card/85 backdrop-blur-xl shadow-2xl overflow-hidden transition-all">
             <CardContent className="p-5 sm:p-7 md:p-8 space-y-6">
-              <RoomPreferenceHeader />
+              <LocationHeader />
 
               <div className="space-y-5 sm:space-y-6">
                 {/* Location & Radius Card (with Open Now Only toggle) */}

@@ -18,6 +18,7 @@ import ResultDetailsGrid from '@/components/custom/RoomResult/ResultDetailsGrid'
 import ResultActions from '@/components/custom/RoomResult/ResultActions'
 import ResultNoMatchCard from '@/components/custom/RoomResult/ResultNoMatchCard'
 import { ResultSessionFeedback } from '@/components/custom/RoomResult/ResultSessionFeedback'
+import { ResultSupportCard } from '@/components/custom/RoomResult/ResultSupportCard'
 
 // Container reveal animations
 const containerVariants = {
@@ -147,6 +148,7 @@ export default function ResultPage() {
                 roomCode={code}
               />
             )}
+            <ResultSupportCard />
           </motion.div>
         ) : (
           <>
@@ -212,6 +214,11 @@ export default function ResultPage() {
                 />
               </motion.div>
             )}
+
+            {/* 7. Support Spontee CTA */}
+            <motion.div variants={itemVariants} className="w-full">
+              <ResultSupportCard />
+            </motion.div>
           </>
         )}
       </motion.div>

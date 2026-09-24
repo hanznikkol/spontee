@@ -99,4 +99,5 @@ function RoomMaxParticipants({
   )
 }
 
+export { RoomMaxParticipants }
 export default RoomMaxParticipants

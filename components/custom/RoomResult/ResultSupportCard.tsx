@@ -19,7 +19,7 @@ export function ResultSupportCard({ onDismiss }: ResultSupportCardProps) {
   }
 
   const supportUrl =
-    process.env.NEXT_PUBLIC_SUPPORT_URL || "https://buymeacoffee.com/spontee"
+    process.env.NEXT_PUBLIC_SUPPORT_URL || "https://buymeacoffee.com/hanznikkolk"
 
   return (
     <div className="w-full rounded-2xl border border-pink-500/20 bg-linear-to-r from-pink-500/5 via-purple-500/5 to-blue-500/5 p-3.5 sm:p-4 text-card-foreground relative transition-all animate-in fade-in duration-300">
@@ -65,7 +65,7 @@ export function ResultSupportCard({ onDismiss }: ResultSupportCardProps) {
             className="h-8 px-3 text-xs font-semibold rounded-lg bg-pink-500/10 hover:bg-pink-500/20 text-pink-500 border border-pink-500/30 transition shadow-none active:scale-[0.98]"
           >
             <a href={supportUrl} target="_blank" rel="noopener noreferrer">
-              <span>Buy a coffee</span>
+              <span>Buy me a coffee</span>
               <ExternalLink className="ml-1 h-3 w-3" />
             </a>
           </Button>

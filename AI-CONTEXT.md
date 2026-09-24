@@ -42,9 +42,9 @@ spontee/
 │   ├── globals.css                         # Tailwind v4 theme, OKLCH tokens, animations
 │   ├── create/
 │   │   ├── layout.tsx                      # Creation wizard layout with decorative background
-│   │   ├── host/page.tsx                   # Step 1: Host display name entry
-│   │   ├── room/page.tsx                   # Step 2: Room name, participant & option counts
-│   │   └── preference/page.tsx             # Step 3: Categories, budget, location & room creation
+│   │   ├── room/page.tsx                   # Step 1: Start your room (name, room name, group size limit)
+│   │   ├── preferences/page.tsx            # Step 2: What are you looking for? (categories, budget, places to swipe)
+│   │   └── location/page.tsx               # Step 3: Where are you deciding? (location, radius, open now only)
 │   ├── join/page.tsx                       # Guest join flow (room code/link input)
 │   └── room/[code]/
 │       ├── page.tsx                        # Main voting interface (swipe card deck)
@@ -64,9 +64,9 @@ spontee/
 │       │       ├── SwipeCards.tsx          # Interactive Tinder-style swipe card
 │       │       └── CardInfo.tsx            # Place details overlay (rating, price, address)
 │       ├── RoomCreation/
-│       │   ├── Host/                       # Host name header
-│       │   ├── Setup/                      # Room setup controls (participants, options sliders)
-│       │   └── Preference/                 # Category grid, budget selector, map & location picker
+│       │   ├── Room/                       # Step 1: Room header, max participants selector
+│       │   ├── Preferences/                # Step 2: Preferences header, category grid, budget selector, max options, stepper progress
+│       │   └── Location/                   # Step 3: Location header, map & location picker, search, radius, open now
 │       ├── RoomJoin/                       # Room link / code input
 │       └── RoomLobby/                      # Lobby header, participant list, badges, invite card
 │
@@ -113,9 +113,9 @@ spontee/
 
 ### Flow 1: Host Room Creation
 1. **Home (`/`)** → Host clicks *"Create a Room"*.
-2. **Step 1: Host Name (`/create/host`):** Enter display name (min 2 characters). Stored in `useCreateRoomStore`.
-3. **Step 2: Room Setup (`/create/room`):** Configure room name, max participants (2–25, default 2), and max options (5, 10, 15, 20, default 10).
-4. **Step 3: Preferences (`/create/preference`):** Select 1–3 categories, budget (`any`, `low`, `medium`, `high`), location (browser geolocation, autocomplete search, or interactive map click), and search radius (500m–10km).
+2. **Step 1: Room (`/create/room`):** Enter host display name, optional room name, and group size limit (2–25, default 2). Stored in `useCreateRoomStore`.
+3. **Step 2: Preferences (`/create/preferences`):** Select categories (1–2), budget (`any`, `low`, `medium`, `high`), and number of places to swipe (5, 10, 15, 20, default 10).
+4. **Step 3: Location (`/create/location`):** Set search area (browser geolocation, autocomplete search, or interactive map click), search radius (500m–10km), and open now only toggle.
 5. **Room Creation Execution (`createRoomAction`):**
    - Ensures an anonymous Supabase user session (`ensureAnonUser()`).
    - Inserts record into `rooms` table with generated `XXXX-XXXX` room code.

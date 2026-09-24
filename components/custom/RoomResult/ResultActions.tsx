@@ -52,7 +52,7 @@ export default function ResultActions({
 
   const handleCreateAnother = () => {
     useCreateRoomStore.getState().reset()
-    router.push("/create/host")
+    router.push("/create/room")
   }
 
   const getDirectionsUrl = () => {

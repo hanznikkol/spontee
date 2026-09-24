@@ -5,7 +5,6 @@ import { ThumbsUp, ThumbsDown, Smile, Send, Loader2, CheckCircle2 } from "lucide
 import { Button } from "@/components/ui/button"
 import { SessionHelpfulResponse } from "@/lib/feedback/types/feedback.types"
 import { submitFeedback } from "@/lib/feedback/services/feedback.service"
-import { ResultSupportCard } from "./ResultSupportCard"
 import { cn } from "@/lib/utils"
 
 interface ResultSessionFeedbackProps {
@@ -120,22 +119,17 @@ export function ResultSessionFeedback({
     }
   }
 
-  // If already submitted, show thank you note and secondary support card
+  // If already submitted, show thank you note
   if (isSubmitted) {
     return (
-      <div className="w-full flex flex-col gap-3">
-        <div className="w-full rounded-2xl border border-border/80 bg-card/75 backdrop-blur-md p-3.5 sm:p-4 text-center space-y-1 animate-in fade-in duration-300">
-          <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-            <CheckCircle2 className="h-4 w-4" />
-            <span>Thank you for your feedback!</span>
-          </div>
-          <p className="text-[11px] sm:text-xs text-muted-foreground">
-            Your response helps make Spontee decisions smoother for everyone.
-          </p>
+      <div className="w-full rounded-2xl border border-border/80 bg-card/75 backdrop-blur-md p-3.5 sm:p-4 text-center space-y-1 animate-in fade-in duration-300">
+        <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+          <CheckCircle2 className="h-4 w-4" />
+          <span>Thank you for your feedback!</span>
         </div>
-
-        {/* Secondary Non-blocking Support CTA */}
-        <ResultSupportCard />
+        <p className="text-[11px] sm:text-xs text-muted-foreground">
+          Your response helps make Spontee decisions smoother for everyone.
+        </p>
       </div>
     )
   }

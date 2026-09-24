@@ -455,7 +455,7 @@ export default function InteractiveShowcase() {
                         asChild
                         className="w-full rounded-xl bg-linear-to-r from-pink-500 to-blue-500 text-xs font-semibold text-white shadow-md"
                       >
-                        <Link href="/create/host">
+                        <Link href="/create/room">
                           Create Your Real Room
                           <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
                         </Link>

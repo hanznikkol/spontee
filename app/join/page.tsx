@@ -56,7 +56,7 @@ function JoinContent() {
           onJoin={handleJoin}
         />
 
-        <JoinFooter onGoToCreate={() => router.push("/create/host")} />
+        <JoinFooter onGoToCreate={() => router.push("/create/room")} />
       </div>
     </main>
   )
