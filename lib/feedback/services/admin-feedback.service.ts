@@ -26,7 +26,7 @@ export async function getAdminFeedbackList(): Promise<Feedback[]> {
 
   const { data, error } = await supabase
     .from("feedback")
-    .select("feedback_id, user_id, user_name, rating, message, created_at")
+    .select("feedback_id, user_id, user_name, rating, message, created_at, source, helpful_response, room_code, room_id")
     .order("created_at", { ascending: false });
 
   if (error) {

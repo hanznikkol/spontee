@@ -33,6 +33,10 @@ export async function submitFeedback(payload: SubmitFeedbackDTO): Promise<{ succ
     message: sanitizedMessage,
     user_name: sanitizedName,
     user_id: userId,
+    source: payload.source ?? "home",
+    helpful_response: payload.helpful_response ?? null,
+    room_code: payload.room_code ?? null,
+    room_id: payload.room_id ?? null,
   });
 
   if (error) {

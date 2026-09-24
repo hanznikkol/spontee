@@ -85,6 +85,7 @@ export function AdminFeedbackView({ initialFeedback, initialStats }: AdminFeedba
 
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedRating, setSelectedRating] = useState<number | "all">("all")
+  const [selectedSource, setSelectedSource] = useState<"all" | "home" | "session">("all")
   const [hasCommentOnly, setHasCommentOnly] = useState(false)
   const [sortBy, setSortBy] = useState<FeedbackSortOption>("newest")
 
@@ -119,6 +120,11 @@ export function AdminFeedbackView({ initialFeedback, initialStats }: AdminFeedba
   const filteredFeedback = useMemo(() => {
     return initialFeedback
       .filter((item) => {
+        // Source filter
+        if (selectedSource !== "all") {
+          const itemSource = item.source || "home"
+          if (itemSource !== selectedSource) return false
+        }
         // Rating filter
         if (selectedRating !== "all" && item.rating !== selectedRating) {
           return false
@@ -132,7 +138,9 @@ export function AdminFeedbackView({ initialFeedback, initialStats }: AdminFeedba
           const q = searchQuery.toLowerCase().trim()
           const messageMatch = item.message?.toLowerCase().includes(q)
           const nameMatch = item.user_name?.toLowerCase().includes(q)
-          if (!messageMatch && !nameMatch) return false
+          const roomMatch = item.room_code?.toLowerCase().includes(q)
+          const helpfulMatch = item.helpful_response?.toLowerCase().includes(q)
+          if (!messageMatch && !nameMatch && !roomMatch && !helpfulMatch) return false
         }
         return true
       })
@@ -151,7 +159,7 @@ export function AdminFeedbackView({ initialFeedback, initialStats }: AdminFeedba
         }
         return 0
       })
-  }, [initialFeedback, selectedRating, hasCommentOnly, searchQuery, sortBy])
+  }, [initialFeedback, selectedSource, selectedRating, hasCommentOnly, searchQuery, sortBy])
 
   // Positive satisfaction percentage (4 & 5 stars)
   const positivePercentage = useMemo(() => {
@@ -345,8 +353,43 @@ export function AdminFeedbackView({ initialFeedback, initialStats }: AdminFeedba
             />
           </div>
 
-          {/* RATING FILTER PILLS & COMMENT TOGGLE */}
+          {/* RATING & SOURCE FILTER PILLS & COMMENT TOGGLE */}
           <div className="flex flex-wrap items-center gap-2">
+            {/* SOURCE FILTER */}
+            <div className="flex items-center gap-1 bg-muted/50 p-1 rounded-2xl border border-border/60">
+              <button
+                type="button"
+                onClick={() => setSelectedSource("all")}
+                className={cn(
+                  "px-2.5 py-1 text-xs font-medium rounded-xl transition cursor-pointer",
+                  selectedSource === "all" ? "bg-background text-foreground shadow-xs font-semibold" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                All Sources
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedSource("session")}
+                className={cn(
+                  "px-2.5 py-1 text-xs font-medium rounded-xl transition cursor-pointer flex items-center gap-1",
+                  selectedSource === "session" ? "bg-background text-foreground shadow-xs font-semibold" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <Sparkles className="h-3 w-3 text-purple-500" />
+                <span>Sessions</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedSource("home")}
+                className={cn(
+                  "px-2.5 py-1 text-xs font-medium rounded-xl transition cursor-pointer",
+                  selectedSource === "home" ? "bg-background text-foreground shadow-xs font-semibold" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                Landing
+              </button>
+            </div>
+
             <div className="flex items-center gap-1 bg-muted/50 p-1 rounded-2xl border border-border/60">
               <button
                 type="button"
@@ -420,12 +463,13 @@ export function AdminFeedbackView({ initialFeedback, initialStats }: AdminFeedba
                     : "No feedback matches the selected filters. Try adjusting your search query or rating filter."}
                 </p>
               </div>
-              {(selectedRating !== "all" || hasCommentOnly || searchQuery.trim()) && (
+              {(selectedRating !== "all" || selectedSource !== "all" || hasCommentOnly || searchQuery.trim()) && (
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => {
                     setSelectedRating("all")
+                    setSelectedSource("all")
                     setHasCommentOnly(false)
                     setSearchQuery("")
                   }}
@@ -481,6 +525,41 @@ export function AdminFeedbackView({ initialFeedback, initialStats }: AdminFeedba
                             <span className="text-muted-foreground font-normal">Anonymous</span>
                           )}
                         </Badge>
+
+                        {/* SOURCE & SESSION CONTEXT BADGES */}
+                        {item.source === "session" ? (
+                          <>
+                            <Badge
+                              variant="outline"
+                              className="rounded-xl text-[11px] font-semibold gap-1 px-2.5 py-0.5 border-purple-500/30 text-purple-600 dark:text-purple-400 bg-purple-500/10"
+                            >
+                              <Sparkles className="h-3 w-3" />
+                              <span>Session{item.room_code ? `: ${item.room_code}` : ""}</span>
+                            </Badge>
+                            {item.helpful_response && (
+                              <Badge
+                                variant="outline"
+                                className="rounded-xl text-[11px] font-medium gap-1 px-2.5 py-0.5 border-border/80 bg-muted/40"
+                              >
+                                <span className="text-muted-foreground">Helpful:</span>
+                                <span className="font-semibold text-foreground">
+                                  {item.helpful_response === "yes"
+                                    ? "Yes"
+                                    : item.helpful_response === "a_little"
+                                    ? "A little"
+                                    : "Not really"}
+                                </span>
+                              </Badge>
+                            )}
+                          </>
+                        ) : (
+                          <Badge
+                            variant="outline"
+                            className="rounded-xl text-[11px] font-medium px-2 py-0.5 text-muted-foreground border-border/60"
+                          >
+                            Landing Page
+                          </Badge>
+                        )}
                       </div>
 
                       {/* TIMESTAMP & DELETE BUTTON */}

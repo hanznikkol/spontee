@@ -25,7 +25,8 @@ import {
 import { getRoom, subscribeRoom } from '../../lobby/service/lobby.service'
 import { updateRoom } from '../../create/helpers/room-helper'
 import { useRoomSessionStore } from '../../main/stores/room-session-store.store'
-import { startVoting } from '../../lobby/service/participant.service'
+import { startVoting, getParticipants } from '../../lobby/service/participant.service'
+import { Participants } from '../../lobby/types/participants-types'
 import { supabase } from '@/lib/supabase/client'
 import { RealtimeChannel } from '@supabase/supabase-js'
 
@@ -47,6 +48,7 @@ export function useResult() {
   const [totalOptions, setTotalOptions] = useState(0)
   const [winnerGoCount, setWinnerGoCount] = useState(0)
   const [tally, setTally] = useState<OptionVoteTally[]>([])
+  const [participants, setParticipants] = useState<Participants[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -120,11 +122,12 @@ export function useResult() {
           setOption(winningOption)
         }
 
-        // 4. Fetch participant and option counts, plus room preferences
-        const [pCount, oCount, prefData] = await Promise.all([
+        // 4. Fetch participant and option counts, plus room preferences and participants list
+        const [pCount, oCount, prefData, pListRes] = await Promise.all([
           getParticipantCount(roomData.room_id),
           getOptionCount(roomData.room_id),
           getRoomPreferences(roomData.room_id),
+          getParticipants(roomData.room_id),
         ])
 
         if (isCancelled) return
@@ -132,6 +135,7 @@ export function useResult() {
         setParticipantCount(pCount)
         setTotalOptions(result.tally.length || oCount)
         setPreferences(prefData)
+        setParticipants((pListRes?.data as Participants[]) || [])
 
         // 5. Generate human-readable explanation
         if (winningOption) {
@@ -218,6 +222,7 @@ export function useResult() {
     totalOptions,
     winnerGoCount,
     tally,
+    participants,
     isLoading,
     error,
   }

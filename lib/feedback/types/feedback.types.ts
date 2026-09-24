@@ -1,3 +1,6 @@
+export type FeedbackSource = "home" | "session";
+export type SessionHelpfulResponse = "yes" | "a_little" | "not_really";
+
 export interface Feedback {
   feedback_id: string;
   user_id: string | null;
@@ -5,6 +8,10 @@ export interface Feedback {
   rating: number;
   message: string | null;
   created_at: string;
+  source?: FeedbackSource;
+  helpful_response?: SessionHelpfulResponse | null;
+  room_code?: string | null;
+  room_id?: string | null;
 }
 
 export interface SubmitFeedbackDTO {
@@ -12,6 +19,10 @@ export interface SubmitFeedbackDTO {
   message?: string;
   user_name?: string;
   user_id?: string | null;
+  source?: FeedbackSource;
+  helpful_response?: SessionHelpfulResponse | null;
+  room_code?: string | null;
+  room_id?: string | null;
 }
 
 export interface FeedbackStats {

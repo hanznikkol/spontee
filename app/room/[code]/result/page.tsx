@@ -17,6 +17,7 @@ import ResultBreakdownModal from '@/components/custom/RoomResult/ResultBreakdown
 import ResultDetailsGrid from '@/components/custom/RoomResult/ResultDetailsGrid'
 import ResultActions from '@/components/custom/RoomResult/ResultActions'
 import ResultNoMatchCard from '@/components/custom/RoomResult/ResultNoMatchCard'
+import { ResultSessionFeedback } from '@/components/custom/RoomResult/ResultSessionFeedback'
 
 // Container reveal animations
 const containerVariants = {
@@ -55,6 +56,7 @@ export default function ResultPage() {
     totalOptions,
     winnerGoCount,
     tally,
+    participants,
     isLoading,
     error,
   } = useResult()
@@ -131,7 +133,7 @@ export default function ResultPage() {
         animate="show"
       >
         {!resultType || resultType === 'no_match' || resultType === 'retry' || !option ? (
-          <motion.div variants={itemVariants} className="w-full">
+          <motion.div variants={itemVariants} className="w-full flex flex-col gap-4">
             <ResultNoMatchCard
               roomId={roomId}
               roomCode={code}
@@ -139,6 +141,12 @@ export default function ResultPage() {
               participantCount={participantCount}
               onOpenChangePreferences={() => setIsChangePrefOpen(true)}
             />
+            {roomId && (
+              <ResultSessionFeedback
+                roomId={roomId}
+                roomCode={code}
+              />
+            )}
           </motion.div>
         ) : (
           <>
@@ -188,8 +196,22 @@ export default function ResultPage() {
 
             {/* 5. Primary Action Path */}
             <motion.div variants={itemVariants} className="w-full pt-1 sm:pt-2">
-              <ResultActions option={option} />
+              <ResultActions
+                option={option}
+                roomCode={code}
+                participants={participants}
+              />
             </motion.div>
+
+            {/* 6. Post-Session Feedback & Support */}
+            {roomId && (
+              <motion.div variants={itemVariants} className="w-full pt-2">
+                <ResultSessionFeedback
+                  roomId={roomId}
+                  roomCode={code}
+                />
+              </motion.div>
+            )}
           </>
         )}
       </motion.div>

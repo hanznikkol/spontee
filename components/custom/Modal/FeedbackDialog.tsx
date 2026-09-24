@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef } from "react"
 import {
   AlertDialog,
   AlertDialogContent,
@@ -55,13 +55,6 @@ export function FeedbackDialog({ open, onOpenChange }: FeedbackDialogProps) {
       setError(null)
     }, 300)
   }
-
-  // Focus the first star on open if not submitted
-  useEffect(() => {
-    if (open && !submitted) {
-      setError(null)
-    }
-  }, [open, submitted])
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "ArrowRight" || e.key === "ArrowUp") {
