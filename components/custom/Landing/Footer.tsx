@@ -5,6 +5,7 @@ import Link from "next/link"
 import { MessageSquare, ArrowUpRight } from "lucide-react"
 import { FeedbackDialog } from "@/components/custom/Modal/FeedbackDialog"
 import { ThemeToggle } from "@/components/custom/Theme/ThemeToggle"
+import { InstallButton } from "@/components/custom/PWA/InstallButton"
 
 export default function Footer() {
   const [feedbackOpen, setFeedbackOpen] = useState(false)
@@ -110,6 +111,7 @@ export default function Footer() {
             {/* ACTION SHORTCUTS */}
             <div className="md:col-span-5 lg:col-span-3 flex items-center md:justify-end gap-2 flex-wrap">
               <ThemeToggle />
+              <InstallButton variant="footer" />
               <Link
                 href="/join"
                 className="rounded-xl border border-border/80 px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition"
