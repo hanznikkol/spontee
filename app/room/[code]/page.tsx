@@ -71,7 +71,7 @@ export default function VotingPage() {
           </div>
 
           {/* Swipe Card Viewport & Action Buttons */}
-          <div className="relative w-full flex-1 min-h-110 max-h-160 mx-auto flex flex-col items-center justify-center gap-3 sm:gap-6">
+          <div className="relative w-full flex-1 min-h-0 sm:min-h-110 max-h-160 mx-auto flex flex-col items-center justify-center gap-3 sm:gap-6">
             {loading ? (
               <div className="flex flex-col items-center justify-center h-full gap-3 p-6 text-center flex-1">
                 <div className="h-9 w-9 animate-spin rounded-full border-3 border-primary/20 border-t-primary" />

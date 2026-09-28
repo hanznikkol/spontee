@@ -5,7 +5,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Users, MessageSquare, Menu, X, ArrowRight, Coffee } from "lucide-react"
 import { FeedbackDialog } from "@/components/custom/Modal/FeedbackDialog"
-import { ThemeToggle } from "@/components/custom/Theme/ThemeToggle"
+import { ThemeToggle, ThemeSegmentedControl } from "@/components/custom/Theme/ThemeToggle"
 import { InstallButton } from "@/components/custom/PWA/InstallButton"
 
 const BUY_ME_A_COFFEE_URL =
@@ -93,7 +93,7 @@ export function HomeNavigation() {
             </Link>
 
             {/* DESKTOP NAV ANCHORS */}
-            <nav className="hidden md:flex items-center gap-1 pl-2">
+            <nav className="hidden lg:flex items-center gap-1 pl-2">
               {navLinks.map((link) => (
                 <a
                   key={link.href}
@@ -107,8 +107,8 @@ export function HomeNavigation() {
             </nav>
           </div>
 
-          {/* DESKTOP ACTIONS */}
-          <div className="hidden md:flex items-center gap-2">
+          {/* DESKTOP ACTIONS (>= 1024px) */}
+          <div className="hidden lg:flex items-center gap-2">
             <ThemeToggle />
 
             <Button
@@ -137,9 +137,47 @@ export function HomeNavigation() {
             </Button>
           </div>
 
-          {/* MOBILE MENU TOGGLE */}
+          {/* TABLET ACTIONS (768px to 1023px) */}
+          <div className="hidden md:flex lg:hidden items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              asChild
+              className="rounded-xl hover:bg-muted/60 text-sm font-medium"
+            >
+              <Link href="/join">
+                <Users className="mr-1.5 h-4 w-4 text-muted-foreground" />
+                Join Room
+              </Link>
+            </Button>
+
+            <InstallButton variant="tablet" />
+
+            <Button
+              size="sm"
+              asChild
+              className="group rounded-xl bg-linear-to-r from-pink-500 via-purple-500 to-blue-500 px-3.5 py-2 text-sm font-semibold text-white shadow-md shadow-pink-500/25 transition-all hover:scale-[1.02] hover:shadow-pink-500/40 active:scale-[0.98]"
+            >
+              <Link href="/create/room">
+                Create Room
+                <ArrowRight className="ml-1 h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+            </Button>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted/60"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
+          </div>
+
+          {/* MOBILE ACTIONS (< 768px) */}
           <div className="flex items-center gap-1.5 md:hidden">
-            <ThemeToggle />
+            <InstallButton variant="header-mobile" />
 
             <Button
               size="sm"
@@ -161,10 +199,24 @@ export function HomeNavigation() {
           </div>
         </div>
 
-        {/* MOBILE MENU DROPDOWN */}
+        {/* MOBILE & TABLET MENU DROPDOWN (< 1024px) */}
         {mobileMenuOpen && (
-          <div className="border-b border-border/60 bg-background/95 backdrop-blur-xl px-4 pt-2 pb-6 md:hidden animate-in slide-in-from-top-2 duration-200 max-h-[calc(100dvh-4rem)] overflow-y-auto custom-scrollbar">
-            <nav className="flex flex-col space-y-2 pb-4">
+          <div className="border-b border-border/60 bg-background/95 backdrop-blur-xl px-4 pt-2 pb-6 lg:hidden animate-in slide-in-from-top-2 duration-200 max-h-[calc(100dvh-4rem)] overflow-y-auto custom-scrollbar">
+            {/* Mobile-only Join Room (tablet already has Join Room visible in header) */}
+            <div className="md:hidden pb-3">
+              <Button
+                variant="outline"
+                asChild
+                className="w-full justify-center rounded-xl py-2.5 text-sm font-medium"
+              >
+                <Link href="/join" onClick={() => setMobileMenuOpen(false)}>
+                  <Users className="mr-2 h-4 w-4 text-muted-foreground" />
+                  Join Room
+                </Link>
+              </Button>
+            </div>
+
+            <nav className="flex flex-col space-y-1 pb-3">
               {navLinks.map((link) => (
                 <a
                   key={link.href}
@@ -178,21 +230,7 @@ export function HomeNavigation() {
             </nav>
 
             <div className="flex flex-col gap-2.5 pt-3 border-t border-border/40">
-              <Button
-                variant="outline"
-                asChild
-                className="w-full justify-center rounded-xl py-2.5 text-sm font-medium"
-              >
-                <Link href="/join" onClick={() => setMobileMenuOpen(false)}>
-                  <Users className="mr-2 h-4 w-4 text-muted-foreground" />
-                  Join Room
-                </Link>
-              </Button>
-
-              <InstallButton
-                variant="mobile"
-                onInstalled={() => setMobileMenuOpen(false)}
-              />
+              <ThemeSegmentedControl className="w-full" />
 
               <Button
                 variant="ghost"
@@ -201,9 +239,9 @@ export function HomeNavigation() {
                   setMobileMenuOpen(false)
                   setFeedbackOpen(true)
                 }}
-                className="w-full justify-center rounded-xl text-xs text-muted-foreground hover:text-foreground"
+                className="w-full justify-start px-3 rounded-xl text-xs text-muted-foreground hover:text-foreground"
               >
-                <MessageSquare className="mr-1.5 h-3.5 w-3.5" />
+                <MessageSquare className="mr-2 h-3.5 w-3.5" />
                 Feedback
               </Button>
 
@@ -211,7 +249,7 @@ export function HomeNavigation() {
                 variant="ghost"
                 size="sm"
                 asChild
-                className="w-full justify-center rounded-xl text-xs text-muted-foreground hover:text-foreground"
+                className="w-full justify-start px-3 rounded-xl text-xs text-muted-foreground hover:text-foreground"
               >
                 <a
                   href={BUY_ME_A_COFFEE_URL}
@@ -219,7 +257,7 @@ export function HomeNavigation() {
                   rel="noopener noreferrer"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <Coffee className="mr-1.5 h-3.5 w-3.5 text-amber-500" />
+                  <Coffee className="mr-2 h-3.5 w-3.5 text-amber-500" />
                   Buy me a coffee
                 </a>
               </Button>

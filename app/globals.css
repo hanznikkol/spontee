@@ -2,8 +2,9 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+html,
 body {
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 gmp-place-autocomplete {

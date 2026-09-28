@@ -16,7 +16,7 @@ function CardInfoComponent({ option }: CardInfoProps) {
   }
 
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex flex-col justify-end p-5 sm:p-6 text-white">
+    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex flex-col justify-end p-4 sm:p-6 text-white">
       {/* Category, Rating, Price, Distance Badges (Glassmorphic with GPU layer promotion) */}
       <div className="mb-1.5 sm:mb-2 flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-sm">
         {category && (
@@ -48,7 +48,7 @@ function CardInfoComponent({ option }: CardInfoProps) {
       </div>
 
       {/* Place Title */}
-      <h3 className="line-clamp-2 wrap-break-word text-xl sm:text-2xl font-bold leading-tight tracking-tight text-white">
+      <h3 className="line-clamp-2 wrap-break-word text-lg sm:text-2xl font-bold leading-tight tracking-tight text-white">
         {title}
       </h3>
 
