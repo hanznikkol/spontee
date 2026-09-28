@@ -11,13 +11,35 @@ export interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
 }
 
+export type PWAPlatform = "chromium" | "ios" | "unsupported";
+
+interface PWAState {
+  canInstall: boolean;
+  platform: PWAPlatform;
+  isIOSDialogOpen: boolean;
+}
+
 let deferredPrompt: BeforeInstallPromptEvent | null = null;
 let isInstalled = false;
 let isDismissed = false;
+let isIOSUser = false;
+let isIOSDialogOpen = false;
+
 const listeners = new Set<() => void>();
 
 function notify() {
   listeners.forEach((listener) => listener());
+}
+
+function checkIsIOS(): boolean {
+  if (typeof window === "undefined" || typeof navigator === "undefined") return false;
+  const userAgent = navigator.userAgent || "";
+  const isIosDevice = /iPad|iPhone|iPod/.test(userAgent);
+  const isIpadOS =
+    navigator.platform === "MacIntel" &&
+    typeof navigator.maxTouchPoints === "number" &&
+    navigator.maxTouchPoints > 1;
+  return isIosDevice || isIpadOS;
 }
 
 function checkIsStandalone(): boolean {
@@ -30,6 +52,7 @@ function checkIsStandalone(): boolean {
 
 if (typeof window !== "undefined") {
   isInstalled = checkIsStandalone();
+  isIOSUser = checkIsIOS();
 
   try {
     isDismissed = sessionStorage.getItem("spontee-install-dismissed") === "true";
@@ -48,6 +71,7 @@ if (typeof window !== "undefined") {
   window.addEventListener("appinstalled", () => {
     isInstalled = true;
     deferredPrompt = null;
+    isIOSDialogOpen = false;
     notify();
   });
 
@@ -57,6 +81,7 @@ if (typeof window !== "undefined") {
       if (event.matches) {
         isInstalled = true;
         deferredPrompt = null;
+        isIOSDialogOpen = false;
         notify();
       }
     };
@@ -64,7 +89,7 @@ if (typeof window !== "undefined") {
       mediaQuery.addEventListener("change", handleMediaChange);
     }
   } catch {
-    // Ignore environments where matchMedia listener is unsupported
+    // Ignore unsupported matchMedia listener
   }
 }
 
@@ -75,18 +100,60 @@ function subscribe(callback: () => void) {
   };
 }
 
-function getSnapshot(): boolean {
-  return Boolean(deferredPrompt) && !isInstalled && !isDismissed;
+let currentSnapshot: PWAState = {
+  canInstall: false,
+  platform: "unsupported",
+  isIOSDialogOpen: false,
+};
+
+function getSnapshot(): PWAState {
+  const canInstall = !isInstalled && ((Boolean(deferredPrompt) && !isDismissed) || isIOSUser);
+  const platform: PWAPlatform = isIOSUser ? "ios" : deferredPrompt ? "chromium" : "unsupported";
+
+  if (
+    currentSnapshot.canInstall !== canInstall ||
+    currentSnapshot.platform !== platform ||
+    currentSnapshot.isIOSDialogOpen !== isIOSDialogOpen
+  ) {
+    currentSnapshot = {
+      canInstall,
+      platform,
+      isIOSDialogOpen,
+    };
+  }
+  return currentSnapshot;
 }
 
-function getServerSnapshot(): boolean {
-  return false;
+const serverSnapshot: PWAState = {
+  canInstall: false,
+  platform: "unsupported",
+  isIOSDialogOpen: false,
+};
+
+function getServerSnapshot(): PWAState {
+  return serverSnapshot;
 }
 
 export function usePWAInstall() {
-  const canInstall = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const state = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+
+  const openIOSDialog = () => {
+    if (!isIOSUser) return;
+    isIOSDialogOpen = true;
+    notify();
+  };
+
+  const closeIOSDialog = () => {
+    isIOSDialogOpen = false;
+    notify();
+  };
 
   const install = async (): Promise<boolean> => {
+    if (isIOSUser) {
+      openIOSDialog();
+      return true;
+    }
+
     if (!deferredPrompt) return false;
     const promptEvent = deferredPrompt;
 
@@ -121,5 +188,13 @@ export function usePWAInstall() {
     return false;
   };
 
-  return { canInstall, install };
+  return {
+    canInstall: state.canInstall,
+    platform: state.platform,
+    isIOS: state.platform === "ios",
+    isIOSDialogOpen: state.isIOSDialogOpen,
+    openIOSDialog,
+    closeIOSDialog,
+    install,
+  };
 }

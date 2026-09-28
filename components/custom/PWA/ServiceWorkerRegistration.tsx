@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { IOSInstallDialog } from "./IOSInstallDialog";
 
 export function ServiceWorkerRegistration() {
   useEffect(() => {
@@ -28,7 +29,7 @@ export function ServiceWorkerRegistration() {
     }
   }, []);
 
-  return null;
+  return <IOSInstallDialog />;
 }
 
 export const ServiceWorkerProvider = ServiceWorkerRegistration;
